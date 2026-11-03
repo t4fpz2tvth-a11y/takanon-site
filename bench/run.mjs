@@ -5,8 +5,8 @@ import fs from 'node:fs';
 import { execSync } from 'node:child_process';
 
 const SITE = 'https://takanon-site.pages.dev';
-const OUT = 'bench/results.json';
 const req = JSON.parse(fs.readFileSync('bench/request.json', 'utf8'));
+const COORD = req.target === 'coord', OUT = COORD ? 'bench/results_coord.json' : 'bench/results.json', RKEY = COORD ? 'bench-R-coord' : 'bench-R';
 const CODE = process.env.BENCH_CODE || '';
 if (!CODE) { console.log('BENCH_CODE secret is missing'); process.exit(1); }
 const seed = fs.existsSync(OUT) ? JSON.parse(fs.readFileSync(OUT, 'utf8')) : [];
@@ -26,11 +26,11 @@ const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } })
 await ctx.addInitScript(([c, s]) => {
   try {
     localStorage.setItem('takanon-code', c); localStorage.setItem('reg-bot-tour-v3', '1');
-    if (location.pathname.startsWith('/bench') && !sessionStorage.getItem('seeded')) { localStorage.setItem('bench-R', s); sessionStorage.setItem('seeded', '1'); }
+    if (location.pathname.startsWith('/bench') && !sessionStorage.getItem('seeded')) { localStorage.setItem(s[0], s[1]); sessionStorage.setItem('seeded', '1'); }
   } catch (_) {}
-}, [CODE, JSON.stringify(seed)]);
+}, [CODE, [RKEY, JSON.stringify(seed)]]);
 const page = await ctx.newPage();
-await page.goto(SITE + '/bench.html?ci=' + Date.now());
+await page.goto(SITE + '/bench.html?ci=' + Date.now() + (COORD ? '&target=coord' : ''));
 await page.evaluate(({ models, batch, judge }) => {
   if (judge) document.getElementById('judge').value = judge;
   const orig = runOne;

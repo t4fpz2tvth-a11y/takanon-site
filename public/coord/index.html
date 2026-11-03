@@ -12,14 +12,36 @@
   if (window.claude) return;
   var KEY = 'takanon-code', code = '';
   try { code = localStorage.getItem(KEY) || ''; } catch (_) {}
+  // the model comparison (3.11.2026): ?bench=1&model=X answers with model X (the head only, checked by the server) and
+  // keeps the log in this page's memory, so no test case ever reaches the real log or the alerts
+  var QS = new URLSearchParams(location.search), BENCH = QS.get('bench') ? QS.get('model') : null, MEM = {}, memN = 0;
+  window.__cost = 0;
+  if (BENCH) { try { localStorage.setItem('reg-bot-tour-v3', '1'); } catch (_) {} }
+  function memDb(b) {
+    var p = String(b.path || ''), now = Date.now();
+    if (b.op === 'get') return MEM[p] ? { exists: true, data: JSON.parse(JSON.stringify(MEM[p].data)) } : { exists: false };
+    if (b.op === 'set') { MEM[p] = { data: JSON.parse(JSON.stringify(b.data || {})), t: now }; return { ok: true }; }
+    if (b.op === 'update') { MEM[p] = { data: Object.assign({}, MEM[p] ? MEM[p].data : {}, JSON.parse(JSON.stringify(b.data || {}))), t: now }; return { ok: true }; }
+    if (b.op === 'delete') { delete MEM[p]; return { ok: true }; }
+    if (b.op === 'add') { var id = 'b' + now.toString(36) + (memN++); MEM[p + '/' + id] = { data: JSON.parse(JSON.stringify(b.data || {})), t: now }; return { id: id }; }
+    if (b.op === 'list') {
+      var n = p.split('/').length + 1, docs = Object.keys(MEM).filter(function (k) { return k.indexOf(p + '/') === 0 && k.split('/').length === n; })
+        .map(function (k) { return { id: k.split('/').pop(), data: JSON.parse(JSON.stringify(MEM[k].data)), t: MEM[k].t }; });
+      if (b.order) docs.sort(function (x, y) { var a = x.data[b.order], c = y.data[b.order]; return (a > c ? 1 : a < c ? -1 : 0) * (b.dir === 'asc' ? 1 : -1); });
+      return { docs: docs.slice(0, b.limit || 500) };
+    }
+    return { ok: true };
+  }
   function err(c, m) { var e = new Error(m || c); e.code = c; return e; }
   async function call(url, body, signal) {
     var r;
+    if (BENCH && url === '/api/chat') { url = '/api/chat?test=1'; body = Object.assign({}, body, { model: BENCH }); }
     try { r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Code': code }, body: JSON.stringify(body), signal: signal }); }
     catch (e) { if (signal && signal.aborted) throw err('cancelled'); throw err('network', 'אין חיבור לשרת'); }
     return r;
   }
   async function dbCall(body) {
+    if (BENCH) return memDb(body);
     var r = await call('/api/db', body);
     if (r.status === 401) { signOut(); throw err('permission_denied', 'צריך להיכנס שוב'); }
     var j = null; try { j = await r.json(); } catch (_) {}
@@ -66,7 +88,7 @@
     if (document.readyState === 'loading') await new Promise(function (r) { document.addEventListener('DOMContentLoaded', r, { once: true }); });
     return overlay();
   }
-  meReady = signIn().then(function (m) { me = m; adminTools(); return m; });
+  meReady = signIn().then(function (m) { me = m; if (!BENCH) adminTools(); return m; });
   // ---- the model
   async function sample(input, opts) {
     opts = opts || {}; await meReady;
@@ -84,6 +106,7 @@
           var d = l.slice(5).trim(); if (d === '[DONE]') continue;
           try { var j = JSON.parse(d), c = j.choices && j.choices[0]; if (j.error) throw err('error', j.error.message || 'שגיאה');
             if (c && c.delta && c.delta.content) { text += c.delta.content; if (opts.onText) opts.onText({ text: text, delta: c.delta.content }); }
+            if (j.usage && j.usage.cost) window.__cost += Number(j.usage.cost) || 0;
             if (c && c.finish_reason) finish = c.finish_reason; } catch (e) { if (e.code) throw e; }
         }
       }
@@ -96,7 +119,8 @@
     var r = await call('/api/chat', { input: input, tier: opts.modelTier || 'default', stream: false }, opts.signal);
     if (r.status === 429) throw err('rate_limited', 'יותר מדי שאלות בזמן קצר.');
     if (!r.ok) throw err('error', 'השרת לא ענה (' + r.status + ')');
-    var j = await r.json(), t = (j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content) || '';
+    var j = await r.json(); if (j.usage && j.usage.cost) window.__cost += Number(j.usage.cost) || 0;
+    var t = (j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content) || '';
     var a = t.indexOf('{'), b = t.lastIndexOf('}'); if (a < 0 || b < a) throw err('error', 'תשובה לא תקינה מהמודל');
     try { return JSON.parse(t.slice(a, b + 1)); } catch (_) { throw err('error', 'תשובה לא תקינה מהמודל'); }
   };

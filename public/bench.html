@@ -63,6 +63,17 @@ async function runOne(frame, model, c) {
   const ans = err ? '' : (outs.length ? outs[outs.length - 1].innerText.split('\n').filter(l => !UI.test(l.trim())).join('\n').trim() : '');
   return { model, id: c.id, q: c.q, expect: c.expect, answer: ans, err, seconds: (Date.now() - t0) / 1000, cost: w.__cost || 0 };
 }
+// a second pass for answers the judge did not score (its per-minute limit): one at a time, slowly
+window.rejudge = async (jm) => {
+  for (const r of R) {
+    if (r.score != null || !r.answer) continue;
+    const c = CASES.find(x => x.id === r.id); if (!c) continue;
+    await sleep(3000);
+    const j = await judge(jm || 'openai/gpt-6.1-sol', c, r.answer);
+    if (j.score != null) { Object.assign(r, j); save(); }
+  }
+  return R.filter(r => r.score == null).length;
+};
 function render(models) {
   const rows = models.map(m => { const rs = R.filter(r => r.model === m), j = rs.filter(r => r.score != null);
     const s = j.reduce((a, r) => a + r.score, 0), c = rs.reduce((a, r) => a + r.cost, 0), sec = rs.reduce((a, r) => a + r.seconds, 0);

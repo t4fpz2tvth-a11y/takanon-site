@@ -31,6 +31,12 @@ await ctx.addInitScript(([c, s]) => {
 }, [CODE, [RKEY, JSON.stringify(seed)]]);
 const page = await ctx.newPage();
 await page.goto(SITE + '/bench.html?ci=' + Date.now() + (COORD ? '&target=coord' : '') + (TAG ? '&tag=' + TAG : ''));
+if (req.rejudge) {
+  const left = await page.evaluate(j => rejudge(j), req.judge || '');
+  console.log('not scored after the second pass:', left);
+  commit(await page.evaluate(() => R), true);
+  await browser.close(); process.exit(0);
+}
 await page.evaluate(({ models, batch, judge, k }) => {
   window.BENCH_K = k;
   if (judge) document.getElementById('judge').value = judge;

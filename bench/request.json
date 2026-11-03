@@ -9,10 +9,13 @@
   "openai/gpt-6-luna"
  ],
  "batch": 7,
- "run": 16,
+ "run": 17,
  "k": 3,
  "target": "coord",
- "tag": "hold",
- "set": "holdout",
- "rejudge": true
+ "tag": "after",
+ "set": "",
+ "judges": [
+  "anthropic/claude-sonnet-5.5",
+  "google/gemini-4-argon"
+ ]
 }

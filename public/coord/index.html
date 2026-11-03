@@ -241,6 +241,7 @@
   var SCOPE = '/coord/';
   if ('serviceWorker' in navigator) window.addEventListener('load', function () { navigator.serviceWorker.register(SCOPE + 'sw.js', { scope: SCOPE }).catch(function () {}); });
   var standalone = (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+  if (standalone) pullToRefresh();
   if (standalone || /[?&]bench=/.test(location.search)) return;
   var ua = navigator.userAgent || '', ios = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
   // Safari on a Mac (macOS 14 and later): File menu, "Add to Dock" (4.11.2026)
@@ -285,6 +286,46 @@
   window.addEventListener('appinstalled', function () { var r = document.getElementById('tk-install'); if (r) r.remove(); });
   // iPhone, iPad and Safari on a Mac: no prompt event, so offer the steps; Firefox gets no bar (it cannot install)
   if (ios || macSafari) { if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bar); else bar(); }
+  // 4.11.2026: an installed app has no reload button, so pulling down from the top of the page reloads it. Not while an
+  // answer is being written (the stop button shows), and not from inside a box that scrolls or is being typed in.
+  function pullToRefresh() {
+    var startY = null, dist = 0, ind = null, LIMIT = 80;
+    function busy() { var a = document.getElementById('ai-actions'); return !!(a && !a.hidden); }
+    function scrollsInside(el) {
+      for (var e = el; e && e !== document.body; e = e.parentElement) {
+        if (e.matches && e.matches('textarea,input,select,[contenteditable="true"],[role="dialog"]')) return true;
+        var s = getComputedStyle(e); if (/(auto|scroll)/.test(s.overflowY) && e.scrollHeight > e.clientHeight && e.scrollTop > 0) return true;
+      }
+      return false;
+    }
+    function show(p, ready) {
+      if (!ind) {
+        ind = document.createElement('div'); ind.setAttribute('aria-hidden', 'true');
+        ind.setAttribute('style', 'position:fixed;top:0;left:50%;z-index:300;transform:translate(-50%,-100%);padding:8px 16px;border-radius:0 0 12px 12px;background:#2747B8;color:#fff;font:15px system-ui,Arial,sans-serif;transition:opacity .15s');
+        document.body.appendChild(ind);
+      }
+      ind.textContent = ready ? 'שחררו לרענון' : 'משכו למטה לרענון';
+      ind.style.transform = 'translate(-50%,' + (Math.min(p, LIMIT) - 100) + '%)'; ind.style.opacity = String(Math.min(1, p / LIMIT));
+    }
+    function hide() { if (ind) { ind.remove(); ind = null; } startY = null; dist = 0; }
+    document.documentElement.style.overscrollBehaviorY = 'contain';
+    window.addEventListener('touchstart', function (e) {
+      if (e.touches.length !== 1 || (window.scrollY || document.documentElement.scrollTop) > 0 || busy() || scrollsInside(e.target)) { startY = null; return; }
+      startY = e.touches[0].clientY; dist = 0;
+    }, { passive: true });
+    window.addEventListener('touchmove', function (e) {
+      if (startY === null) return;
+      dist = (e.touches[0].clientY - startY) / 2;
+      if (dist <= 0 || (window.scrollY || 0) > 0) { hide(); return; }
+      show(dist, dist >= LIMIT);
+    }, { passive: true });
+    window.addEventListener('touchend', function () {
+      var go = startY !== null && dist >= LIMIT && !busy();
+      hide();
+      if (go) { var d = document.createElement('div'); d.textContent = 'מרענן…'; d.setAttribute('role', 'status'); d.setAttribute('style', 'position:fixed;top:0;left:50%;transform:translateX(-50%);z-index:300;padding:8px 16px;border-radius:0 0 12px 12px;background:#2747B8;color:#fff;font:15px system-ui,Arial,sans-serif'); document.body.appendChild(d); location.reload(); }
+    }, { passive: true });
+    window.addEventListener('touchcancel', hide, { passive: true });
+  }
 })();
 
 </script>

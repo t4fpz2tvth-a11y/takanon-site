@@ -1,5 +1,6 @@
 // Runs the model comparison page (bench.html) in a headless browser and saves the results to bench/results.json.
-import { chromium } from 'playwright';
+import { createRequire } from 'node:module';
+const { chromium } = createRequire('/tmp/')('playwright');
 import fs from 'node:fs';
 import { execSync } from 'node:child_process';
 

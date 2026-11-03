@@ -10,13 +10,11 @@ concurrency: bench
 jobs:
   run:
     runs-on: ubuntu-latest
+    container: mcr.microsoft.com/playwright:v1.52.0-noble
     timeout-minutes: 350
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-      - run: npm i --no-save playwright@1.52.0 && npx playwright install --with-deps chromium
-      - run: node bench/run.mjs
+      - run: git config --global --add safe.directory "$GITHUB_WORKSPACE" && cd /tmp && npm init -y >/dev/null && npm i playwright@1.52.0
+      - run: NODE_PATH=/tmp/node_modules node bench/run.mjs
         env:
           BENCH_CODE: ${{ secrets.BENCH_CODE }}

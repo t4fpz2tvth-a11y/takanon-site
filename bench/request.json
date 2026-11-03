@@ -6,12 +6,10 @@
   "z-ai/glm-5.3-flash",
   "openai/gpt-6-luna-pro",
   "deepseek/deepseek-v4.1-flash-1017",
-  "xiaomi/mimo-v2.6-flash",
-  "openai/gpt-6-luna",
-  "minimax/minimax-m3.1-flash"
+  "openai/gpt-6-luna"
  ],
  "batch": 9,
- "run": 8,
+ "run": 9,
  "k": 3,
  "target": "coord"
 }

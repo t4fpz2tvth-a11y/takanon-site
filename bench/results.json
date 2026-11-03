@@ -4604,5 +4604,57 @@
   "score": 0,
   "why": "אין תשובה: ",
   "jcost": 0
+ },
+ {
+  "model": "xiaomi/mimo-v2.6-flash",
+  "id": "P11-en",
+  "q": "Fictional test: I am an undergraduate pharmacy student. I received a notice that my studies are being terminated, but I do not know the decision date. Can you tell me the final appeal date and the proper first contact? Please answer in English.",
+  "expect": "R11-11: the same as P11-he, in English: the School of Pharmacy's regulations, clause 10.3 (7 days, to the teaching committee), cited from the corpus. No invented start date or deadline. Before the fix the pharmacy clause was missed.",
+  "answer": "Under the School of Pharmacy Bylaws (תקנון בוגר והסבה), your appeal goes to the school's teaching committee (ועדת ההוראה) within a period not exceeding 7 days, and the clause does not say when that period starts.\n\nSection 10.3 of the School of Pharmacy Bylaws states that a student \"יוכל לערער על הפסקת לימודיו בפני ועדת ההוראה תוך פרק זמן שלא יעלה על 7 ימים\" רוקחות 10 — an appeal to the teaching committee within a period not exceeding 7 days. The clause fixes the length of the period but names no event it counts from, so no final date can be given here; since the decision date is unknown to you, that starting point must be confirmed with the school as soon as possible. The termination notice itself is sent by the secretariat in the cases listed in section 10.1 רוקחות 10.\nציטוט מהתקנון\n\nThe committee's decision and its reasons must be conveyed to you, and it \"ניתנת לבחינה נוספת על ידי מנהל בית הספר\" (section 10.4) רוקחות 10. The Teaching Policy and Procedures separately provide an appeal against termination of studies to the faculty's teaching committee, with further review by the faculty dean (section 19.3) נה\"ל 19.3.\nציטוט מהתקנון\n\nNext step: contact the secretariat of the School of Pharmacy now to establish the decision date and the start of the 7-day period, and file the appeal with the school's teaching committee — reaching it through the faculty secretariat is the practical route.",
+  "err": "",
+  "seconds": 75.005,
+  "cost": 0.002788604,
+  "score": 2,
+  "why": "התשובה מצטטת את סעיף 10.3 בתקנון הרוקחות, מציינת ערעור בתוך שבעה ימים לוועדת ההוראה ואינה ממציאה מועד התחלה או תאריך סופי, תוך המלצה לבררם במזכירות.",
+  "jcost": 0.00199
+ },
+ {
+  "model": "xiaomi/mimo-v2.6-flash",
+  "id": "R02",
+  "q": "סטודנטית נרשמה בטעות לקורס אבן פינה בתחום הידע של החוג שלה, סיימה אותו בציון 90, ועכשיו אומרים לה שהוא לא נספר לאבני פינה.",
+  "expect": "כאן יש עילה בתקנון: 5.3.2 (אבני פינה בתחום ידע שהתלמיד לא לומד בו) ו-4.1.3. להגיד זאת בכנות בשורה התחתונה, בלי לדרוש את העילה ובלי \"שתי קריאות\", ולהציע את הדרך: הקורס עצמו נלמד (ציון 90) ו-4.1.2; לבקש הכרה בו כקורס בחירה או זיכוי אחר, בלי להבטיח. הפטור שב-5.3.2 הוא של הרקטור, למסלולי לימודים שלמים: רק לומר שאתר התכנית מראה אם למסלול שלה יש פטור.",
+  "answer": "התשובה נקטעה לפני סופה, וחסר בה החלק האחרון. אפשר לבקש את ההמשך בשאלת המשך.",
+  "err": "",
+  "seconds": 114.236,
+  "cost": 0.00615054,
+  "score": 0,
+  "why": "התשובה אינה עונה לשאלה ואינה מציגה את העילה התקנונית לאי־ההכרה בקורס כאבן פינה או את האפשרות לבקש הכרה בו כקורס בחירה או זיכוי אחר.",
+  "jcost": 0.001422
+ },
+ {
+  "model": "xiaomi/mimo-v2.6-flash",
+  "id": "R01",
+  "q": "סטודנט עשה אבן פינה והאוניברסיטה אמרה לו שזה לא יחשב לו ברטרו. הסטודנט אומר שזה לא פייר כי הוא כבר ביצע את האבן פינה ועכשיו נגמרה תקופת הרישום אז אי אפשר להירשם כבר לאבני פינה נוספות.",
+  "expect": "לא להניח שהקורס לא היה רשום (4.3.4 חל רק על קורס שלא היה בתוכנית). השורה התחתונה: עילת הביטול לא ידועה ויש לדרוש אותה בכתב. לצטט 4.1.2 (התוכנית בתוקף עם הזנתה), 4.1.3 (אי-הכרה רק בקורס שנרשם בניגוד לתקנות השנתון; לאבן פינה: 5.3.2, תחום ידע שהסטודנט לא לומד בו), 4.3.3 (אחרי תקופת השינויים אין לבטל הרשמה ואין להחליף), ותקנון משמעת 17 (ביטול בדיעבד של הכרה בלימודים הוא עונש משמעתי בלבד). לשאול אם הקורס היה בתוכנית המאושרת ובאיזה תחום ידע. הצעד הבא: לבקש את הנימוק בכתב, ואז פנייה מנומקת לוועדת ההוראה; מסלול ייצוג או ליווי.",
+  "answer": "התשובה נקטעה לפני סופה, וחסר בה החלק האחרון. אפשר לבקש את ההמשך בשאלת המשך.",
+  "err": "",
+  "seconds": 111.835,
+  "cost": 0.003869958,
+  "score": 0,
+  "why": "התשובה אינה עונה לשאלה כלל ואינה כוללת את הבירור הנדרש, ההפניות לתקנון או הצעדים לבקשת נימוק בכתב ולפנייה לוועדת ההוראה.",
+  "jcost": 0.0016
+ },
+ {
+  "model": "xiaomi/mimo-v2.6-flash",
+  "id": "S01",
+  "q": "אני במדעי הטבע וחוזר על קורס שנכשלתי בו. המרצה יכול לפטור אותי מהתרגילים השוטפים?",
+  "expect": "להציג את שני המשפטים של סעיף 10.2 בנוהל הפקולטה (ונה\"ל 10.2): המורה רשאי לפטור מחובות שוטפים אך לא מהבחינה; בפקולטה חזרה מחייבת מילוי כל החובות השוטפים. לומר שהם מושכים לכיוונים שונים ולא להכריע אוטומטית",
+  "answer": "תלוי בהוראת הפקולטה למתמטיקה ולמדעי הטבע: לפי נוהל נה\"ל המרצה רשאי לפטור אתכם מהחובות השוטפים, ולפי כללי הפקולטה חזרה על הקורס מחייבת מילויין.\n\nנוהל הוראה ולימודים, סעיף 10.2, קובע \"מורה רשאי לפטור תלמיד החוזר על הקורס... ממילוי החובות השוטפים של הקורס (כגון תרגילים), אך לא מהבחינה\" נה\"ל 10.2, ואילו נהלי הוראה ולימודים בפקולטה למתמטיקה ולמדעי הטבע, סעיף 10.2, קובעים \"חזרה על קורס מחייבת מילוי כל החובות השוטפים\" מדעי הטבע 10.2. שני הסעיפים חלים על המקרה לפי היקפם, והמאגר אינו מכריע ביניהם, ולכן הפטור טעון אישור של הפקולטה.\nציטוט מהתקנון\nבכל מקרה הפטור, אם יאושר, לא יחול על הבחינה, ו\"חזרה על קורס מחייבת רישום הקורס בתוכנית הלימודים ותשלום שכ\"ל בהתאם\" (סעיף 10.1 בנה\"ל) נה\"ל 10.1.\nציטוט מהתקנון\n\nהצעד הבא: פנו לוועדת ההוראה של הפקולטה למתמטיקה ולמדעי הטבע, ומומלץ לעשות זאת דרך מזכירות הסטודנטים של הפקולטה, כדי לברר אם יאושר פטור מהתרגילים השוטפים בקורס הזה.",
+  "err": "",
+  "seconds": 85.415,
+  "cost": 0.0067402,
+  "score": 0,
+  "why": "התשובה מציגה את שתי ההוראות ואת המתח ביניהן, אך ממציאה דרישה לאישור הפקולטה וסמכות לוועדת ההוראה להכריע בפטור, שאינן מבוססות על הסעיפים המצוטטים.",
+  "jcost": 0.002268
  }
 ]

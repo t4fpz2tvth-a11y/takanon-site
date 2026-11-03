@@ -9,7 +9,8 @@ const req = JSON.parse(fs.readFileSync('bench/request.json', 'utf8'));
 const TARGET = req.target || '', TAG = req.tag || '', SET = req.set || '', OUT = 'bench/results' + (TARGET ? '_' + TARGET.replace(/-/g, '_') : '') + (TAG ? '_' + TAG : '') + '.json', RKEY = 'bench-R' + (TARGET ? '-' + TARGET : '') + (TAG ? '-' + TAG : '');
 const CODE = process.env.BENCH_CODE || '';
 if (!CODE) { console.log('BENCH_CODE secret is missing'); process.exit(1); }
-const seed = fs.existsSync(OUT) ? JSON.parse(fs.readFileSync(OUT, 'utf8')) : [];
+// answers that failed (an error, a cut-off or an empty answer) are dropped, so this run asks them again
+const seed = (fs.existsSync(OUT) ? JSON.parse(fs.readFileSync(OUT, 'utf8')) : []).filter(r => !r.err && r.answer && !/נקטעה/.test(r.answer));
 const sh = c => execSync(c, { stdio: 'inherit' });
 
 function commit(R, done) {
@@ -31,12 +32,6 @@ await ctx.addInitScript(([c, s]) => {
 }, [CODE, [RKEY, JSON.stringify(seed)]]);
 const page = await ctx.newPage();
 await page.goto(SITE + '/bench.html?ci=' + Date.now() + (TARGET ? '&target=' + TARGET : '') + (TAG ? '&tag=' + TAG : '') + (SET ? '&set=' + SET : ''));
-if (req.rejudge) {
-  const left = await page.evaluate(j => rejudge(j), req.judge || '');
-  console.log('not scored after the second pass:', left);
-  commit(await page.evaluate(() => R), true);
-  await browser.close(); process.exit(0);
-}
 await page.evaluate(({ models, batch, judge, k }) => {
   window.BENCH_K = k;
   if (judge) document.getElementById('judge').value = judge;
@@ -54,6 +49,8 @@ while (Date.now() - t0 < 330 * 60000) {
   if (st.fin) break;
   if (Date.now() - last > 10 * 60000) { commit(await page.evaluate(() => R), false); last = Date.now(); }
 }
+// a second pass of the judge, one answer at a time, for every answer it did not score
+if (await page.evaluate(() => window.FIN)) console.log('not scored after the second pass:', await page.evaluate(j => rejudge(j), req.judge || ''));
 const R = await page.evaluate(() => R);
 commit(R, await page.evaluate(() => window.FIN));
 console.log(await page.evaluate(() => document.getElementById('sum').innerText));

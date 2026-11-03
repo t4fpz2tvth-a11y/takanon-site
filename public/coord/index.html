@@ -132,21 +132,40 @@
     can: function () { return true; },
     profiles: async function () { return {}; }
   };
+  // the tracking sheet (3.11.2026): the page's Google Sheets calls go to /api/sheet, which passes them to a small
+  // Apps Script inside the sheet itself; only the head may call it
+  var mcp = {
+    callTool: async function (server, tool, args) {
+      var r = await call('/api/sheet', { op: 'call', tool: tool, args: args });
+      var t = await r.text(), j = null; try { j = JSON.parse(t); } catch (_) {}
+      if (r.status === 412) throw err('server_not_connected', 'הטבלה עוד לא חוברה');
+      if (!r.ok || !j || j.error) throw err('tool_error', (j && j.error) || ('שגיאה ' + r.status));
+      return { payload: j };
+    }
+  };
   window.claude = { use: async function (name) {
     if (name === 'sample') return sample;
     if (name === 'db') { await meReady; return db; }
     if (name === 'user') { await meReady; return user; }
+    if (name === 'mcp') { await meReady; return me.admin ? mcp : null; }
     return null;
   } };
   // ---- the head's tools: the access codes, and signing out
   function adminTools() {
     var bar = document.createElement('div');
     bar.setAttribute('style', 'position:fixed;top:8px;inset-inline-start:8px;z-index:50;display:flex;gap:6px;font:13px system-ui,Arial,sans-serif');
-    bar.innerHTML = (me.admin ? '<button type="button" id="tk-admin">קודי גישה לרכזים</button>' : '') + '<button type="button" id="tk-out">יציאה (' + (me.name || '').replace(/[<>&"]/g, '') + ')</button>';
+    bar.innerHTML = (me.admin ? '<button type="button" id="tk-admin">קודי גישה לרכזים</button><button type="button" id="tk-sheet">טבלת המעקב</button>' : '') + '<button type="button" id="tk-out">יציאה (' + (me.name || '').replace(/[<>&"]/g, '') + ')</button>';
     bar.querySelectorAll('button').forEach(function (b) { b.setAttribute('style', 'font:inherit;padding:4px 10px;border-radius:8px;border:1px solid #9BA5BA;background:rgba(255,255,255,.9);color:#141B2D;cursor:pointer'); });
     document.body.appendChild(bar);
     bar.querySelector('#tk-out').addEventListener('click', function () { if (confirm('לצאת מהמכשיר הזה? בכניסה הבאה יידרש הקוד שוב.')) { signOut(); location.reload(); } });
     if (!me.admin) return;
+    bar.querySelector('#tk-sheet').addEventListener('click', async function () {
+      var st = ''; try { var r0 = await call('/api/sheet', { op: 'status' }); st = (await r0.json()).connected ? 'הטבלה מחוברת. אפשר להחליף את הקישור:' : 'הטבלה עוד לא מחוברת.'; } catch (_) {}
+      var url = prompt(st + '\n\nהדביקו כאן את הקישור של היישום מגוגל אפס סקריפט (מסתיים ב־/exec):');
+      if (!url) return;
+      var r = await call('/api/sheet', { op: 'config', url: url.trim() }); var t = await r.text();
+      alert(r.ok ? 'הטבלה חוברה ונבדקה. מעכשיו "סנכרון לטבלת המעקב" ביומן כותב אליה.' : 'החיבור נכשל: ' + t);
+    });
     bar.querySelector('#tk-admin').addEventListener('click', async function () {
       var d = document.createElement('div');
       d.setAttribute('style', 'position:fixed;inset:0;z-index:100;background:rgba(14,19,30,.6);display:grid;place-items:center;padding:16px;font:15px/1.6 system-ui,Arial,sans-serif');

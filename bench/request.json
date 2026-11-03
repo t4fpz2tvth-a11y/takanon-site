@@ -13,9 +13,5 @@
  "k": 3,
  "target": "coord",
  "tag": "valid",
- "set": "valid",
- "judges": [
-  "anthropic/claude-sonnet-5.5",
-  "google/gemini-4-argon"
- ]
+ "set": "valid"
 }

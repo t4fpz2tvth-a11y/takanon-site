@@ -9,8 +9,9 @@
   "openai/gpt-6-luna"
  ],
  "batch": 7,
- "run": 11,
+ "run": 12,
  "k": 3,
  "target": "coord",
- "tag": "after"
+ "tag": "after",
+ "rejudge": true
 }

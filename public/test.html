@@ -36,7 +36,7 @@ document.getElementById('go').onclick = async () => {
     for (const c of CASES) {
       const cell = document.getElementById('c-' + c.id + '-' + j); const t0 = Date.now();
       try {
-        const r = await fetch(API + '?test=1', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ model: m, stream: false, input: [{ role: 'system', content: SYS }, { role: 'user', content: 'הסעיפים:\n\n' + c.ctx + '\n\nהשאלה: ' + c.q }] }) });
+        const r = await fetch(API + '?test=1', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Code': (localStorage.getItem('takanon-code') || '') }, body: JSON.stringify({ model: m, stream: false, input: [{ role: 'system', content: SYS }, { role: 'user', content: 'הסעיפים:\n\n' + c.ctx + '\n\nהשאלה: ' + c.q }] }) });
         const txt = await r.text(); let j2 = {}; try { j2 = JSON.parse(txt); } catch (_) {}
         const a = (j2.choices && j2.choices[0] && j2.choices[0].message && j2.choices[0].message.content) || ('שגיאה ' + r.status + ': ' + txt.slice(0, 300));
         const u = j2.usage || {}; const cost = Number(u.cost || 0); sums[j] += cost;

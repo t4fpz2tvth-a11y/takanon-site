@@ -10,12 +10,15 @@
 (function () {
   if (window.claude) return;   // inside Claude: Claude's own model
   var API = '/api/chat';
+  var QS = new URLSearchParams(location.search), BENCH_MODEL = QS.get('bench') ? QS.get('model') : null;   // the comparison page (bench.html) runs the bot with another model
+  window.__cost = 0;
+  if (BENCH_MODEL) { API += (API.indexOf('?') < 0 ? '?' : '&') + 'test=1'; try { localStorage.setItem('reg-bot-tour-v3', '1'); } catch (_) {} }
   function err(code, message) { var e = new Error(message || code); e.code = code; return e; }
   async function post(input, opts, stream) {
     var r;
     try {
-      r = await fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json' }, signal: opts && opts.signal,
-        body: JSON.stringify({ input: input, tier: (opts && opts.modelTier) || 'default', stream: !!stream }) });
+      r = await fetch(API, { method: 'POST', headers: Object.assign({ 'Content-Type': 'application/json' }, BENCH_MODEL ? { 'X-Code': (function () { try { return localStorage.getItem('takanon-code') || ''; } catch (_) { return ''; } })() } : {}), signal: opts && opts.signal,
+        body: JSON.stringify(Object.assign({ input: input, tier: (opts && opts.modelTier) || 'default', stream: !!stream }, BENCH_MODEL ? { model: BENCH_MODEL } : {})) });
     } catch (e) { if (opts && opts.signal && opts.signal.aborted) throw err('cancelled'); throw err('network', 'אין חיבור לשרת'); }
     if (r.status === 429) throw err('rate_limited', 'יותר מדי שאלות בזמן קצר. נסו שוב בעוד כמה דקות.');
     if (!r.ok) { var t = ''; try { t = await r.text(); } catch (_) {} throw err('error', 'השרת לא ענה (' + r.status + ') ' + t.slice(0, 200)); }
@@ -37,6 +40,7 @@
             if (j.error) throw err('error', j.error.message || 'שגיאה');
             if (c && c.delta && c.delta.content) { text += c.delta.content; if (opts.onText) opts.onText({ text: text, delta: c.delta.content }); }
             if (c && c.finish_reason) finish = c.finish_reason;
+            if (j.usage && j.usage.cost) window.__cost += Number(j.usage.cost) || 0;
           } catch (e) { if (e.code) throw e; }
         }
       }
@@ -47,6 +51,7 @@
   sample.json = async function (input, opts) {
     opts = opts || {};
     var r = await post(input, opts, false), j = await r.json();
+    if (j.usage && j.usage.cost) window.__cost += Number(j.usage.cost) || 0;
     var t = (j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content) || '';
     var a = t.indexOf('{'), b = t.lastIndexOf('}');
     if (a < 0 || b < a) throw err('error', 'תשובה לא תקינה מהמודל');

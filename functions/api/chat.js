@@ -1,3 +1,4 @@
+import { who } from '../_lib.js';
 // "מה אומר התקנון?" — the site's own small server function (Cloudflare Pages Function, 3.11.2026), at /api/chat.
 // It keeps the OpenRouter key (the secret OPENROUTER_KEY, set in the Cloudflare project's settings, never in this code),
 // answers only the site itself, limits each visitor's questions, and passes the model's answer back as it is written.
@@ -16,17 +17,18 @@ export async function onRequestPost({ request, env }) {
   if (origin && origin !== url.origin) return json('forbidden', 403);   // only the site itself
   if (!env.OPENROUTER_KEY || !env.MODEL) return json('the server is not set up yet (OPENROUTER_KEY, MODEL)', 503);
   const test = url.searchParams.has('test');
+  if ((test || 'model' in Object.fromEntries(url.searchParams)) && !(await who(request, env) || {}).admin) return json('the comparison runs for the head only', 403);
   const ip = request.headers.get('CF-Connecting-IP') || 'x';
-  if (limited(ip, Number(env.PER_HOUR || 40) * (test ? 10 : 1))) return json('too many', 429);
+  if (limited(ip, test ? 5000 : Number(env.PER_HOUR || 40))) return json('too many', 429);
   let body;
   try { body = await request.json(); } catch (_) { return json('bad request', 400); }
   const messages = typeof body.input === 'string' ? [{ role: 'user', content: body.input }] : body.input;
   if (!Array.isArray(messages) || JSON.stringify(messages).length > 400000) return json('bad request', 400);
   // the models the comparison page may ask for (3.11.2026): this fixed list, and any in TEST_MODELS
   const BUILTIN_TESTS = ['anthropic/claude-haiku-5.5', 'openai/gpt-6-luna', 'deepseek/deepseek-v4.1-flash', 'minimax/minimax-m3.1-flash', 'z-ai/glm-5.3-flash', 'xiaomi/mimo-v2.6-flash', 'qwen/qwen3.8-flash', 'inception/mercury-3', 'google/gemini-3.8-flash', 'openai/gpt-6.1-terra', 'anthropic/claude-sonnet-5.5',
-    'deepseek/deepseek-v4.1-flash-1017', '~deepseek/deepseek-pro-latest', 'openai/gpt-6-luna-pro', 'xiaomi/mimo-v2.6-pro', 'z-ai/glm-5.3-flashx', 'cohere/command-a-plus', 'mistralai/mistral-large-4-0', 'nvidia/nemotron-3.5-super-vl', 'meta/muse-spark-1.3', 'qwen/qwen3.8-max-0902', 'google/gemini-4-argon', 'x-ai/grok-4.7', 'moonshotai/kimi-k3.1-pro', 'inclusionai/ling-3.1-flash', 'reflection/beam-1.0-501b-a23b', 'stepfun/step-5-preview'];
+    'deepseek/deepseek-v4.1-flash-1017', '~deepseek/deepseek-pro-latest', 'openai/gpt-6-luna-pro', 'xiaomi/mimo-v2.6-pro', 'z-ai/glm-5.3-flashx', 'cohere/command-a-plus', 'mistralai/mistral-large-4-0', 'nvidia/nemotron-3.5-super-vl', 'meta/muse-spark-1.3', 'qwen/qwen3.8-max-0902', 'google/gemini-4-argon', 'x-ai/grok-4.7', 'moonshotai/kimi-k3.1-pro', 'inclusionai/ling-3.1-flash', 'reflection/beam-1.0-501b-a23b', 'stepfun/step-5-preview', 'openai/gpt-6.1-sol'];
   const tests = BUILTIN_TESTS.concat((env.TEST_MODELS || '').split(',').map(s => s.trim()).filter(Boolean));
-  if (body.model && !tests.includes(body.model)) return json('model not allowed', 403);
+  if (body.model && !(test && tests.includes(body.model))) return json('model not allowed', 403);
   const model = body.model || (body.tier === 'quick' ? (env.MODEL_QUICK || env.MODEL) : env.MODEL);
   const r = await fetch('https://openrouter.ai/api/v1/chat/completions', {
     method: 'POST',

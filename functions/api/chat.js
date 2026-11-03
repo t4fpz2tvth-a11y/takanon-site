@@ -28,7 +28,7 @@ export async function onRequestPost({ request, env }) {
   const r = await fetch('https://openrouter.ai/api/v1/chat/completions', {
     method: 'POST',
     headers: { 'Authorization': 'Bearer ' + env.OPENROUTER_KEY, 'Content-Type': 'application/json', 'HTTP-Referer': url.origin, 'X-Title': 'Ma Omer HaTakanon' },
-    body: JSON.stringify({ model, messages, stream: !!body.stream, max_tokens: body.stream || body.model ? 4000 : 1500, temperature: 0.2, usage: { include: true } })
+    body: JSON.stringify({ model, messages, stream: !!body.stream, max_tokens: body.stream || body.model ? 8000 : 2000, temperature: 0.2, reasoning: { effort: 'low', exclude: true }, usage: { include: true } })
   });
   return new Response(r.body, { status: r.status, headers: { 'Content-Type': r.headers.get('Content-Type') || 'application/json', 'Cache-Control': 'no-store' } });
 }

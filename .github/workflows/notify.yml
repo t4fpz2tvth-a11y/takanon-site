@@ -1,0 +1,25 @@
+name: notify
+on:
+  schedule:
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['notify/check.mjs']
+permissions:
+  contents: write
+concurrency: notify
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: node notify/check.mjs
+        env:
+          BENCH_CODE: ${{ secrets.BENCH_CODE }}
+      - run: |
+          git config user.name "notify" && git config user.email "notify@users.noreply.github.com"
+          git add notify
+          git diff --cached --quiet && exit 0
+          git commit -qm "בדיקת מקרים חדשים [CI Skip]"
+          for i in 1 2 3; do git pull -q --rebase origin main && git push -q origin HEAD:main && break; sleep 5; done

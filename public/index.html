@@ -62,6 +62,65 @@
 })();
 
 </script>
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#2747B8">
+<link rel="icon" type="image/png" sizes="32x32" href="/icons/32.png">
+<link rel="apple-touch-icon" href="/icons/apple-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="התקנון">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<script>
+/* Quick access as an app (3.11.2026): the page can be added to the home screen or installed on a computer. Android and
+   computers (Chrome, Edge): the browser's own install prompt, from a button. iPhone and iPad (Safari): no prompt exists, so the
+   button opens short steps (Share, then "הוספה למסך הבית"). Hidden when the page already runs as an app. */
+(function () {
+  var SCOPE = '/';
+  if ('serviceWorker' in navigator) window.addEventListener('load', function () { navigator.serviceWorker.register(SCOPE + 'sw.js', { scope: SCOPE }).catch(function () {}); });
+  var standalone = (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+  if (standalone || /[?&]bench=/.test(location.search)) return;
+  var ua = navigator.userAgent || '', ios = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+  var deferred = null, btn = null, DISMISS = 'takanon-install-hide';
+  try { if (localStorage.getItem(DISMISS)) return; } catch (_) {}
+  function bar() {
+    if (btn) return;
+    var row = document.createElement('div');
+    row.id = 'tk-install';
+    row.setAttribute('style', 'display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:8px;padding:8px 12px;font:15px system-ui,Arial,sans-serif;background:#EEF2FF;color:#141B2D;border-bottom:1px solid #D7DCE6');
+    row.innerHTML = '<span>כניסה מהירה: אפשר להוסיף את הכלי למסך הבית או למחשב, כמו אפליקציה.</span>' +
+      '<button type="button" id="tk-install-go" style="font:inherit;min-height:40px;padding:6px 14px;border:0;border-radius:8px;background:#2747B8;color:#fff;cursor:pointer">הוספה כאפליקציה</button>' +
+      '<button type="button" id="tk-install-no" aria-label="לא עכשיו" style="font:inherit;min-height:40px;min-width:40px;padding:6px 10px;border:1px solid #9BA5BA;border-radius:8px;background:#fff;color:#141B2D;cursor:pointer">לא עכשיו</button>';
+    document.body.prepend(row);
+    btn = row.querySelector('#tk-install-go');
+    row.querySelector('#tk-install-no').addEventListener('click', function () { try { localStorage.setItem(DISMISS, '1'); } catch (_) {} row.remove(); });
+    btn.addEventListener('click', async function () {
+      if (deferred) { deferred.prompt(); try { var c = await deferred.userChoice; if (c && c.outcome === 'accepted') row.remove(); } catch (_) {} deferred = null; return; }
+      if (ios) { help(); return; }
+      help(true);
+    });
+  }
+  function help(desktop) {
+    var d = document.createElement('div');
+    d.setAttribute('style', 'position:fixed;inset:0;z-index:200;background:rgba(14,19,30,.6);display:grid;place-items:center;padding:16px;font:16px/1.6 system-ui,Arial,sans-serif');
+    d.setAttribute('role', 'dialog'); d.setAttribute('aria-modal', 'true'); d.setAttribute('aria-label', 'הוספה כאפליקציה');
+    var steps = desktop
+      ? '<li>בכרום או באדג׳: בשורת הכתובת יש סמל התקנה (מסך עם חץ). לוחצים עליו ואז "התקנה".</li><li>אם אין סמל: תפריט שלוש הנקודות ← "שמירה ושיתוף" או "אפליקציות" ← "התקנה".</li><li>בטלפון אנדרואיד: תפריט שלוש הנקודות ← "הוספה למסך הבית".</li>'
+      : '<li>פותחים את הדף בספארי.</li><li>לוחצים על כפתור השיתוף (ריבוע עם חץ למעלה), בתחתית המסך או בראשו.</li><li>גוללים ובוחרים "הוספה למסך הבית", ואז "הוספה".</li>';
+    d.innerHTML = '<div dir="rtl" style="background:#fff;color:#141B2D;max-width:400px;width:100%;padding:1.25rem 1.5rem;border-radius:12px"><b style="font-size:1.15rem">הוספה כאפליקציה</b><ol style="padding-inline-start:1.2rem;margin:.75rem 0">' + steps + '</ol><button type="button" style="font:inherit;min-height:44px;padding:6px 16px;border:0;border-radius:8px;background:#2747B8;color:#fff;cursor:pointer">הבנתי</button></div>';
+    document.body.appendChild(d);
+    var ok = d.querySelector('button'); ok.focus();
+    function close() { d.remove(); if (btn) btn.focus(); }
+    ok.addEventListener('click', close);
+    d.addEventListener('click', function (e) { if (e.target === d) close(); });
+    d.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
+  }
+  window.addEventListener('beforeinstallprompt', function (e) { e.preventDefault(); deferred = e; bar(); });
+  window.addEventListener('appinstalled', function () { var r = document.getElementById('tk-install'); if (r) r.remove(); });
+  // iPhone/iPad: no prompt event, so offer the steps; computers without the event (Firefox, Safari on Mac) get no bar
+  if (ios) { if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bar); else bar(); }
+})();
+
+</script>
 </head>
 <body>
 <title>מה אומר התקנון?</title>

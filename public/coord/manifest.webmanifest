@@ -1,0 +1,37 @@
+{
+ "name": "מה אומר התקנון? · רכזים",
+ "short_name": "התקנון · רכזים",
+ "lang": "he",
+ "dir": "rtl",
+ "start_url": "/coord/",
+ "scope": "/coord/",
+ "id": "/coord/",
+ "display": "standalone",
+ "background_color": "#FFFFFF",
+ "theme_color": "#2747B8",
+ "description": "תשובות מתוך תקנוני האוניברסיטה העברית, עם הסעיפים ולמי פונים",
+ "icons": [
+  {
+   "src": "/coord/icons/192.png",
+   "sizes": "192x192",
+   "type": "image/png"
+  },
+  {
+   "src": "/coord/icons/512.png",
+   "sizes": "512x512",
+   "type": "image/png"
+  },
+  {
+   "src": "/coord/icons/mask-192.png",
+   "sizes": "192x192",
+   "type": "image/png",
+   "purpose": "maskable"
+  },
+  {
+   "src": "/coord/icons/mask-512.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "maskable"
+  }
+ ]
+}

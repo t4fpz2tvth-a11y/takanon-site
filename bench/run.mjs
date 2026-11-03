@@ -6,7 +6,7 @@ import { execSync } from 'node:child_process';
 
 const SITE = 'https://takanon-site.pages.dev';
 const req = JSON.parse(fs.readFileSync('bench/request.json', 'utf8'));
-const COORD = req.target === 'coord', OUT = COORD ? 'bench/results_coord.json' : 'bench/results.json', RKEY = COORD ? 'bench-R-coord' : 'bench-R';
+const COORD = req.target === 'coord', TAG = req.tag || '', OUT = 'bench/results' + (COORD ? '_coord' : '') + (TAG ? '_' + TAG : '') + '.json', RKEY = (COORD ? 'bench-R-coord' : 'bench-R') + (TAG ? '-' + TAG : '');
 const CODE = process.env.BENCH_CODE || '';
 if (!CODE) { console.log('BENCH_CODE secret is missing'); process.exit(1); }
 const seed = fs.existsSync(OUT) ? JSON.parse(fs.readFileSync(OUT, 'utf8')) : [];
@@ -30,7 +30,7 @@ await ctx.addInitScript(([c, s]) => {
   } catch (_) {}
 }, [CODE, [RKEY, JSON.stringify(seed)]]);
 const page = await ctx.newPage();
-await page.goto(SITE + '/bench.html?ci=' + Date.now() + (COORD ? '&target=coord' : ''));
+await page.goto(SITE + '/bench.html?ci=' + Date.now() + (COORD ? '&target=coord' : '') + (TAG ? '&tag=' + TAG : ''));
 await page.evaluate(({ models, batch, judge, k }) => {
   window.BENCH_K = k;
   if (judge) document.getElementById('judge').value = judge;

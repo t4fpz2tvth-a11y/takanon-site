@@ -37,17 +37,19 @@ async function runOne(frame, model, c) {
   frame.src = '/?bench=1&model=' + encodeURIComponent(model) + '&r=' + Math.random();
   await new Promise(r => frame.onload = r);
   const w = frame.contentWindow; const t0 = Date.now();
-  for (let i = 0; i < 40 && !(w.sampleFn); i++) await sleep(250);
+  await sleep(800);
   w.document.getElementById('q').value = c.q; w.document.getElementById('ask-form').requestSubmit();
   let err = '';
   while (Date.now() - t0 < 180000) {
     await sleep(800);
     const pick = w.document.querySelector('.appeal-pick button[data-k=""]:not([disabled])'); if (pick) pick.click();
     const e = w.document.getElementById('ai-err'); if (e && !e.hidden && e.textContent) { err = e.textContent; break; }
-    if (w.thread && w.thread.length >= 1 && !w.aiCtl) break;
+    const outs = w.document.querySelectorAll('.ai-out'), stop = w.document.getElementById('ai-actions');
+    if (outs.length && w.document.querySelector('.turn .answer-actions') && (!stop || stop.hidden)) break;
   }
-  await sleep(300);
-  const ans = err ? '' : (w.thread && w.thread[0] ? (w.thread[0].a || '') : '');
+  await sleep(500);
+  const outs = w.document.querySelectorAll('.ai-out');
+  const ans = err ? '' : (outs.length ? outs[outs.length - 1].innerText.trim() : '');
   return { model, id: c.id, q: c.q, expect: c.expect, answer: ans, err, seconds: (Date.now() - t0) / 1000, cost: w.__cost || 0 };
 }
 function render(models) {

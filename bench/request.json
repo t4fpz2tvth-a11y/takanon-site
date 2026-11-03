@@ -12,6 +12,7 @@
   "mistralai/mistral-large-4-0",
   "minimax/minimax-m3.1-flash"
  ],
- "batch": 7,
- "run": 6
+ "batch": 11,
+ "run": 7,
+ "k": 3
 }

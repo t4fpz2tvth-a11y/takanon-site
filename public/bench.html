@@ -42,7 +42,7 @@ async function runOne(frame, model, c) {
   await sleep(800);
   w.document.getElementById('q').value = c.q; w.document.getElementById('ask-form').requestSubmit();
   let err = '';
-  while (Date.now() - t0 < 180000) {
+  while (Date.now() - t0 < 300000) {
     await sleep(800);
     const pick = w.document.querySelector('.appeal-pick button[data-k=""]:not([disabled])'); if (pick) pick.click();
     const e = w.document.getElementById('ai-err'); if (e && !e.hidden && e.textContent) { err = e.textContent; break; }

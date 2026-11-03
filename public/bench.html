@@ -27,14 +27,16 @@ const code = () => { try { return localStorage.getItem('takanon-code') || ''; } 
 async function judge(model, c, ans) {
   const prompt = 'אתם בודקים תשובה של בוט שעונה על שאלות לפי תקנוני האוניברסיטה העברית. הנה השאלה, מה שהתשובה צריכה לעשות (הציפייה, נכתבה על ידי מומחה), והתשובה.\n\nהשאלה:\n' + c.q + '\n\nהציפייה:\n' + c.expect + '\n\nהתשובה:\n' + ans +
     '\n\nדרגו: 2 = עומדת בציפייה בעיקרה ואין בה טעות מהותית; 1 = חלקית או עם טעות לא מהותית; 0 = טעות מהותית (זכאות, מועד, גוף מוסמך או מקור שגויים, המצאה), או שלא עונה. השיבו JSON בלבד: {"score": 0|1|2, "why": "משפט אחד בעברית"}';
-  for (let t = 0; t < 3; t++) {
+  let last = '';
+  for (let t = 0; t < 6; t++) {
     try {
       const r = await fetch('/api/chat?test=1', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Code': code() }, body: JSON.stringify({ model, stream: false, input: prompt }) });
+      if (!r.ok) throw new Error('HTTP ' + r.status + ' ' + (await r.text()).slice(0, 80));
       const j = await r.json(); const s = j.choices[0].message.content; const o = JSON.parse(s.slice(s.indexOf('{'), s.lastIndexOf('}') + 1));
       return { score: Number(o.score), why: o.why, jcost: Number(j.usage && j.usage.cost || 0) };
-    } catch (e) { await sleep(2000); }
+    } catch (e) { last = String(e && e.message || e).slice(0, 120); await sleep(4000 * (t + 1)); }
   }
-  return { score: null, why: 'השופט לא ענה', jcost: 0 };
+  return { score: null, why: 'השופט לא ענה: ' + last, jcost: 0 };
 }
 async function runOne(frame, model, c) {
   frame.src = 'about:blank'; await sleep(50);
@@ -53,8 +55,11 @@ async function runOne(frame, model, c) {
     if (outs.length && w.document.querySelector('.turn .answer-actions') && (!stop || stop.hidden)) break;
   }
   await sleep(500);
+  // the coordinators' diagnosis shows one part at a time: open all of them, so the judge reads the whole answer
+  const all = [...w.document.querySelectorAll('.diag-chip-all')].pop(); if (all && all.getAttribute('aria-pressed') !== 'true') { all.click(); await sleep(400); }
   const outs = w.document.querySelectorAll('.ai-out');
-  const ans = err ? '' : (outs.length ? outs[outs.length - 1].innerText.trim() : '');
+  const UI = /^(ציטוט מהתקנון|Quote from the regulations|اقتباس من الأنظمة|הצגת הסעיף המלא|מה הצעד הבא|מה אומר התקנון|מה עוד צריך להבין|מועדים|עובדות וציר זמן|אפשרויות|הכול)$/;
+  const ans = err ? '' : (outs.length ? outs[outs.length - 1].innerText.split('\n').filter(l => !UI.test(l.trim())).join('\n').trim() : '');
   return { model, id: c.id, q: c.q, expect: c.expect, answer: ans, err, seconds: (Date.now() - t0) / 1000, cost: w.__cost || 0 };
 }
 function render(models) {

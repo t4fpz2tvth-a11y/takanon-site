@@ -19,7 +19,7 @@ export async function onRequestPost({ request, env }) {
   const test = url.searchParams.has('test');
   if ((test || 'model' in Object.fromEntries(url.searchParams)) && !(await who(request, env) || {}).admin) return json('the comparison runs for the head only', 403);
   const ip = request.headers.get('CF-Connecting-IP') || 'x';
-  if (limited(ip, test ? 5000 : Number(env.PER_HOUR || 40))) return json('too many', 429);
+  if (limited(ip, test ? 100000 : Number(env.PER_HOUR || 40))) return json('too many', 429);
   let body;
   try { body = await request.json(); } catch (_) { return json('bad request', 400); }
   const messages = typeof body.input === 'string' ? [{ role: 'user', content: body.input }] : body.input;
@@ -33,7 +33,7 @@ export async function onRequestPost({ request, env }) {
   const r = await fetch('https://openrouter.ai/api/v1/chat/completions', {
     method: 'POST',
     headers: { 'Authorization': 'Bearer ' + env.OPENROUTER_KEY, 'Content-Type': 'application/json', 'HTTP-Referer': url.origin, 'X-Title': 'Ma Omer HaTakanon' },
-    body: JSON.stringify({ model, messages, stream: !!body.stream, max_tokens: body.stream || body.model ? 8000 : 2000, temperature: 0.2, reasoning: { effort: 'low', exclude: true }, usage: { include: true } })
+    body: JSON.stringify({ model, messages, stream: !!body.stream, max_tokens: body.stream ? 16000 : body.model ? 8000 : 2000, temperature: 0.2, reasoning: { effort: 'low', exclude: true }, usage: { include: true } })
   });
   return new Response(r.body, { status: r.status, headers: { 'Content-Type': r.headers.get('Content-Type') || 'application/json', 'Cache-Control': 'no-store' } });
 }

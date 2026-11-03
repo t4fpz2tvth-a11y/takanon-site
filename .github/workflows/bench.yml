@@ -6,7 +6,9 @@ on:
   workflow_dispatch:
 permissions:
   contents: write
-concurrency: bench
+concurrency:
+  group: bench
+  cancel-in-progress: true
 jobs:
   run:
     runs-on: ubuntu-latest

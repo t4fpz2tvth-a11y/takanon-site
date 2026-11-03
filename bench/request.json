@@ -15,6 +15,6 @@
   "anthropic/claude-sonnet-5.5",
   "minimax/minimax-m3.1-flash"
  ],
- "batch": 5,
- "run": 2
+ "batch": 7,
+ "run": 3
 }

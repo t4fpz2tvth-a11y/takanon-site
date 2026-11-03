@@ -9,9 +9,9 @@
   "openai/gpt-6-luna"
  ],
  "batch": 7,
- "run": 22,
+ "run": 23,
  "k": 3,
- "target": "coord-old",
+ "target": "coord",
  "tag": "valid",
  "set": "valid",
  "judges": [

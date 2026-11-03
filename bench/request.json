@@ -13,9 +13,5 @@
  "k": 3,
  "target": "coord",
  "tag": "extra",
- "set": "extra",
- "judges": [
-  "anthropic/claude-sonnet-5.5",
-  "google/gemini-4-argon"
- ]
+ "set": "extra"
 }

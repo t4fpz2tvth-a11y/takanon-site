@@ -8,8 +8,9 @@
   "deepseek/deepseek-v4.1-flash-1017",
   "openai/gpt-6-luna"
  ],
- "batch": 9,
- "run": 9,
+ "batch": 7,
+ "run": 10,
  "k": 3,
- "target": "coord"
+ "target": "coord",
+ "tag": "after"
 }

@@ -1,16 +1,24 @@
 // The coordinators' storage (3.11.2026): the same calls the page makes inside Claude (doc get/set/update/delete,
 // collection add/orderBy/limit/get), kept in Cloudflare D1. POST { op, path, data?, order?, dir?, limit? } with X-Code.
-import { text, json, setup, who, allowed } from '../_lib.js';
+import { text, json, setup, who, allowed, codeCookie, setCookie } from '../_lib.js';
 const segs = p => String(p).split('/').filter(Boolean);
 export async function onRequestPost({ request, env }) {
   const origin = request.headers.get('Origin');
   if (origin && origin !== new URL(request.url).origin) return text('forbidden', 403);
   if (!env.DB) return text('the storage is not connected yet (binding DB)', 503);
-  const u = await who(request, env);
-  if (!u) return text('sign in', 401);
   let b; try { b = await request.json(); } catch (_) { return text('bad request', 400); }
+  // signing out on this device clears its sign-in cookie (4.11.2026)
+  if (b && b.op === 'logout') { const r = json({ ok: true }); r.headers.append('Set-Cookie', setCookie('')); return r; }
+  const u = await who(request, env);
+  if (!u) { const r = text('sign in', 401); if (codeCookie(request)) r.headers.append('Set-Cookie', setCookie('')); return r; }
   const op = b.op, path = segs(b.path || '').join('/');
-  if (op === 'me') return json({ uid: u.uid, name: u.name, admin: u.admin });
+  if (op === 'me') {
+    // a sign-in with a code that works: this device keeps it in a cookie, so the next visits (also as an installed app) need no code
+    const r = json({ uid: u.uid, name: u.name, admin: u.admin });
+    const sent = String(request.headers.get('X-Code') || '').trim();
+    if (sent && /^[A-Za-z0-9%._~-]{1,600}$/.test(sent)) r.headers.append('Set-Cookie', setCookie(sent));
+    return r;
+  }
   const write = ['set', 'update', 'delete', 'add'].includes(op);
   if (!allowed(u, path, write)) return json({ code: 'permission_denied' }, 403);
   await setup(env);

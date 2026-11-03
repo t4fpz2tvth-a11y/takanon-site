@@ -23,9 +23,17 @@ export async function setup(env) {
 // name, a word and a number, easy to type on a phone)
 export const normCode = s => String(s || '').trim().replace(/\s+/g, '').replace(/[\u05BE\u2010-\u2015_]/g, '-').toLowerCase();
 const FAILS_PER_HOUR = 20;
+// the sign-in cookie: HttpOnly (the page's scripts cannot read it), sent only to this site, kept for a year
+export const COOKIE = 'tkc';
+export function codeCookie(request) {
+  const m = String(request.headers.get('Cookie') || '').match(/(?:^|;\s*)tkc=([^;]*)/);
+  return m ? m[1].trim() : '';
+}
+export const setCookie = v => COOKIE + '=' + v + '; Path=/; Max-Age=' + (v ? 31536000 : 0) + '; HttpOnly; Secure; SameSite=Strict';
 export async function who(request, env) {
   // the page sends the code URI-encoded (a header carries no Hebrew); an older page or tool sends it as is
-  const sent = String(request.headers.get('X-Code') || '').trim();
+  // or, when the page sends none, the sign-in cookie this device got at its last sign-in (4.11.2026): a coordinator signs in once per device
+  const sent = String(request.headers.get('X-Code') || '').trim() || codeCookie(request);
   let raw = sent; try { raw = decodeURIComponent(sent); } catch (_) {}
   if (!raw || raw.length > 200) return null;
   if (env.ADMIN_CODE && (raw === env.ADMIN_CODE || sent === env.ADMIN_CODE)) return { uid: 'admin', name: 'רמ"ח', admin: true };

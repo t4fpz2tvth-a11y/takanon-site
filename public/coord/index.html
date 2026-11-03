@@ -50,7 +50,7 @@
   }
   // ---- sign in
   var me = null, meReady;
-  function signOut() { try { localStorage.removeItem(KEY); } catch (_) {} code = ''; }
+  function signOut() { try { localStorage.removeItem(KEY); } catch (_) {} code = ''; fetch('/api/db', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{"op":"logout"}', keepalive: true }).catch(function () {}); }
   function overlay() {
     return new Promise(function (resolve) {
       var d = document.createElement('div');
@@ -78,12 +78,16 @@
     });
   }
   async function signIn() {
-    if (code) {
+    // 4.11.2026: a device that signed in before is let in without the code: by the code kept here, or else by the site's
+    // sign-in cookie (an installed app on an iPhone has storage of its own, and Safari may clear a site's storage)
+    if (!BENCH) {
       try {
         var r = await call('/api/db', { op: 'me' });
-        if (r.ok) return await r.json();
-        if (r.status === 401) signOut();
+        if (r.ok) { try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch (_) {} return await r.json(); }
+        if (r.status === 401 && code) { try { localStorage.removeItem(KEY); } catch (_) {} code = ''; }
       } catch (_) {}
+    } else if (code) {
+      try { var rb = await call('/api/db', { op: 'me' }); if (rb.ok) return await rb.json(); } catch (_) {}
     }
     if (document.readyState === 'loading') await new Promise(function (r) { document.addEventListener('DOMContentLoaded', r, { once: true }); });
     return overlay();
@@ -182,7 +186,7 @@
     bar.innerHTML = (me.admin ? '<button type="button" id="tk-admin">קודי גישה לרכזים</button><button type="button" id="tk-sheet">טבלת המעקב</button>' : '') + '<button type="button" id="tk-out">יציאה (' + (me.name || '').replace(/[<>&"]/g, '') + ')</button>';
     bar.querySelectorAll('button').forEach(function (b) { b.setAttribute('style', 'font:inherit;min-height:40px;padding:6px 12px;border-radius:8px;border:1px solid #9BA5BA;background:rgba(255,255,255,.9);color:#141B2D;cursor:pointer'); });
     document.body.prepend(bar);
-    bar.querySelector('#tk-out').addEventListener('click', function () { if (confirm('לצאת מהמכשיר הזה? בכניסה הבאה יידרש הקוד שוב.')) { signOut(); location.reload(); } });
+    bar.querySelector('#tk-out').addEventListener('click', function () { if (confirm('לצאת מהמכשיר הזה? בכניסה הבאה יידרש הקוד שוב.')) { try { localStorage.removeItem(KEY); } catch (_) {} code = ''; fetch('/api/db', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{"op":"logout"}' }).catch(function () {}).then(function () { location.reload(); }); } });
     if (!me.admin) return;
     bar.querySelector('#tk-sheet').addEventListener('click', async function () {
       var st = ''; try { var r0 = await call('/api/sheet', { op: 'status' }); st = (await r0.json()).connected ? 'הטבלה מחוברת. אפשר להחליף את הקישור:' : 'הטבלה עוד לא מחוברת.'; } catch (_) {}

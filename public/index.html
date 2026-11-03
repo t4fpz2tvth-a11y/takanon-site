@@ -80,6 +80,8 @@
   var standalone = (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
   if (standalone || /[?&]bench=/.test(location.search)) return;
   var ua = navigator.userAgent || '', ios = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+  // Safari on a Mac (macOS 14 and later): File menu, "Add to Dock" (4.11.2026)
+  var macSafari = !ios && /Macintosh/.test(ua) && /Safari\//.test(ua) && !/Chrome|Chromium|Edg\/|Firefox|OPR\//.test(ua);
   var deferred = null, btn = null, DISMISS = 'takanon-install-hide';
   try { if (localStorage.getItem(DISMISS)) return; } catch (_) {}
   function bar() {
@@ -96,14 +98,16 @@
     btn.addEventListener('click', async function () {
       if (deferred) { deferred.prompt(); try { var c = await deferred.userChoice; if (c && c.outcome === 'accepted') row.remove(); } catch (_) {} deferred = null; return; }
       if (ios) { help(); return; }
-      help(true);
+      help(macSafari ? 'mac' : true);
     });
   }
   function help(desktop) {
     var d = document.createElement('div');
     d.setAttribute('style', 'position:fixed;inset:0;z-index:200;background:rgba(14,19,30,.6);display:grid;place-items:center;padding:16px;font:16px/1.6 system-ui,Arial,sans-serif');
     d.setAttribute('role', 'dialog'); d.setAttribute('aria-modal', 'true'); d.setAttribute('aria-label', 'הוספה כאפליקציה');
-    var steps = desktop
+    var steps = desktop === 'mac'
+      ? '<li>בספארי, בשורת התפריטים למעלה: "קובץ" ← "הוספה ל-Dock".</li><li>אפשר לשנות את השם ולאשר ב"הוספה". הסמל יופיע ב-Dock ובתיקיית היישומים.</li><li>צריך מערכת הפעלה סונומה (14) ומעלה. בגרסה ישנה יותר: פותחים את הדף בכרום ולוחצים על סמל ההתקנה בשורת הכתובת.</li>'
+      : desktop
       ? '<li>בכרום או באדג׳: בשורת הכתובת יש סמל התקנה (מסך עם חץ). לוחצים עליו ואז "התקנה".</li><li>אם אין סמל: תפריט שלוש הנקודות ← "שמירה ושיתוף" או "אפליקציות" ← "התקנה".</li><li>בטלפון אנדרואיד: תפריט שלוש הנקודות ← "הוספה למסך הבית".</li>'
       : '<li>פותחים את הדף בספארי.</li><li>לוחצים על כפתור השיתוף (ריבוע עם חץ למעלה), בתחתית המסך או בראשו.</li><li>גוללים ובוחרים "הוספה למסך הבית", ואז "הוספה".</li>';
     d.innerHTML = '<div dir="rtl" style="background:#fff;color:#141B2D;max-width:400px;width:100%;padding:1.25rem 1.5rem;border-radius:12px"><b style="font-size:1.15rem">הוספה כאפליקציה</b><ol style="padding-inline-start:1.2rem;margin:.75rem 0">' + steps + '</ol><button type="button" style="font:inherit;min-height:44px;padding:6px 16px;border:0;border-radius:8px;background:#2747B8;color:#fff;cursor:pointer">הבנתי</button></div>';
@@ -116,8 +120,8 @@
   }
   window.addEventListener('beforeinstallprompt', function (e) { e.preventDefault(); deferred = e; bar(); });
   window.addEventListener('appinstalled', function () { var r = document.getElementById('tk-install'); if (r) r.remove(); });
-  // iPhone/iPad: no prompt event, so offer the steps; computers without the event (Firefox, Safari on Mac) get no bar
-  if (ios) { if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bar); else bar(); }
+  // iPhone, iPad and Safari on a Mac: no prompt event, so offer the steps; Firefox gets no bar (it cannot install)
+  if (ios || macSafari) { if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', bar); else bar(); }
 })();
 
 </script>

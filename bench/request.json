@@ -9,9 +9,13 @@
   "openai/gpt-6-luna"
  ],
  "batch": 7,
- "run": 24,
+ "run": 25,
  "k": 3,
  "target": "coord",
  "tag": "extra",
- "set": "extra"
+ "set": "extra",
+ "judges": [
+  "anthropic/claude-sonnet-5.5",
+  "google/gemini-4-argon"
+ ]
 }

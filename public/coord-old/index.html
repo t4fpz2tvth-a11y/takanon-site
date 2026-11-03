@@ -98,6 +98,8 @@
     opts = opts || {}; await meReady;
     var r = await call('/api/chat', { input: input, tier: opts.modelTier || 'default', stream: true }, opts.signal);
     if (r.status === 429) throw err('rate_limited', 'יותר מדי שאלות בזמן קצר. נסו שוב בעוד כמה דקות.');
+    // 4.11.2026: the model's service down for everyone (credit cap, budget, server error) is said as such, not as the user's limit
+    if ([402, 403, 500, 502, 503, 504].indexOf(r.status) >= 0) throw err('service_down', 'הבוט לא זמין כרגע לכולם');
     if (!r.ok) { var t = ''; try { t = await r.text(); } catch (_) {} throw err('error', 'השרת לא ענה (' + r.status + ') ' + t.slice(0, 200)); }
     var reader = r.body.getReader(), dec = new TextDecoder(), buf = '', text = '', finish = '';
     try {

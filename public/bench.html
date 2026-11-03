@@ -75,6 +75,19 @@ window.rejudge = async (jm) => {
   }
   return R.filter(r => r.score == null).length;
 };
+// more judges on the same answers (3.11.2026, Yoni: a second, independent judge): each answer gets r.j2[judge] = { score, why }
+window.multijudge = async (judges, par = 4) => {
+  const todo = [];
+  for (const r of R) { if (!r.answer) continue; for (const m of judges) if (!(r.j2 && r.j2[m] && r.j2[m].score != null)) todo.push([r, m]); }
+  await Promise.all(Array.from({ length: par }, async () => {
+    for (let t; (t = todo.shift());) {
+      const [r, m] = t, c = CASES.find(x => x.id === r.id); if (!c) continue;
+      const j = await judge(m, c, r.answer);
+      r.j2 = r.j2 || {}; r.j2[m] = { score: j.score, why: j.why, cost: j.jcost }; save();
+    }
+  }));
+  return R.reduce((n, r) => n + judges.filter(m => !(r.j2 && r.j2[m] && r.j2[m].score != null)).length, 0);
+};
 function render(models) {
   const rows = models.map(m => { const rs = R.filter(r => r.model === m), j = rs.filter(r => r.score != null);
     const s = j.reduce((a, r) => a + r.score, 0), c = rs.reduce((a, r) => a + r.cost, 0), sec = rs.reduce((a, r) => a + r.seconds, 0);

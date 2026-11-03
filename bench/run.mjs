@@ -32,6 +32,11 @@ await ctx.addInitScript(([c, s]) => {
 }, [CODE, [RKEY, JSON.stringify(seed)]]);
 const page = await ctx.newPage();
 await page.goto(SITE + '/bench.html?ci=' + Date.now() + (TARGET ? '&target=' + TARGET : '') + (TAG ? '&tag=' + TAG : '') + (SET ? '&set=' + SET : ''));
+if (req.judges) {   // only more judges on the answers already here; no model is asked again
+  console.log('left without a score:', await page.evaluate(j => multijudge(j), req.judges));
+  commit(await page.evaluate(() => R), true);
+  await browser.close(); process.exit(0);
+}
 await page.evaluate(({ models, batch, judge, k }) => {
   window.BENCH_K = k;
   if (judge) document.getElementById('judge').value = judge;

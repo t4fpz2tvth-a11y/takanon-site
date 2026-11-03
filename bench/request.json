@@ -8,11 +8,10 @@
   "deepseek/deepseek-v4.1-flash-1017",
   "xiaomi/mimo-v2.6-flash",
   "openai/gpt-6-luna",
-  "qwen/qwen3.8-flash",
-  "mistralai/mistral-large-4-0",
   "minimax/minimax-m3.1-flash"
  ],
- "batch": 11,
- "run": 7,
- "k": 3
+ "batch": 9,
+ "run": 8,
+ "k": 3,
+ "target": "coord"
 }

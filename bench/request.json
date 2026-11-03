@@ -9,12 +9,9 @@
   "xiaomi/mimo-v2.6-flash",
   "openai/gpt-6-luna",
   "qwen/qwen3.8-flash",
-  "google/gemini-4-argon",
-  "moonshotai/kimi-k3.1-pro",
   "mistralai/mistral-large-4-0",
-  "anthropic/claude-sonnet-5.5",
   "minimax/minimax-m3.1-flash"
  ],
  "batch": 7,
- "run": 4
+ "run": 6
 }

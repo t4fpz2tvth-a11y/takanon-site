@@ -13,9 +13,5 @@
  "k": 3,
  "target": "coord-old",
  "tag": "hold",
- "set": "holdout",
- "judges": [
-  "anthropic/claude-sonnet-5.5",
-  "google/gemini-4-argon"
- ]
+ "set": "holdout"
 }

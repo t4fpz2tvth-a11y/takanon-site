@@ -22,7 +22,9 @@ export async function onRequestPost({ request, env }) {
   try { body = await request.json(); } catch (_) { return json('bad request', 400); }
   const messages = typeof body.input === 'string' ? [{ role: 'user', content: body.input }] : body.input;
   if (!Array.isArray(messages) || JSON.stringify(messages).length > 400000) return json('bad request', 400);
-  const tests = (env.TEST_MODELS || '').split(',').map(s => s.trim()).filter(Boolean);
+  // the models the comparison page may ask for (3.11.2026): this fixed list, and any in TEST_MODELS
+  const BUILTIN_TESTS = ['anthropic/claude-haiku-5.5', 'openai/gpt-6-luna', 'deepseek/deepseek-v4.1-flash', 'minimax/minimax-m3.1-flash', 'z-ai/glm-5.3-flash', 'xiaomi/mimo-v2.6-flash', 'qwen/qwen3.8-flash', 'inception/mercury-3', 'google/gemini-3.8-flash', 'openai/gpt-6.1-terra', 'anthropic/claude-sonnet-5.5'];
+  const tests = BUILTIN_TESTS.concat((env.TEST_MODELS || '').split(',').map(s => s.trim()).filter(Boolean));
   if (body.model && !tests.includes(body.model)) return json('model not allowed', 403);
   const model = body.model || (body.tier === 'quick' ? (env.MODEL_QUICK || env.MODEL) : env.MODEL);
   const r = await fetch('https://openrouter.ai/api/v1/chat/completions', {

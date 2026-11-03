@@ -31,13 +31,14 @@ await ctx.addInitScript(([c, s]) => {
 }, [CODE, [RKEY, JSON.stringify(seed)]]);
 const page = await ctx.newPage();
 await page.goto(SITE + '/bench.html?ci=' + Date.now() + (COORD ? '&target=coord' : ''));
-await page.evaluate(({ models, batch, judge }) => {
+await page.evaluate(({ models, batch, judge, k }) => {
+  window.BENCH_K = k;
   if (judge) document.getElementById('judge').value = judge;
   const orig = runOne;
   runOne = async (f, m, c) => { let r; for (let t = 0; t < 4; t++) { r = await orig(f, m, c); if (!r.err) return r; await sleep(60000); } return r; };
   window.FIN = false;
   (async () => { for (let i = 0; i < models.length; i += batch) { document.getElementById('models').value = models.slice(i, i + batch).join('\n'); await document.getElementById('go').onclick(); } window.FIN = true; })();
-}, { models: req.models, batch: req.batch || 5, judge: req.judge || '' });
+}, { models: req.models, batch: req.batch || 5, judge: req.judge || '', k: req.k || 3 });
 
 const t0 = Date.now(); let last = Date.now();
 while (Date.now() - t0 < 330 * 60000) {

@@ -70,14 +70,17 @@ document.getElementById('go').onclick = async () => {
   const models = document.getElementById('models').value.split('\n').map(s => s.trim()).filter(Boolean);
   try { localStorage.setItem('bench-models', models.join('\n')); } catch (_) {}
   const jm = document.getElementById('judge').value.trim(); const st = document.getElementById('st'); let done = 0;
+  const K = Number(new URLSearchParams(location.search).get('k') || window.BENCH_K || 3);
   await Promise.all(models.map(async m => {
-    const f = document.createElement('iframe'); f.style.width = '1100px'; f.style.height = '900px'; document.getElementById('frames').appendChild(f);
-    for (const c of CASES) {
-      if (R.some(r => r.model === m && r.id === c.id)) continue;
-      const r = await runOne(f, m, c);
-      Object.assign(r, r.answer ? await judge(jm, c, r.answer) : { score: 0, why: 'אין תשובה: ' + r.err, jcost: 0 });
-      R.push(r); save(); done++; st.textContent = done + ' מתוך ' + models.length * CASES.length; render(models);
-    }
+    const queue = CASES.filter(c => !R.some(r => r.model === m && r.id === c.id));
+    await Promise.all(Array.from({ length: K }, async () => {
+      const f = document.createElement('iframe'); f.style.width = '1100px'; f.style.height = '900px'; document.getElementById('frames').appendChild(f);
+      for (let c; (c = queue.shift());) {
+        const r = await runOne(f, m, c);
+        Object.assign(r, r.answer ? await judge(jm, c, r.answer) : { score: 0, why: 'אין תשובה: ' + r.err, jcost: 0 });
+        R.push(r); save(); done++; st.textContent = done + ' מתוך ' + models.length * CASES.length; render(models);
+      }
+    }));
   }));
   st.textContent = 'הסתיים';
 };

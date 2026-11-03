@@ -1,0 +1,22 @@
+name: bench
+on:
+  push:
+    branches: [main]
+    paths: ['bench/request.json']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency: bench
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm i --no-save playwright@1.52.0 && npx playwright install --with-deps chromium
+      - run: node bench/run.mjs
+        env:
+          BENCH_CODE: ${{ secrets.BENCH_CODE }}

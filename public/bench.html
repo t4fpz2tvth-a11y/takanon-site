@@ -56,7 +56,7 @@ async function runOne(frame, model, c) {
     const fx = w.document.querySelector('.sd-pre-go:not([disabled])'); if (fx && fx.offsetParent) fx.click();
     const e = w.document.getElementById('ai-err'); if (e && !e.hidden && e.textContent) { err = e.textContent; break; }
     const outs = w.document.querySelectorAll('.ai-out'), stop = w.document.getElementById('ai-actions');
-    if (outs.length && w.document.querySelector('.turn .answer-actions') && (!stop || stop.hidden)) break;
+    if (outs.length && w.document.querySelector('.turn .answer-actions') && (!stop || stop.hidden) && !w.document.querySelector('[data-gloss="pending"]')) break;   // 4.11.2026: the quote translations come right after the answer
   }
   await sleep(500);
   // the coordinators' diagnosis shows one part at a time: open all of them, so the judge reads the whole answer

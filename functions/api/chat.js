@@ -16,7 +16,7 @@ export async function onRequestPost({ request, env }) {
   const url = new URL(request.url), origin = request.headers.get('Origin');
   if (origin && origin !== url.origin) return json('forbidden', 403);   // only the site itself
   // 4.11.2026 (security review): a browser always sends Origin on these calls; a call without one is not the site's page
-  if (!origin && !url.searchParams.has('test')) return json('forbidden', 403);
+  if (!origin && request.headers.get('Sec-Fetch-Site') !== 'same-origin' && !url.searchParams.has('test')) return json('forbidden', 403);
   if (!env.OPENROUTER_KEY || !env.MODEL) return json('the server is not set up yet (OPENROUTER_KEY, MODEL)', 503);
   const test = url.searchParams.has('test');
   if ((test || 'model' in Object.fromEntries(url.searchParams)) && !(await who(request, env) || {}).admin) return json('the comparison runs for the head only', 403);

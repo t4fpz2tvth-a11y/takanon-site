@@ -36,13 +36,14 @@ export async function who(request, env) {
   const sent = String(request.headers.get('X-Code') || '').trim() || codeCookie(request);
   let raw = sent; try { raw = decodeURIComponent(sent); } catch (_) {}
   if (!raw || raw.length > 200) return null;
-  if (env.ADMIN_CODE && (raw === env.ADMIN_CODE || sent === env.ADMIN_CODE)) return { uid: 'admin', name: 'רמ"ח', admin: true };
-  if (!env.DB) return null;
+  if (!env.DB) return env.ADMIN_CODE && (raw === env.ADMIN_CODE || sent === env.ADMIN_CODE) ? { uid: 'admin', name: 'רמ"ח', admin: true } : null;
   await setup(env);
-  // wrong codes are counted per address: after 20 in an hour, no code is checked from it until the hour passes
+  // wrong codes are counted per address: after 20 in an hour, no code is checked from it until the hour passes. 4.11.2026
+  // (security review): the head's code too, so it cannot be guessed without limit
   const ip = request.headers.get('CF-Connecting-IP') || 'x', hour = Date.now() - 3600e3;
   const f = await env.DB.prepare('SELECT COUNT(*) AS n FROM fails WHERE ip = ? AND t > ?').bind(ip, hour).first();
   if (f && f.n >= FAILS_PER_HOUR) return null;
+  if (env.ADMIN_CODE && (raw === env.ADMIN_CODE || sent === env.ADMIN_CODE)) return { uid: 'admin', name: 'רמ"ח', admin: true };
   const r = await env.DB.prepare('SELECT uid, name FROM codes WHERE hash = ?').bind(await sha(normCode(raw))).first();
   if (r) return { uid: r.uid, name: r.name, admin: false };
   await env.DB.batch([env.DB.prepare('INSERT INTO fails (ip, t) VALUES (?, ?)').bind(ip, Date.now()), env.DB.prepare('DELETE FROM fails WHERE t < ?').bind(hour)]);

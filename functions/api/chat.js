@@ -15,6 +15,8 @@ const json = (s, status) => new Response(s, { status, headers: { 'Content-Type':
 export async function onRequestPost({ request, env }) {
   const url = new URL(request.url), origin = request.headers.get('Origin');
   if (origin && origin !== url.origin) return json('forbidden', 403);   // only the site itself
+  // 4.11.2026 (security review): a browser always sends Origin on these calls; a call without one is not the site's page
+  if (!origin && !url.searchParams.has('test')) return json('forbidden', 403);
   if (!env.OPENROUTER_KEY || !env.MODEL) return json('the server is not set up yet (OPENROUTER_KEY, MODEL)', 503);
   const test = url.searchParams.has('test');
   if ((test || 'model' in Object.fromEntries(url.searchParams)) && !(await who(request, env) || {}).admin) return json('the comparison runs for the head only', 403);
@@ -23,7 +25,8 @@ export async function onRequestPost({ request, env }) {
   let body;
   try { body = await request.json(); } catch (_) { return json('bad request', 400); }
   const messages = typeof body.input === 'string' ? [{ role: 'user', content: body.input }] : body.input;
-  if (!Array.isArray(messages) || JSON.stringify(messages).length > 400000) return json('bad request', 400);
+  // 4.11.2026: the page's own limit is 256 KB of prompt (sample.limits); a little more for the message wrapper, no more
+  if (!Array.isArray(messages) || messages.length > 40 || JSON.stringify(messages).length > 300000) return json('bad request', 400);
   // the models the comparison page may ask for (3.11.2026): this fixed list, and any in TEST_MODELS
   const BUILTIN_TESTS = ['anthropic/claude-haiku-5.5', 'openai/gpt-6-luna', 'deepseek/deepseek-v4.1-flash', 'minimax/minimax-m3.1-flash', 'z-ai/glm-5.3-flash', 'xiaomi/mimo-v2.6-flash', 'qwen/qwen3.8-flash', 'inception/mercury-3', 'google/gemini-3.8-flash', 'openai/gpt-6.1-terra', 'anthropic/claude-sonnet-5.5',
     'deepseek/deepseek-v4.1-flash-1017', '~deepseek/deepseek-pro-latest', 'openai/gpt-6-luna-pro', 'xiaomi/mimo-v2.6-pro', 'z-ai/glm-5.3-flashx', 'cohere/command-a-plus', 'mistralai/mistral-large-4-0', 'nvidia/nemotron-3.5-super-vl', 'meta/muse-spark-1.3', 'qwen/qwen3.8-max-0902', 'google/gemini-4-argon', 'x-ai/grok-4.7', 'moonshotai/kimi-k3.1-pro', 'inclusionai/ling-3.1-flash', 'reflection/beam-1.0-501b-a23b', 'stepfun/step-5-preview', 'openai/gpt-6.1-sol'];
@@ -33,7 +36,10 @@ export async function onRequestPost({ request, env }) {
   const r = await fetch('https://openrouter.ai/api/v1/chat/completions', {
     method: 'POST',
     headers: { 'Authorization': 'Bearer ' + env.OPENROUTER_KEY, 'Content-Type': 'application/json', 'HTTP-Referer': url.origin, 'X-Title': 'Ma Omer HaTakanon' },
-    body: JSON.stringify({ model, messages, stream: !!body.stream, max_tokens: body.stream ? 16000 : body.model ? 8000 : 2000, temperature: 0.2, reasoning: { effort: 'low', exclude: true }, usage: { include: true } })
+    // 4.11.2026 (security review): answers are a few thousand tokens; the comparison keeps its larger room. PRIVACY=1 (a setting)
+    // asks OpenRouter for providers that keep no data; ?private=1 on a comparison call tries it before the setting is turned on
+    body: JSON.stringify(Object.assign({ model, messages, stream: !!body.stream, max_tokens: test ? (body.stream ? 16000 : 8000) : (body.stream ? 6000 : 2000), temperature: 0.2, reasoning: { effort: 'low', exclude: true }, usage: { include: true } },
+      env.PRIVACY === '1' || (test && url.searchParams.has('private')) ? { provider: { data_collection: 'deny' } } : {}))
   });
   return new Response(r.body, { status: r.status, headers: { 'Content-Type': r.headers.get('Content-Type') || 'application/json', 'Cache-Control': 'no-store' } });
 }

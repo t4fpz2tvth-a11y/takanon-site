@@ -22,7 +22,9 @@ export async function setup(env) {
 // a code as typed: spaces dropped, any dash made "-", Latin letters lowercase (3.11.2026: codes made of the coordinator's
 // name, a word and a number, easy to type on a phone)
 export const normCode = s => String(s || '').trim().replace(/\s+/g, '').replace(/[\u05BE\u2010-\u2015_]/g, '-').toLowerCase();
-const FAILS_PER_HOUR = 20;
+// 4.11.2026 (security review): 20 locked every coordinator on the campus network after a few mistyped codes; the codes are long
+// (a name, a word and a number), so 60 wrong ones an hour per address still leaves guessing out of reach
+const FAILS_PER_HOUR = 60;
 // the sign-in cookie: HttpOnly (the page's scripts cannot read it), sent only to this site, kept for a year
 export const COOKIE = 'tkc';
 export function codeCookie(request) {
@@ -38,7 +40,7 @@ export async function who(request, env) {
   if (!raw || raw.length > 200) return null;
   if (!env.DB) return env.ADMIN_CODE && (raw === env.ADMIN_CODE || sent === env.ADMIN_CODE) ? { uid: 'admin', name: 'רמ"ח', admin: true } : null;
   await setup(env);
-  // wrong codes are counted per address: after 20 in an hour, no code is checked from it until the hour passes. 4.11.2026
+  // wrong codes are counted per address: after 60 in an hour, no code is checked from it until the hour passes. 4.11.2026
   // (security review): the head's code too, so it cannot be guessed without limit
   const ip = request.headers.get('CF-Connecting-IP') || 'x', hour = Date.now() - 3600e3;
   const f = await env.DB.prepare('SELECT COUNT(*) AS n FROM fails WHERE ip = ? AND t > ?').bind(ip, hour).first();

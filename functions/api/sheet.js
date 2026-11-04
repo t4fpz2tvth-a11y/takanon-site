@@ -4,8 +4,11 @@
 // POST { op: 'status' } | { op: 'config', url } | { op: 'call', tool, args } with X-Code.
 import { text, json, setup, who } from '../_lib.js';
 const PATH = 'config/sheet';
-async function pass(url, body) {
-  const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(body), redirect: 'follow' });
+// 4.11.2026 (security review): every call carries the shared secret SHEET_SECRET (a Cloudflare secret, set by the head); the
+// script in the sheet answers nothing without it, so its link alone gives no access
+async function pass(url, body, env) {
+  if (!env.SHEET_SECRET || String(env.SHEET_SECRET).length < 24) return { error: 'הסוד המשותף SHEET_SECRET עוד לא הוגדר בהגדרות האתר' };
+  const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(Object.assign({}, body, { secret: env.SHEET_SECRET })), redirect: 'follow' });
   const t = await r.text(); let j = null; try { j = JSON.parse(t); } catch (_) {}
   if (!r.ok || !j) return { error: 'הסקריפט בטבלה לא ענה כמצופה (' + r.status + ')' };
   return j;
@@ -24,7 +27,7 @@ export async function onRequestPost({ request, env }) {
   if (b.op === 'config') {
     const v = String(b.url || '').trim();
     if (!/^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec$/.test(v)) return text('הקישור צריך להתחיל ב־https://script.google.com/macros/s/ ולהסתיים ב־/exec', 400);
-    const ping = await pass(v, { tool: 'ping' });
+    const ping = await pass(v, { tool: 'ping' }, env);
     if (!ping.ok) return text(ping.error || 'הסקריפט לא ענה', 400);
     await env.DB.prepare('INSERT OR REPLACE INTO docs (path, coll, data, t) VALUES (?, ?, ?, ?)').bind(PATH, 'config', JSON.stringify({ url: v }), Date.now()).run();
     return json({ ok: true, tab: ping.tab });
@@ -32,7 +35,7 @@ export async function onRequestPost({ request, env }) {
   if (b.op === 'call') {
     if (!url) return text('not connected', 412);
     if (!['get_values', 'update_values', 'append_values'].includes(b.tool)) return text('unknown tool', 400);
-    return json(await pass(url, { tool: b.tool, args: b.args || {} }));
+    return json(await pass(url, { tool: b.tool, args: b.args || {} }, env));
   }
   return text('unknown op', 400);
 }

@@ -52,7 +52,7 @@ export async function onRequestPost({ request, env }) {
     headers: { 'Authorization': 'Bearer ' + env.OPENROUTER_KEY, 'Content-Type': 'application/json', 'HTTP-Referer': url.origin, 'X-Title': 'Ma Omer HaTakanon' },
     // 4.11.2026 (security review): answers are a few thousand tokens; the comparison keeps its larger room. PRIVACY=1 (a setting)
     // asks OpenRouter for providers that keep no data; ?private=1 on a comparison call tries it before the setting is turned on
-    body: JSON.stringify(Object.assign({ model, messages, stream: !!body.stream, max_tokens: big ? (body.stream ? 16000 : 8000) : (body.stream ? 6000 : 2000), temperature: 0.2, usage: { include: true } }, exp.has('noreason') ? {} : { reasoning: { effort: 'low', exclude: true } },
+    body: JSON.stringify(Object.assign({ model, messages, stream: !!body.stream, max_tokens: big ? (body.stream ? 16000 : 8000) : (body.stream ? 6000 : 2000), temperature: 0.2, usage: { include: true } }, exp.has('noreason') ? {} : exp.has('reasonoff') ? { reasoning: { enabled: false } } : exp.has('reasonmin') ? { reasoning: { effort: 'minimal', exclude: true } } : { reasoning: { effort: 'low', exclude: true } },
       env.PRIVACY === '1' || (test && url.searchParams.has('private')) ? { provider: { data_collection: 'deny' } } : {}))
   });
   return new Response(r.body, { status: r.status, headers: { 'Content-Type': r.headers.get('Content-Type') || 'application/json', 'Cache-Control': 'no-store' } });

@@ -32,6 +32,7 @@
     try {
       for (;;) {
         var x = await reader.read(); if (x.done) break;
+        if (!window.__tChunk) window.__tChunk = performance.now();   // 4.11.2026: speed check, when the stream's first bytes arrive
         buf += dec.decode(x.value, { stream: true });
         var lines = buf.split('\n'); buf = lines.pop();
         for (var i = 0; i < lines.length; i++) {
@@ -40,7 +41,7 @@
           try {
             var j = JSON.parse(d), c = j.choices && j.choices[0];
             if (j.error) throw err('error', j.error.message || 'שגיאה');
-            if (c && c.delta && c.delta.content) { text += c.delta.content; if (opts.onText) opts.onText({ text: text, delta: c.delta.content }); }
+            if (c && c.delta && c.delta.content) { if (!window.__tText) window.__tText = performance.now(); text += c.delta.content; if (opts.onText) opts.onText({ text: text, delta: c.delta.content }); }
             if (c && c.finish_reason) finish = c.finish_reason;
             if (j.usage && j.usage.cost) window.__cost += Number(j.usage.cost) || 0;
           } catch (e) { if (e.code) throw e; }

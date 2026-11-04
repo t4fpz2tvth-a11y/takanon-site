@@ -65,7 +65,7 @@ async function runOne(frame, model, c) {
   const outs = w.document.querySelectorAll('.ai-out');
   const UI = /^(ציטוט מהתקנון|Quote from the regulations|اقتباس من الأنظمة|הצגת הסעיף המלא|מה הצעד הבא|מה אומר התקנון|מה עוד צריך להבין|מועדים|עובדות וציר זמן|אפשרויות|הכול|למה, ומה עוד|ההודעה שהודבקה)$/;
   const ans = err ? '' : (outs.length ? outs[outs.length - 1].innerText.split('\n').filter(l => !UI.test(l.trim())).join('\n').trim() : '');
-  return { model, id: c.id, q: c.q, expect: c.expect, answer: ans, err, seconds: (Date.now() - t0) / 1000, first, calls: (() => { try { return w.performance.getEntriesByType('resource').filter(e => /\/api\/chat/.test(e.name)).map(e => [e.startTime - p0, e.responseStart - p0, e.responseEnd - p0].map(x => Math.round(x / 100) / 10)); } catch (_) { return []; } })(), cost: w.__cost || 0 };
+  return { model, id: c.id, q: c.q, expect: c.expect, answer: ans, err, seconds: (Date.now() - t0) / 1000, first, tChunk: w.__tChunk ? Math.round((w.__tChunk - p0) / 100) / 10 : null, tText: w.__tText ? Math.round((w.__tText - p0) / 100) / 10 : null, calls: (() => { try { return w.performance.getEntriesByType('resource').filter(e => /\/api\/chat/.test(e.name)).map(e => [e.startTime - p0, e.responseStart - p0, e.responseEnd - p0].map(x => Math.round(x / 100) / 10)); } catch (_) { return []; } })(), cost: w.__cost || 0 };
 }
 // a second pass for answers the judge did not score (its per-minute limit): one at a time, slowly
 window.rejudge = async (jm) => {

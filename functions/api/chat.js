@@ -46,6 +46,8 @@ export async function onRequestPost({ request, env }) {
     const i = m.content.indexOf(MARK), head = m.content.slice(0, i), tail = m.content.slice(i + 1).split(MARK).join('');
     m.content = exp.has('cache') && /^anthropic\//.test(model) ? [{ type: 'text', text: head, cache_control: { type: 'ephemeral' } }, { type: 'text', text: tail }] : head + tail;
   }
+  // noask (comparison only): the answer is asked not to stop at a clarifying question, appended to the answer's own prompt
+  if (exp.has('noask') && body.stream) { const m = messages[messages.length - 1]; if (m && typeof m.content === 'string') m.content += '\n\nDo not reply with a clarifying question or [[ASK]] alone: answer now, for each case the excerpts settle, and put at most one short question about a missing fact at the end.'; }
   const big = test && !exp.has('live');
   const r = await fetch('https://openrouter.ai/api/v1/chat/completions', {
     method: 'POST',

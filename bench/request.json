@@ -3,10 +3,10 @@
   "anthropic/claude-haiku-5.5"
  ],
  "batch": 1,
- "run": 28,
+ "run": 29,
  "k": 3,
  "target": "",
- "tag": "spd_cache",
+ "tag": "spd_t",
  "set": "valid",
- "exp": "live,cache"
+ "exp": "live"
 }

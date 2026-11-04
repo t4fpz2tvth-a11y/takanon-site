@@ -2,6 +2,22 @@
 // collection add/orderBy/limit/get), kept in Cloudflare D1. POST { op, path, data?, order?, dir?, limit? } with X-Code.
 import { text, json, setup, who, allowed, codeCookie, setCookie } from '../_lib.js';
 const segs = p => String(p).split('/').filter(Boolean);
+// 4.11.2026 (Yoni's decision): a closed case is kept for one year from its closing, then removed with its steps and its
+// private record. Checked at most every six hours by each server copy, on the next call
+let swept = 0;
+async function sweep(env) {
+  const now = Date.now();
+  if (now - swept < 6 * 3600e3) return;
+  swept = now;
+  try {
+    const cut = new Date(now - 365 * 864e5).toISOString();
+    const rows = (await env.DB.prepare("SELECT path FROM docs WHERE coll LIKE 'log/%/cases' AND json_extract(data, '$.status') = 'closed' AND json_extract(data, '$.statusT') < ?").bind(cut).all()).results || [];
+    for (const r of rows) {
+      const [, uid, , id] = segs(r.path), priv = 'data/users/' + uid + '/priv/cases/' + id;
+      await env.DB.prepare('DELETE FROM docs WHERE path = ? OR path LIKE ? OR path = ? OR path LIKE ?').bind(r.path, r.path + '/%', priv, priv + '/%').run();
+    }
+  } catch (_) {}
+}
 export async function onRequestPost({ request, env }) {
   const origin = request.headers.get('Origin');
   if (origin && origin !== new URL(request.url).origin) return text('forbidden', 403);
@@ -22,6 +38,7 @@ export async function onRequestPost({ request, env }) {
   const write = ['set', 'update', 'delete', 'add'].includes(op);
   if (!allowed(u, path, write)) return json({ code: 'permission_denied' }, 403);
   await setup(env);
+  await sweep(env);
   const n = segs(path).length, now = Date.now();
   if (op === 'get') {
     if (n % 2) return text('a document path', 400);

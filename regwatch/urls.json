@@ -50,13 +50,6 @@
   ]
  },
  {
-  "url": "https://dormsreg.huji.ac.il/מידע-כללי/",
-  "docs": [
-   "מעונות",
-   "מעונות"
-  ]
- },
- {
   "url": "https://hatrada.huji.ac.il/sites/default/files/hatrada/files/tqnvn_lmnyt_htrdh_mynyt_-_mrts_2025.pdf",
   "docs": [
    "הטרדה מינית"
@@ -160,17 +153,23 @@
   ]
  },
  {
-  "url": "https://studentsadmin.huji.ac.il/sites/default/files/minhalt/files/nahal2020-2021..pdf",
-  "docs": [
-   "נה\"ל 2020-21"
-  ]
- },
- {
   "url": "https://studentsadmin.huji.ac.il/study",
   "docs": [
    "נה\"ל",
    "החלטות נה\"ל תשפ\"ו",
    "הבהרת מינהל הסטודנטים"
+  ]
+ },
+ {
+  "url": "https://dorms.huji.ac.il/media/uglonlbz/תקנון-מעודכן-עברית-כולל-נספח-משמעת-מעודכן-כולל-גיל-עדכון.pdf",
+  "docs": [
+   "מעונות"
+  ]
+ },
+ {
+  "url": "https://dorms.huji.ac.il/media/wybnw3sc/תקנון-מעודכן-ערבית-כולל-נספח-משמעת-כולל-עדכון-נושא-גיל-17626.pdf",
+  "docs": [
+   "מעונות (ערבית)"
   ]
  }
 ]

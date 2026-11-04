@@ -42,14 +42,15 @@ async function judge(model, c, ans) {
 }
 async function runOne(frame, model, c) {
   frame.src = 'about:blank'; await sleep(50);
-  frame.src = (TARGET ? '/' + TARGET + '/' : '/') + '?bench=1&model=' + encodeURIComponent(model) + '&r=' + Math.random();
+  frame.src = (TARGET ? '/' + TARGET + '/' : '/') + '?bench=1&model=' + encodeURIComponent(model) + (QS0.get('exp') ? '&exp=' + encodeURIComponent(QS0.get('exp')) : '') + '&r=' + Math.random();
   await new Promise(r => frame.onload = r);
   const w = frame.contentWindow; const t0 = Date.now();
   await sleep(800);
   w.document.getElementById('q').value = c.q; w.document.getElementById('ask-form').requestSubmit();
-  let err = '';
+  let err = '', first = 0;   // 4.11.2026: first = seconds until the answer's first words show (time to first text)
   while (Date.now() - t0 < 300000) {
-    await sleep(800);
+    await sleep(250);
+    if (!first) { const o = w.document.querySelector('.ai-out'); if (o && o.textContent.trim().length > 3) first = (Date.now() - t0) / 1000; }
     const pick = w.document.querySelector('.appeal-pick button[data-k=""]:not([disabled])'); if (pick) pick.click();
     const fx = w.document.querySelector('.sd-pre-go:not([disabled])'); if (fx && fx.offsetParent) fx.click();
     const e = w.document.getElementById('ai-err'); if (e && !e.hidden && e.textContent) { err = e.textContent; break; }
@@ -58,11 +59,12 @@ async function runOne(frame, model, c) {
   }
   await sleep(500);
   // the coordinators' diagnosis shows one part at a time: open all of them, so the judge reads the whole answer
+  w.document.querySelectorAll('.ai-out details').forEach(d => { d.open = true; });   // a folded part ("למה") is part of the answer
   const all = [...w.document.querySelectorAll('.diag-chip-all')].pop(); if (all && all.getAttribute('aria-pressed') !== 'true') { all.click(); await sleep(400); }
   const outs = w.document.querySelectorAll('.ai-out');
-  const UI = /^(ציטוט מהתקנון|Quote from the regulations|اقتباس من الأنظمة|הצגת הסעיף המלא|מה הצעד הבא|מה אומר התקנון|מה עוד צריך להבין|מועדים|עובדות וציר זמן|אפשרויות|הכול)$/;
+  const UI = /^(ציטוט מהתקנון|Quote from the regulations|اقتباس من الأنظمة|הצגת הסעיף המלא|מה הצעד הבא|מה אומר התקנון|מה עוד צריך להבין|מועדים|עובדות וציר זמן|אפשרויות|הכול|למה, ומה עוד|ההודעה שהודבקה)$/;
   const ans = err ? '' : (outs.length ? outs[outs.length - 1].innerText.split('\n').filter(l => !UI.test(l.trim())).join('\n').trim() : '');
-  return { model, id: c.id, q: c.q, expect: c.expect, answer: ans, err, seconds: (Date.now() - t0) / 1000, cost: w.__cost || 0 };
+  return { model, id: c.id, q: c.q, expect: c.expect, answer: ans, err, seconds: (Date.now() - t0) / 1000, first, cost: w.__cost || 0 };
 }
 // a second pass for answers the judge did not score (its per-minute limit): one at a time, slowly
 window.rejudge = async (jm) => {

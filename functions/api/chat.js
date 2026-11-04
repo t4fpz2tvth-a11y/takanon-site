@@ -33,12 +33,26 @@ export async function onRequestPost({ request, env }) {
   const tests = BUILTIN_TESTS.concat((env.TEST_MODELS || '').split(',').map(s => s.trim()).filter(Boolean));
   if (body.model && !(test && tests.includes(body.model))) return json('model not allowed', 403);
   const model = body.model || (body.tier === 'quick' ? (env.MODEL_QUICK || env.MODEL) : env.MODEL);
+  // 4.11.2026, speed experiments (comparison calls only, ?exp=a,b): live = the live answer length limits; noreason = no hidden
+  // reasoning step; cache = the fixed rules at the start of the prompt (up to the page's mark U+2063) are cached by the provider
+  const exp = test ? new Set((url.searchParams.get('exp') || '').split(',').filter(Boolean)) : new Set();
+  const MARK = '\u2063';
+  // a page without the mark yet: for the experiment, the fixed rules end where the student's details begin
+  if (exp.has('cache')) for (const m of messages) if (m && typeof m.content === 'string' && m.content.indexOf(MARK) < 0) {
+    const j = m.content.search(/\n\n(?:Student details \(given by the student\)|Details of the student's case)/);
+    if (j > 0) m.content = m.content.slice(0, j) + MARK + m.content.slice(j);
+  }
+  for (const m of messages) if (m && typeof m.content === 'string' && m.content.indexOf(MARK) >= 0) {
+    const i = m.content.indexOf(MARK), head = m.content.slice(0, i), tail = m.content.slice(i + 1).split(MARK).join('');
+    m.content = exp.has('cache') && /^anthropic\//.test(model) ? [{ type: 'text', text: head, cache_control: { type: 'ephemeral' } }, { type: 'text', text: tail }] : head + tail;
+  }
+  const big = test && !exp.has('live');
   const r = await fetch('https://openrouter.ai/api/v1/chat/completions', {
     method: 'POST',
     headers: { 'Authorization': 'Bearer ' + env.OPENROUTER_KEY, 'Content-Type': 'application/json', 'HTTP-Referer': url.origin, 'X-Title': 'Ma Omer HaTakanon' },
     // 4.11.2026 (security review): answers are a few thousand tokens; the comparison keeps its larger room. PRIVACY=1 (a setting)
     // asks OpenRouter for providers that keep no data; ?private=1 on a comparison call tries it before the setting is turned on
-    body: JSON.stringify(Object.assign({ model, messages, stream: !!body.stream, max_tokens: test ? (body.stream ? 16000 : 8000) : (body.stream ? 6000 : 2000), temperature: 0.2, reasoning: { effort: 'low', exclude: true }, usage: { include: true } },
+    body: JSON.stringify(Object.assign({ model, messages, stream: !!body.stream, max_tokens: big ? (body.stream ? 16000 : 8000) : (body.stream ? 6000 : 2000), temperature: 0.2, usage: { include: true } }, exp.has('noreason') ? {} : { reasoning: { effort: 'low', exclude: true } },
       env.PRIVACY === '1' || (test && url.searchParams.has('private')) ? { provider: { data_collection: 'deny' } } : {}))
   });
   return new Response(r.body, { status: r.status, headers: { 'Content-Type': r.headers.get('Content-Type') || 'application/json', 'Cache-Control': 'no-store' } });

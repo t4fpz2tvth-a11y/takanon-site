@@ -4,11 +4,16 @@
 // POST { op: 'status' } | { op: 'config', url } | { op: 'call', tool, args } with X-Code.
 import { text, json, setup, who } from '../_lib.js';
 const PATH = 'config/sheet';
-// 4.11.2026 (security review): every call carries the shared secret SHEET_SECRET (a Cloudflare secret, set by the head); the
-// script in the sheet answers nothing without it, so its link alone gives no access
-async function pass(url, body, env) {
-  if (!env.SHEET_SECRET || String(env.SHEET_SECRET).length < 24) return { error: 'הסוד המשותף SHEET_SECRET עוד לא הוגדר בהגדרות האתר' };
-  const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(Object.assign({}, body, { secret: env.SHEET_SECRET })), redirect: 'follow' });
+// 4.11.2026 (security review): every call carries a shared secret; the script in the sheet answers nothing without it, so its
+// link alone gives no access. 4.11.2026 (Yoni: "אני רוצה שאתה תעשה את הכל"): no one copies the secret by hand. When the head
+// connects the sheet, the site makes a random secret, keeps it in the storage next to the link (never in the code or the
+// repository) and hands it to the script once ("pair"); the script keeps the first secret it is given and refuses any other.
+// A secret set by hand in the site's settings (SHEET_SECRET) is still used when present.
+const newSecret = () => [...crypto.getRandomValues(new Uint8Array(32))].map(x => x.toString(16).padStart(2, '0')).join('');
+const secretOf = (env, cfg) => (env.SHEET_SECRET && String(env.SHEET_SECRET).length >= 24) ? String(env.SHEET_SECRET) : (cfg && cfg.secret) || '';
+async function pass(url, body, secret) {
+  if (!secret || secret.length < 24) return { error: 'הטבלה עוד לא חוברה (אין סוד משותף)' };
+  const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify(Object.assign({}, body, { secret })), redirect: 'follow' });
   const t = await r.text(); let j = null; try { j = JSON.parse(t); } catch (_) {}
   if (!r.ok || !j) return { error: 'הסקריפט בטבלה לא ענה כמצופה (' + r.status + ')' };
   return j;
@@ -22,20 +27,21 @@ export async function onRequestPost({ request, env }) {
   await setup(env);
   let b = {}; try { b = await request.json(); } catch (_) {}
   const row = await env.DB.prepare('SELECT data FROM docs WHERE path = ?').bind(PATH).first();
-  const url = row ? JSON.parse(row.data).url : '';
+  const cfg = row ? JSON.parse(row.data) : {}, url = cfg.url || '';
   if (b.op === 'status') return json({ connected: !!url });
   if (b.op === 'config') {
     const v = String(b.url || '').trim();
     if (!/^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec$/.test(v)) return text('הקישור צריך להתחיל ב־https://script.google.com/macros/s/ ולהסתיים ב־/exec', 400);
-    const ping = await pass(v, { tool: 'ping' }, env);
+    const secret = secretOf(env, cfg) || newSecret();
+    const ping = await pass(v, { tool: 'pair' }, secret);
     if (!ping.ok) return text(ping.error || 'הסקריפט לא ענה', 400);
-    await env.DB.prepare('INSERT OR REPLACE INTO docs (path, coll, data, t) VALUES (?, ?, ?, ?)').bind(PATH, 'config', JSON.stringify({ url: v }), Date.now()).run();
+    await env.DB.prepare('INSERT OR REPLACE INTO docs (path, coll, data, t) VALUES (?, ?, ?, ?)').bind(PATH, 'config', JSON.stringify({ url: v, secret: cfg.secret || (env.SHEET_SECRET ? undefined : secret) }), Date.now()).run();
     return json({ ok: true, tab: ping.tab });
   }
   if (b.op === 'call') {
     if (!url) return text('not connected', 412);
     if (!['get_values', 'update_values', 'append_values'].includes(b.tool)) return text('unknown tool', 400);
-    return json(await pass(url, { tool: b.tool, args: b.args || {} }, env));
+    return json(await pass(url, { tool: b.tool, args: b.args || {} }, secretOf(env, cfg)));
   }
   return text('unknown op', 400);
 }

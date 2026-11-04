@@ -1,17 +1,12 @@
 {
  "models": [
-  "openai/gpt-6.1-terra",
-  "anthropic/claude-haiku-5.5",
-  "google/gemini-3.8-flash",
-  "z-ai/glm-5.3-flash",
-  "openai/gpt-6-luna-pro",
-  "deepseek/deepseek-v4.1-flash-1017",
-  "openai/gpt-6-luna"
+  "anthropic/claude-haiku-5.5"
  ],
- "batch": 7,
- "run": 25,
+ "batch": 1,
+ "run": 26,
  "k": 3,
- "target": "coord",
- "tag": "extra",
- "set": "extra"
+ "target": "",
+ "tag": "spd_base",
+ "set": "valid",
+ "exp": "live"
 }

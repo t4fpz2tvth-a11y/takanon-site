@@ -216,8 +216,8 @@
     return new Promise(function (res) {
       var dk = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches, back = document.activeElement;
       var d = document.createElement('div'); d.setAttribute('role', 'alertdialog'); d.setAttribute('aria-modal', 'true'); d.setAttribute('aria-labelledby', 'tk-ask-t');
-      d.setAttribute('style', 'position:fixed;inset:0;z-index:120;background:rgba(14,19,30,.45);display:grid;place-items:center;padding:16px;font:16px/1.6 inherit');
-      d.innerHTML = '<div dir="rtl" style="background:' + (dk ? '#161D2B' : '#fff') + ';color:' + (dk ? '#E6EAF2' : '#141B2D') + ';max-width:420px;width:100%;box-sizing:border-box;padding:1.2rem;border-radius:14px;display:grid;gap:.9rem;box-shadow:0 12px 40px rgba(0,0,0,.25)">' +
+      d.setAttribute('style', 'position:fixed;inset:0;z-index:120;background:rgba(14,19,30,.45);display:grid;place-items:center;padding:16px;font:16px/1.6 inherit;animation:pvFade .15s var(--ease, ease) both');
+      d.innerHTML = '<div dir="rtl" style="background:' + (dk ? '#161D2B' : '#fff') + ';color:' + (dk ? '#E6EAF2' : '#141B2D') + ';max-width:420px;width:100%;box-sizing:border-box;padding:1.2rem;border-radius:14px;display:grid;gap:.9rem;box-shadow:0 12px 40px rgba(0,0,0,.25);border:1px solid var(--field-edge, #66718A);animation:pvRise .2s var(--ease, ease) both">' +
         '<p id="tk-ask-t" style="margin:0"></p><div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" data-a="1" style="font:inherit;min-height:44px;padding:.4rem 1rem;border:0;border-radius:10px;background:' + (dk ? '#9DB2FF' : '#2747B8') + ';color:' + (dk ? '#0E131E' : '#fff') + ';cursor:pointer"></button><button type="button" data-a="0" style="font:inherit;min-height:44px;padding:.4rem 1rem;border-radius:10px;border:1px solid ' + (dk ? '#66718A' : '#9BA5BA') + ';background:transparent;color:inherit;cursor:pointer"></button></div></div>';
       d.querySelector('#tk-ask-t').textContent = msg; d.querySelector('[data-a="1"]').textContent = yes; d.querySelector('[data-a="0"]').textContent = no || 'ביטול';
       var others = [].filter.call(document.body.children, function (x) { return !x.inert; }); others.forEach(function (x) { x.inert = true; });
@@ -234,11 +234,11 @@
     var esc = function (s) { return String(s == null ? '' : s).replace(/[<>&"]/g, function (c) { return { '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;' }[c]; }); };
     var d = document.createElement('div'); d.setAttribute('role', 'dialog'); d.setAttribute('aria-modal', 'true'); d.setAttribute('aria-labelledby', 'tk-fb-t');
     d.setAttribute('style', 'position:fixed;inset:0;z-index:100;background:rgba(14,19,30,.6);display:grid;place-items:center;padding:16px;font:15px/1.6 inherit');
-    var line = dk ? '#29334A' : '#D7DCE6', soft = dk ? '#9BA5BA' : '#566079';
+    var line = 'var(--field-edge, #8A93A6)', soft = dk ? '#9BA5BA' : '#566079';
     d.innerHTML = '<div dir="rtl" style="background:' + (dk ? '#161D2B' : '#fff') + ';color:' + (dk ? '#E6EAF2' : '#141B2D') + ';max-width:640px;width:100%;box-sizing:border-box;padding:1.2rem;border-radius:14px;display:grid;gap:.7rem;max-height:90vh;overflow:auto">' +
       '<h2 id="tk-fb-t" style="font-size:1.15rem;margin:0">משובים על התשובות</h2><p style="margin:0;color:' + soft + ';font-size:.9rem">מהבוט הציבורי (סטודנטים, בלי שם) ומבוט הרכזים (עם שם הרכז/ת). מספרי זהות הוסרו לפני השמירה. כל משוב נמחק אחרי שנה.</p>' +
       '<div role="group" aria-label="אילו משובים להציג" id="tk-fb-f" style="display:flex;gap:6px;flex-wrap:wrap"><button type="button" data-f="" aria-pressed="true">הכל</button><button type="button" data-f="public" aria-pressed="false">מהבוט הציבורי</button><button type="button" data-f="coord" aria-pressed="false">מהרכזים</button></div>' +
-      '<div id="tk-fb-list" aria-live="polite">טוען…</div><button type="button" id="tk-fb-close" style="font:inherit;min-height:44px;border-radius:10px;border:1px solid ' + line + ';background:transparent;color:inherit">סגירה</button></div>';
+      '<p id="tk-fb-say" role="status" style="margin:0;min-height:1.4em"></p><div id="tk-fb-list">טוען…</div><button type="button" id="tk-fb-close" style="font:inherit;min-height:44px;border-radius:10px;border:1px solid ' + line + ';background:transparent;color:inherit">סגירה</button></div>';
     var app = document.querySelector('.app'), bar = btn.closest('div'); if (app) app.inert = true; if (bar) bar.inert = true;
     var done = function () { document.removeEventListener('keydown', onKey, true); if (app) app.inert = false; if (bar) bar.inert = false; try { btn.focus(); } catch (_) {} counts(); };
     var onKey = function (e) { if (e.key === 'Escape' && d.isConnected && !document.querySelector('[role="alertdialog"]')) { e.preventDefault(); d.remove(); done(); } };
@@ -248,7 +248,8 @@
     d.querySelectorAll('#tk-fb-f button').forEach(function (b) { b.setAttribute('style', 'font:inherit;min-height:40px;padding:.2rem .8rem;border-radius:999px;border:1px solid ' + line + ';background:transparent;color:inherit;cursor:pointer'); });
     var paintF = function () { d.querySelectorAll('#tk-fb-f button').forEach(function (b) { var on = b.dataset.f === only; b.setAttribute('aria-pressed', String(on)); b.style.fontWeight = on ? '700' : '400'; b.style.borderColor = on ? (dk ? '#9DB2FF' : '#2747B8') : line; }); };
     d.querySelector('#tk-fb-f').addEventListener('click', function (e) { var b = e.target.closest('button[data-f]'); if (!b) return; only = b.dataset.f; paintF(); load(); }); paintF();
-    var tag = function (r) { var c = r === 'כן' ? (dk ? '#86EFAC' : '#166534') : r === 'לא' ? (dk ? '#FCA5A5' : '#991B1B') : (dk ? '#FFC985' : '#7A4A06'); return '<b style="color:' + c + '">' + esc(r) + '</b>'; };
+    var WORD = { 'כן': 'כן, עזרה', 'חלקית': 'חלקית', 'לא': 'לא עזרה' };
+    var tag = function (r) { var c = r === 'כן' ? (dk ? '#86EFAC' : '#166534') : r === 'לא' ? (dk ? '#FCA5A5' : '#991B1B') : (dk ? '#FFC985' : '#7A4A06'); return '<b style="color:' + c + '">' + esc(WORD[r] || r) + '</b>'; };
     async function load() {
       try {
         var r = await call('/api/db', { op: 'list', path: 'fb', order: 't0', dir: 'desc', limit: 300 }); if (!r.ok) throw new Error('שגיאה ' + r.status);
@@ -256,22 +257,27 @@
         var srcOf = function (f) { return f.src === 'coord' ? 'מרכז/ת' + (f.from ? ': ' + esc(f.from) : '') : 'מהבוט הציבורי'; };
         if (!docs.length) { list.textContent = only ? 'אין משובים מהסוג הזה.' : 'עוד אין משובים.'; return; }
         var un = docs.filter(function (x) { return !x.data.read; }).length;
-        list.innerHTML = '<p style="margin:0 0 .4rem">' + docs.length + ' משובים' + (un ? ', ' + un + ' חדשים' : '') + '</p>' + docs.map(function (x) { var f = x.data, when = ''; try { when = new Date(f.t0).toLocaleString('he-IL', { dateStyle: 'short', timeStyle: 'short' }); } catch (_) {}
-          return '<article data-id="' + esc(x.id) + '" style="border-top:1px solid ' + line + ';padding:.6rem 0;' + (f.read ? 'opacity:.75' : '') + '">' +
-            '<p style="margin:0">' + tag(f.r) + ' · <b>' + srcOf(f) + '</b> · <span style="color:' + soft + '">' + esc(when) + (f.read ? ' · נקרא' : ' · חדש') + '</span></p>' +
+        list.innerHTML = '<p style="margin:0 0 .4rem">' + docs.length + ' משובים' + (un ? ', ' + un + ' חדשים' : '') + '</p>' + docs.map(function (x) { var f = x.data, when = ''; try { var dd = new Date(f.t0); when = dd.getDate() + '.' + (dd.getMonth() + 1) + '.' + dd.getFullYear() + ' בשעה ' + String(dd.getHours()).padStart(2, '0') + ':' + String(dd.getMinutes()).padStart(2, '0'); } catch (_) {}
+          return '<article data-id="' + esc(x.id) + '" style="border-top:1px solid ' + line + ';padding:.6rem 0">' +
+            '<p style="margin:0">' + tag(f.r) + ' · <b>' + srcOf(f) + '</b> · <span style="color:' + soft + '">' + esc(when) + (f.read ? ' · נקרא' : '') + '</span>' + (f.read ? '' : ' <span style="display:inline-block;padding:0 .5rem;border-radius:999px;background:var(--accent-soft);color:var(--ink);font-size:.85rem">חדש</span>') + '</p>' +
             '<p style="margin:.2rem 0"><b>' + (f.src === 'coord' ? 'השאלה או ההודעה:' : 'השאלה:') + '</b> ' + esc(f.q || '—') + '</p>' + (f.text ? '<p style="margin:.2rem 0"><b>מה כתבו:</b> ' + esc(f.text) + '</p>' : '') +
             (f.a ? '<details><summary style="cursor:pointer;min-height:32px">תחילת התשובה</summary><p style="margin:.3rem 0;white-space:pre-wrap;color:' + soft + '">' + esc(f.a) + '</p></details>' : '') +
             '<div style="display:flex;gap:8px;margin-top:.3rem">' + (f.read ? '' : '<button type="button" data-read style="font:inherit;min-height:40px;padding:.2rem .8rem;border-radius:10px;border:1px solid ' + line + ';background:transparent;color:inherit">סימון כנקרא</button>') +
             '<button type="button" data-del style="font:inherit;min-height:40px;padding:.2rem .8rem;border-radius:10px;border:1px solid ' + line + ';background:transparent;color:inherit">מחיקה</button></div></article>'; }).join('');
       } catch (e) { list.textContent = 'המשובים לא נטענו: ' + e.message; }
     }
+    var say = d.querySelector('#tk-fb-say');
+    var after = async function (id, msg) { var arts = [].slice.call(list.querySelectorAll('article')), i = arts.findIndex(function (x) { return x.dataset.id === id; });
+      await load(); say.textContent = msg; counts();
+      var next = list.querySelectorAll('article')[Math.max(0, i)], b = next && next.querySelector('button');
+      if (b) b.focus(); else { list.setAttribute('tabindex', '-1'); list.focus(); } };
     list.addEventListener('click', async function (e) {
       var a = e.target.closest('article'); if (!a) return; var id = a.dataset.id;
-      if (e.target.closest('[data-read]')) { await call('/api/db', { op: 'update', path: 'fb/' + id, data: { read: true } }); load(); }
-      if (e.target.closest('[data-del]') && await askIn('למחוק את המשוב הזה? אי אפשר לשחזר.', 'מחיקה', 'ביטול')) { await call('/api/db', { op: 'delete', path: 'fb/' + id }); load(); }
+      if (e.target.closest('[data-read]')) { await call('/api/db', { op: 'update', path: 'fb/' + id, data: { read: true } }); after(id, 'סומן כנקרא.'); }
+      if (e.target.closest('[data-del]') && await askIn('למחוק את המשוב הזה? אי אפשר לשחזר.', 'מחיקה', 'ביטול')) { await call('/api/db', { op: 'delete', path: 'fb/' + id }); after(id, 'המשוב נמחק.'); }
     });
     d.querySelector('#tk-fb-close').addEventListener('click', function () { d.remove(); done(); });
-    load(); setTimeout(function () { var h = d.querySelector('#tk-fb-close'); if (h) h.focus(); }, 0);
+    load(); setTimeout(function () { var h = d.querySelector('#tk-fb-t'); if (h) { h.setAttribute('tabindex', '-1'); h.focus(); } }, 0);
     async function counts() { try { var r = await call('/api/db', { op: 'list', path: 'fb', limit: 2000 }); var n = ((await r.json()).docs || []).filter(function (x) { return !x.data.read; }).length; btn.textContent = 'משובים' + (n ? ' (' + n + ' חדשים)' : ''); } catch (_) {} }
     feedbackTab.counts = counts;
   }
@@ -279,7 +285,7 @@
     var bar = document.createElement('div');
     // audit 3.11.2026: a bar at the top of the page, not floating over the question box while scrolling
     bar.setAttribute('style', 'display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px;padding:6px 12px 0;font:14px system-ui,Arial,sans-serif');
-    bar.innerHTML = (me.admin ? '<button type="button" id="tk-admin">קודי גישה לרכזים</button><button type="button" id="tk-sheet">טבלת המעקב</button>' + (PV ? '<button type="button" id="tk-fb">משובים</button>' : '') : '') + '<button type="button" id="tk-out">יציאה (' + (me.name || '').replace(/[<>&"]/g, '') + ')</button>';
+    bar.innerHTML = (me.admin ? '<button type="button" id="tk-admin">קודי גישה לרכזים</button><button type="button" id="tk-sheet">טבלת המעקב</button>' + (PV ? '<button type="button" id="tk-fb">משובים</button>' : '') : '') + '<button type="button" id="tk-out">יציאה (' + (me.name || '').replace(/[<>&]/g, '').replace(/"/g, '״') + ')</button>';
     bar.querySelectorAll('button').forEach(function (b) { b.setAttribute('style', 'font:inherit;min-height:40px;padding:6px 12px;border-radius:8px;border:1px solid #9BA5BA;background:rgba(255,255,255,.9);color:#141B2D;cursor:pointer'); });
     // 5.11.2026 (review, preview): signing out is a quiet link, not the page's most visible button; the colours follow the theme
     if (PV) { var dk = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches;
@@ -314,8 +320,9 @@
         var cl = inner.querySelector('#tk-close'); if (cl) { cl.style.background = 'transparent'; cl.style.color = 'inherit'; cl.style.minHeight = '44px'; }
         var app2 = document.querySelector('.app'); if (app2) app2.inert = true;
         var done = function () { if (app2) app2.inert = false; document.removeEventListener('keydown', onKey, true); try { opener.focus(); } catch (_) {} };
-        var onKey = function (e) { if (e.key === 'Escape' && d.isConnected) { e.preventDefault(); d.remove(); done(); } };
+        var onKey = function (e) { if (e.key === 'Escape' && d.isConnected && !document.querySelector('[role="alertdialog"]')) { e.preventDefault(); d.remove(); done(); } };
         document.addEventListener('keydown', onKey, true);
+        var barC = opener && opener.closest && opener.closest('div'); if (barC) { barC.inert = true; var done0 = done; done = function () { barC.inert = false; done0(); }; }
         new MutationObserver(function (m, o) { if (!d.isConnected) { o.disconnect(); done(); } }).observe(document.body, { childList: true });
         setTimeout(function () { if (nm) nm.focus(); }, 0);
       }
@@ -325,15 +332,18 @@
       async function refresh() {
         try { var j = await codes({ op: 'list' });
           d.querySelector('#tk-list').innerHTML = j.codes.length ? j.codes.map(function (c) { return '<div style="display:flex;justify-content:space-between;gap:8px;border-bottom:1px solid #eee;padding:.3rem 0"><span>' + esc(c.name) + '</span><span><button type="button" data-reset="' + esc(c.uid) + '" style="font:inherit;font-size:.85rem;border:0;background:none;color:#2747B8;cursor:pointer">קוד חדש</button> · <button type="button" data-uid="' + esc(c.uid) + '" style="font:inherit;font-size:.85rem;border:0;background:none;color:#B42318;cursor:pointer">ביטול הקוד</button></span></div>'; }).join('') : 'עוד אין קודים.';
+          if (PV) { d.querySelectorAll('#tk-list > div').forEach(function (r) { r.style.borderBottom = '1px solid var(--rule)'; r.style.alignItems = 'center'; });   // craft round 2
+            d.querySelectorAll('#tk-list button').forEach(function (b) { b.style.minHeight = '44px'; b.style.padding = '0 .6rem'; b.style.color = b.dataset.reset ? 'var(--accent)' : 'var(--bad-ink)'; }); }
         } catch (e) { d.querySelector('#tk-list').textContent = e.message; }
       }
       refresh();
       d.querySelector('#tk-close').addEventListener('click', function () { d.remove(); });
       function showCode(j) { var box = d.querySelector('#tk-new'); box.hidden = false;
+        if (PV) { box.style.background = 'var(--amber-soft)'; box.style.color = 'var(--amber-ink)'; box.setAttribute('role', 'status'); box.setAttribute('tabindex', '-1'); setTimeout(function () { try { box.focus(); } catch (_) {} }, 0); }
         box.innerHTML = 'הקוד של ' + esc(j.name) + ': <b style="font-size:1.2rem;user-select:all">' + esc(j.code) + '</b><br>העבירו אותו לרכז/ת. הוא מוצג רק עכשיו. אפשר להקליד אותו עם רווחים או בלי, והמקפים לא חייבים להיות מדויקים.'; }
       d.querySelector('#tk-list').addEventListener('click', async function (e) { var rb = e.target.closest('button[data-reset]');
         if (rb) { if (!(await askIn('ליצור קוד חדש? הקוד הקודם יפסיק לעבוד, והמקרים של הרכז/ת נשארים.', 'כן, קוד חדש', 'ביטול'))) return; try { showCode(await codes({ op: 'reset', uid: rb.dataset.reset })); } catch (e3) { alert(e3.message); } return; }
-        var b = e.target.closest('button[data-uid]'); if (!b || !(await askIn('לבטל את הקוד? הרכז/ת לא יוכל/תוכל להיכנס איתו יותר.', 'ביטול הקוד', 'השארת הקוד'))) return; await codes({ op: 'revoke', uid: b.dataset.uid }); refresh(); });
+        var b = e.target.closest('button[data-uid]'); if (!b || !(await askIn('לבטל את הקוד? הרכז/ת לא יוכל/תוכל להיכנס איתו יותר.', 'ביטול הקוד', 'השארת הקוד'))) return; await codes({ op: 'revoke', uid: b.dataset.uid }); await refresh(); if (PV) { var nf = d.querySelector('#tk-name'); if (nf) nf.focus(); } });
       d.querySelector('form').addEventListener('submit', async function (e) { e.preventDefault(); var n = d.querySelector('#tk-name').value.trim(); if (!n) return;
         try { showCode(await codes({ op: 'create', name: n }));
           d.querySelector('#tk-name').value = ''; refresh(); } catch (e2) { alert(e2.message); } });

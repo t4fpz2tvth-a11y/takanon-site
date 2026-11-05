@@ -19,7 +19,7 @@
   // 5.11.2026 (the blind review): the preview copy (/coord-next/) tells the server so: the model's vendor keeps nothing, and a
   // deleted case takes its private record with it. Its sign-in box is a real dialog, with a label and announced errors
   var PV = !/^\/coord-old\//.test(location.pathname);   // 5.11.2026 (Yoni: "תוציא הכל לבוטים"): the preview's behaviour is the live one, at /coord/ too
-  var PV2 = /^\/coord-next\//.test(location.pathname);   // 5.11.2026 (the UX audit): the new preview copy
+  var PV2 = false;   // 5.11.2026 (the UX audit): the new preview copy
   if (BENCH) { try { localStorage.setItem('reg-bot-tour-v3', '1'); } catch (_) {} }
   function memDb(b) {
     var p = String(b.path || ''), now = Date.now();
@@ -84,6 +84,11 @@
         var obs = new MutationObserver(function () { if (!d.isConnected) { unInert(); obs.disconnect(); } }); obs.observe(document.body, { childList: true });
       }
       if (why && PV) { var hm = d.querySelector('#tk-help'); if (hm) hm.textContent = why; }
+      if (PV2) {   // 5.11.2026 (the UX audit, #37): the sign-in window in the page's own font and colours, in both themes
+        d.style.font = 'inherit'; var fm = d.querySelector('form'); if (fm) { fm.style.background = 'var(--sheet, #fff)'; fm.style.color = 'var(--ink, #141B2D)'; fm.style.fontFamily = 'inherit'; }
+        var ci = d.querySelector('#tk-code'); if (ci) { ci.style.background = 'var(--paper, #fff)'; ci.style.color = 'var(--ink, #141B2D)'; ci.style.borderColor = 'var(--field-edge, #8A93A6)'; ci.style.fontFamily = 'inherit'; }
+        var cb = d.querySelector('form button'); if (cb) { cb.style.background = 'var(--accent, #2747B8)'; cb.style.color = 'var(--accent-ink, #fff)'; cb.style.fontFamily = 'inherit'; }
+      }
       document.body.appendChild(d);
       var f = d.querySelector('form');
       d.querySelector('#tk-code').focus();
@@ -300,7 +305,12 @@
     // 5.11.2026 (review, preview): signing out is a quiet link, not the page's most visible button; the colours follow the theme
     if (PV) { var dk = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches;
       bar.querySelectorAll('button').forEach(function (b) { b.style.background = dk ? '#161D2B' : '#fff'; b.style.color = dk ? '#E6EAF2' : '#141B2D'; b.style.borderColor = dk ? '#66718A' : '#9BA5BA'; });
-      var o = bar.querySelector('#tk-out'); o.style.border = '0'; o.style.background = 'none'; o.style.textDecoration = 'underline'; o.style.color = dk ? '#9BA5BA' : '#566079'; o.style.fontSize = '13px'; }
+      var o = bar.querySelector('#tk-out'); o.style.border = '0'; o.style.background = 'none'; o.style.textDecoration = 'underline'; o.style.color = dk ? '#9BA5BA' : '#566079'; o.style.fontSize = '13px';
+      if (PV2) {   // 5.11.2026 (the UX audit, #37): the bar follows the page's theme and font, whichever way the theme was chosen
+        bar.style.font = 'inherit'; bar.style.fontSize = '14px';
+        bar.querySelectorAll('button').forEach(function (b) { b.style.background = 'var(--sheet, #fff)'; b.style.color = 'var(--ink, #141B2D)'; b.style.borderColor = 'var(--field-edge, #8A93A6)'; b.style.fontFamily = 'inherit'; });
+        o.style.background = 'none'; o.style.color = 'var(--muted, #566079)';
+      } }
     document.body.prepend(bar);
     bar.querySelector('#tk-out').addEventListener('click', async function () { if (await askIn('לצאת מהמכשיר הזה? בכניסה הבאה יידרש הקוד שוב.', 'יציאה', 'ביטול')) { try { localStorage.removeItem(KEY); } catch (_) {} code = ''; fetch('/api/db', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{"op":"logout"}' }).catch(function () {}).then(function () { location.reload(); }); } });
     if (!me.admin) return;

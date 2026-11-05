@@ -7,8 +7,8 @@
  "scope": "/",
  "id": "/",
  "display": "standalone",
- "background_color": "#FFFFFF",
- "theme_color": "#4FA846",
+ "background_color": "#F2F4F8",
+ "theme_color": "#F2F4F8",
  "description": "תשובות מתוך תקנוני האוניברסיטה העברית, עם הסעיפים ולמי פונים",
  "icons": [
   {

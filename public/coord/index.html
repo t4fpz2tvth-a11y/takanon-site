@@ -16,6 +16,9 @@
   // keeps the log in this page's memory, so no test case ever reaches the real log or the alerts
   var QS = new URLSearchParams(location.search), BENCH = QS.get('bench') ? QS.get('model') : null, MEM = {}, memN = 0;
   window.__cost = 0;
+  // 5.11.2026 (the blind review): the preview copy (/coord-next/) tells the server so: the model's vendor keeps nothing, and a
+  // deleted case takes its private record with it. Its sign-in box is a real dialog, with a label and announced errors
+  var PV = /^\/coord-next\//.test(location.pathname);
   if (BENCH) { try { localStorage.setItem('reg-bot-tour-v3', '1'); } catch (_) {} }
   function memDb(b) {
     var p = String(b.path || ''), now = Date.now();
@@ -36,7 +39,7 @@
   async function call(url, body, signal) {
     var r;
     if (BENCH && url === '/api/chat') { url = '/api/chat?test=1' + (QS.get('exp') ? '&exp=' + encodeURIComponent(QS.get('exp')) : ''); body = Object.assign({}, body, { model: BENCH }); }
-    try { r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Code': encodeURIComponent(code) }, body: JSON.stringify(body), signal: signal }); }
+    try { r = await fetch(url, { method: 'POST', headers: Object.assign({ 'Content-Type': 'application/json', 'X-Code': encodeURIComponent(code) }, PV ? { 'X-Preview': '1' } : {}), body: JSON.stringify(body), signal: signal }); }
     catch (e) { if (signal && signal.aborted) throw err('cancelled'); throw err('network', 'אין חיבור לשרת'); }
     return r;
   }
@@ -60,6 +63,18 @@
         '<b style="font-size:1.2rem">מה אומר התקנון? · גרסת רכזים</b><span>הכניסו את קוד הגישה האישי שקיבלתם מרמ"ח.</span>' +
         '<input id="tk-code" autocomplete="off" style="font:inherit;padding:.6rem;border:1px solid #D7DCE6;border-radius:8px" placeholder="קוד גישה" dir="ltr">' +
         '<button style="font:inherit;padding:.6rem;border:0;border-radius:8px;background:#2747B8;color:#fff;cursor:pointer">כניסה</button><span id="tk-msg" style="color:#B42318"></span></form>';
+      if (PV) {
+        var dark = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches;
+        d.setAttribute('role', 'dialog'); d.setAttribute('aria-modal', 'true'); d.setAttribute('aria-labelledby', 'tk-title');
+        d.innerHTML = '<form dir="rtl" style="background:' + (dark ? '#161D2B' : '#fff') + ';color:' + (dark ? '#E6EAF2' : '#141B2D') + ';max-width:380px;width:100%;box-sizing:border-box;padding:1.5rem;border-radius:12px;display:grid;gap:.75rem">' +
+          '<h1 id="tk-title" style="font-size:1.2rem;margin:0">מה אומר התקנון? · גרסת רכזים</h1><p style="margin:0" id="tk-help">הכניסו את קוד הגישה האישי שקיבלתם מרמ"ח (ראש מחלקת אקדמיה).</p>' +
+          '<label for="tk-code" style="font-weight:600">קוד גישה</label>' +
+          '<input id="tk-code" type="password" autocomplete="current-password" aria-describedby="tk-help tk-msg" style="font:inherit;font-size:16px;padding:.6rem;border:1px solid ' + (dark ? '#66718A' : '#8A93A6') + ';border-radius:8px;background:' + (dark ? '#0E131E' : '#fff') + ';color:inherit" dir="ltr">' +
+          '<button style="font:inherit;padding:.6rem;min-height:44px;border:0;border-radius:8px;background:' + (dark ? '#9DB2FF' : '#2747B8') + ';color:' + (dark ? '#0E131E' : '#fff') + ';cursor:pointer">כניסה</button><p id="tk-msg" role="alert" style="margin:0;color:' + (dark ? '#FCA5A5' : '#B42318') + '"></p></form>';
+        var app = document.querySelector('.app'); if (app) app.inert = true;
+        var unInert = function () { if (app) app.inert = false; };
+        var obs = new MutationObserver(function () { if (!d.isConnected) { unInert(); obs.disconnect(); } }); obs.observe(document.body, { childList: true });
+      }
       document.body.appendChild(d);
       var f = d.querySelector('form');
       d.querySelector('#tk-code').focus();
@@ -93,6 +108,7 @@
     return overlay();
   }
   meReady = signIn().then(function (m) { me = m; if (!BENCH) adminTools(); return m; });
+  window.__tkSignedIn = meReady;   // 5.11.2026: the preview copy starts its first-visit tour only after the sign-in
   // ---- the model
   async function sample(input, opts) {
     opts = opts || {}; await meReady;
@@ -187,6 +203,10 @@
     bar.setAttribute('style', 'display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px;padding:6px 12px 0;font:14px system-ui,Arial,sans-serif');
     bar.innerHTML = (me.admin ? '<button type="button" id="tk-admin">קודי גישה לרכזים</button><button type="button" id="tk-sheet">טבלת המעקב</button>' : '') + '<button type="button" id="tk-out">יציאה (' + (me.name || '').replace(/[<>&"]/g, '') + ')</button>';
     bar.querySelectorAll('button').forEach(function (b) { b.setAttribute('style', 'font:inherit;min-height:40px;padding:6px 12px;border-radius:8px;border:1px solid #9BA5BA;background:rgba(255,255,255,.9);color:#141B2D;cursor:pointer'); });
+    // 5.11.2026 (review, preview): signing out is a quiet link, not the page's most visible button; the colours follow the theme
+    if (PV) { var dk = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches;
+      bar.querySelectorAll('button').forEach(function (b) { b.style.background = dk ? '#161D2B' : '#fff'; b.style.color = dk ? '#E6EAF2' : '#141B2D'; b.style.borderColor = dk ? '#66718A' : '#9BA5BA'; });
+      var o = bar.querySelector('#tk-out'); o.style.border = '0'; o.style.background = 'none'; o.style.textDecoration = 'underline'; o.style.color = dk ? '#9BA5BA' : '#566079'; o.style.fontSize = '13px'; }
     document.body.prepend(bar);
     bar.querySelector('#tk-out').addEventListener('click', function () { if (confirm('לצאת מהמכשיר הזה? בכניסה הבאה יידרש הקוד שוב.')) { try { localStorage.removeItem(KEY); } catch (_) {} code = ''; fetch('/api/db', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{"op":"logout"}' }).catch(function () {}).then(function () { location.reload(); }); } });
     if (!me.admin) return;

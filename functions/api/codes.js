@@ -24,8 +24,11 @@ export function rhymeFor(name) {
   }
   return WORDS[pick(WORDS.length)];
 }
-function easyCode(name) {
+function easyCode(name, env) {
   const first = (String(name).trim().split(/\s+/)[0] || 'רכז').replace(/[^\p{L}\p{N}]/gu, '').slice(0, 12) || 'רכז';
+  // 5.11.2026 (the blind review: a known first name left about 90–2,000 possible codes): with STRONG_CODES=1 a new code has the
+  // name, the rhyme, two more random words and a four-digit number (about 10^10 possibilities, still words to type on a phone)
+  if (env && env.STRONG_CODES === '1') return normCode(first + '-' + rhymeFor(first) + '-' + WORDS[pick(WORDS.length)] + '-' + WORDS[pick(WORDS.length)] + '-' + (1000 + pick(9000)));
   return normCode(first + '-' + rhymeFor(first) + '-' + (10 + pick(90)));
 }
 export async function onRequestPost({ request, env }) {
@@ -41,7 +44,7 @@ export async function onRequestPost({ request, env }) {
     const name = String(b.name || '').trim().slice(0, 80); if (!name) return text('a name', 400);
     const uid = 'u_' + crypto.randomUUID().replace(/-/g, '').slice(0, 20);
     for (let t = 0; t < 5; t++) {   // a code already in use (very rare) is drawn again
-      const code = easyCode(name);
+      const code = easyCode(name, env);
       try { await env.DB.prepare('INSERT INTO codes (hash, uid, name, created) VALUES (?, ?, ?, ?)').bind(await sha(code), uid, name, Date.now()).run(); return json({ uid, name, code }); } catch (_) {}
     }
     return text('try again', 500);
@@ -51,7 +54,7 @@ export async function onRequestPost({ request, env }) {
     const row = await env.DB.prepare('SELECT name, created FROM codes WHERE uid = ?').bind(String(b.uid || '')).first();
     if (!row) return text('no such coordinator', 404);
     for (let t = 0; t < 5; t++) {
-      const code = easyCode(row.name);
+      const code = easyCode(row.name, env);
       try {
         await env.DB.batch([env.DB.prepare('DELETE FROM codes WHERE uid = ?').bind(String(b.uid)), env.DB.prepare('INSERT INTO codes (hash, uid, name, created) VALUES (?, ?, ?, ?)').bind(await sha(code), String(b.uid), row.name, row.created)]);
         return json({ uid: b.uid, name: row.name, code });

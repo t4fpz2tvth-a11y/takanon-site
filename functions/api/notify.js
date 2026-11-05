@@ -4,7 +4,7 @@ import { json, setup, who, sha } from '../_lib.js';
 export async function onRequestGet({ request, env }) {
   if (!env.DB) return json({ error: 'storage not connected' }, 503);
   const u = await who(request, env);
-  if (!u || !u.admin) return json({ error: 'head only' }, 403);
+  if (!u || !(u.admin || u.notify)) return json({ error: 'head only' }, 403);
   await setup(env);
   const { results } = await env.DB.prepare("SELECT path, data FROM docs WHERE coll LIKE 'log/%/cases'").all();
   const cases = [];

@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>הודעת פרטיות – בוט התקנון</title>
+<style>
+:root{
+  color-scheme: light dark;
+  --bg:#ffffff; --ink:#1a1d24; --muted:#4b5563; --rule:#8a94a6; --soft:#f2f4f8;
+  --accent:#1f4fd1; --ph-bg:#fff4c2; --ph-ink:#4a3700;
+  --draft-bg:#b42318; --draft-ink:#ffffff;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#11151c; --ink:#e8ebf0; --muted:#b4bcc8; --rule:#5b6576; --soft:#1a202b;
+    --accent:#9db2ff; --ph-bg:#3d3310; --ph-ink:#ffe7a3;
+    --draft-bg:#ffb4ab; --draft-ink:#3a0a05;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#11151c; --ink:#e8ebf0; --muted:#b4bcc8; --rule:#5b6576; --soft:#1a202b;
+  --accent:#9db2ff; --ph-bg:#3d3310; --ph-ink:#ffe7a3;
+  --draft-bg:#ffb4ab; --draft-ink:#3a0a05;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:system-ui,-apple-system,"Segoe UI","Noto Sans Hebrew","Arial Hebrew",Arial,sans-serif;
+  font-size:1.0625rem;line-height:1.7}
+main{max-width:46rem;margin:0 auto;padding:1rem 16px 3rem}
+.draft{margin:0 0 1rem;padding:.75rem 1rem;border-radius:.5rem;background:var(--draft-bg);color:var(--draft-ink);font-weight:700}
+.skip{position:absolute;inset-inline-start:16px;top:-3rem;background:var(--bg);color:var(--accent);padding:.5rem .75rem;border:2px solid var(--accent);border-radius:.4rem}
+.skip:focus{top:.5rem}
+h1{font-size:1.75rem;line-height:1.3;margin:1rem 0 .25rem}
+h2{font-size:1.3rem;line-height:1.35;margin:2rem 0 .5rem;padding-top:.75rem;border-top:1px solid var(--rule)}
+h3{font-size:1.1rem;margin:1.25rem 0 .25rem}
+p,ul,ol{margin:.5rem 0}
+ul,ol{padding-inline-start:1.4rem}
+li{margin:.25rem 0}
+.lead{color:var(--muted);margin-top:0}
+a{color:var(--accent);text-underline-offset:.2em}
+a:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:2px}
+.back{display:inline-block;padding:.6rem 0;min-height:44px;font-weight:600}
+nav.toc{background:var(--soft);border-radius:.5rem;padding:.5rem 1rem;margin:1rem 0}
+nav.toc ul{margin:.25rem 0}
+.ph{background:var(--ph-bg);color:var(--ph-ink);padding:0 .25em;border-radius:.2em;border:1px dashed currentColor}
+.note{background:var(--ph-bg);color:var(--ph-ink);border-radius:.4rem;padding:.4rem .75rem;font-size:.95rem}
+.box{background:var(--soft);border-radius:.5rem;padding:.75rem 1rem;margin:1rem 0}
+.ltr{direction:ltr;unicode-bidi:isolate}
+table{border-collapse:collapse;width:100%;margin:.75rem 0;font-size:.97rem}
+th,td{border:1px solid var(--rule);padding:.4rem .55rem;text-align:start;vertical-align:top}
+th{background:var(--soft)}
+.tablewrap{overflow-x:auto}
+section[lang="ar"]{font-family:system-ui,-apple-system,"Segoe UI","Noto Sans Arabic","Geeza Pro",Tahoma,Arial,sans-serif}
+section[lang="en"]{font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+footer{margin-top:2.5rem;padding-top:1rem;border-top:1px solid var(--rule);color:var(--muted);font-size:.95rem}
+</style>
+</head>
+<body>
+<a class="skip" href="#content">דילוג לתוכן</a>
+<main id="content">
+<p class="draft" role="note">טיוטה לבדיקת עורך דין / מורשה נגישות – לא לפרסום לפני אישור</p>
+
+<a class="back" href="../">→ חזרה לבוט</a>
+
+<h1>הודעת פרטיות</h1>
+<p class="lead">בוט התקנון ״מה אומר התקנון?״ של אגודת הסטודנטים באוניברסיטה העברית. כאן מוסבר איזה מידע נאסף, למה, מי מקבל אותו, כמה זמן הוא נשמר ואיך אפשר לבקש לראות אותו, לתקן אותו או למחוק אותו.</p>
+<p>עודכן לאחרונה: <span class="ph">[תאריך עדכון]</span></p>
+
+<nav class="toc" aria-label="תוכן העניינים">
+<ul>
+<li><a href="#who">מי מפעיל את השירות</a></li>
+<li><a href="#versions">שתי גרסאות של הבוט</a></li>
+<li><a href="#collect">איזה מידע נאסף</a></li>
+<li><a href="#purpose">למה המידע נאסף</a></li>
+<li><a href="#voluntary">מסירת המידע היא מרצון</a></li>
+<li><a href="#ai">בינה מלאכותית וספק בחו״ל</a></li>
+<li><a href="#voice">הקלטה בקול</a></li>
+<li><a href="#sheet">טבלת המעקב בגוגל</a></li>
+<li><a href="#who-sees">מי רואה את המידע</a></li>
+<li><a href="#retention">כמה זמן המידע נשמר</a></li>
+<li><a href="#rights">הזכויות שלכם ואיך לפנות</a></li>
+<li><a href="#security">אבטחת מידע</a></li>
+<li><a href="#contact">יצירת קשר</a></li>
+<li><a href="#ar">ملخص بالعربية</a></li>
+<li><a href="#en">Summary in English</a></li>
+</ul>
+</nav>
+
+<section aria-labelledby="who">
+<h2 id="who">מי מפעיל את השירות</h2>
+<p>את השירות מפעילה <span class="ph">[שם משפטי של האגודה]</span>, <span class="ph">[מספר עמותה]</span>, <span class="ph">[כתובת]</span> (״האגודה״). האגודה היא האחראית על המידע (בעלת המאגר).</p>
+<p>הבוט הוא שירות של האגודה. הוא <strong>לא</strong> שירות רשמי של האוניברסיטה העברית, והתשובות שלו אינן החלטה של האוניברסיטה. הנוסח המחייב הוא תמיד הנוסח הרשמי של תקנוני האוניברסיטה.</p>
+<p>אחראי הפרטיות באגודה: <span class="ph">[תפקיד האחראי על הפרטיות]</span>, <span class="ph">[כתובת דוא"ל לפניות פרטיות]</span>.</p>
+</section>
+
+<section aria-labelledby="versions">
+<h2 id="versions">שתי גרסאות של הבוט</h2>
+<ul>
+<li><strong>הבוט הציבורי</strong> – פתוח לכל אחד. עונה על שאלות על תקנוני האוניברסיטה.</li>
+<li><strong>גרסת הרכזים</strong> – כלי עבודה פנימי לרכזים האקדמיים של האגודה (כ־10 עד 15 אנשים, עם קוד גישה אישי). הרכזים מעתיקים אליו פניות של סטודנטים, מקבלים הצעה לאבחון ולטיפול, ומתעדים את הטיפול בפנייה.</li>
+</ul>
+</section>
+
+<section aria-labelledby="collect">
+<h2 id="collect">איזה מידע נאסף</h2>
+
+<h3>בבוט הציבורי</h3>
+<ul>
+<li><strong>השאלה שאתם כותבים</strong> (או אומרים בקול, ראו <a href="#voice">הקלטה בקול</a>).</li>
+<li><strong>פרטי פרופיל, אם בוחרים למלא אותם</strong>: פקולטה, ומצבים שמשפיעים על הזכויות לפי התקנון – שירות מילואים, הורות או הריון, לקות למידה, שפת אם. הפרופיל נשמר <strong>רק במכשיר שלכם</strong> (בדפדפן). הוא נשלח יחד עם השאלה כדי שהתשובה תתאים לכם.</li>
+<li><strong>כתובת IP ונתונים טכניים</strong> (מועד, סוג דפדפן). הם משמשים להגבלת שימוש לרעה ולתפעול השרתים.</li>
+</ul>
+<p><strong>השרת שלנו לא שומר את תוכן השאלות והתשובות.</strong> השאלה עוברת דרכו אל ספק הבינה המלאכותית, והתשובה חוזרת אליכם.</p>
+<p class="note">לבדוק לפני פרסום: כמה זמן ספקי התשתית (קלאודפלייר, אופן־ראוטר) שומרים יומני גישה, ומה בדיוק נרשם בהם. <span class="ph">[משך שמירת יומנים אצל הספקים]</span></p>
+
+<h3>בגרסת הרכזים</h3>
+<ul>
+<li><strong>הפנייה של הסטודנט</strong> כפי שהרכז מעתיק אותה. היא יכולה לכלול שם, מספר טלפון, פרטי לימודים, ופרטים רגישים כמו מצב בריאותי, מוגבלות, הריון, מילואים או מצב משפחתי.</li>
+<li><strong>תיעוד הטיפול</strong>: סיכום העובדות, התשובות שהכלי הציע, שם הסטודנט, פקולטה וקורס, תגיות, סטטוס, הצעד הבא והערות הרכז.</li>
+<li><strong>מכתבים שהכלי מנסח</strong>: לצורך ניסוח מכתב לגורם באוניברסיטה נשלחים פרטי הסטודנט שנדרשים למכתב, ופרטי הקשר של הרכז.
+  <span class="note">לבדוק לפני פרסום: אם מספר הזהות עדיין נשלח לספק בניסוח מכתב, לכתוב זאת כאן במפורש, או להפסיק לשלוח אותו לפני הפרסום.</span></li>
+<li><strong>פרטי הרכזים</strong>: שם, קוד גישה (נשמר מוצפן בגיבוב), וכתובות IP של ניסיונות כניסה שנכשלו (נמחקות אחרי שעה).</li>
+</ul>
+<p>לפני השליחה לספק הבינה המלאכותית מוסרים מהטקסט מספרי זהות. ברשומה המשותפת מוסרים גם מספרי טלפון וכתובות דוא״ל. שמות ופרטים רפואיים שהרכז כתב נשארים ברשומה.</p>
+<p class="note">לבדוק לפני פרסום: שהתיאור בפסקה הזו תואם את הקוד שרץ בפועל (בדיקת הפרטיות מצאה שמספרי טלפון ושמות עדיין נשלחים לספק).</p>
+</section>
+
+<section aria-labelledby="purpose">
+<h2 id="purpose">למה המידע נאסף</h2>
+<ul>
+<li>לענות על שאלות על תקנוני האוניברסיטה, ולהתאים את התשובה למצב שלכם.</li>
+<li>בגרסת הרכזים: לעזור לרכזים להבין פנייה, לבדוק מה התקנון קובע, לנסח פנייה לגורם באוניברסיטה, ולעקוב אחרי הטיפול עד שהוא נגמר.</li>
+<li>לפקח על איכות הטיפול בפניות באגודה (ראש תחום האקדמיה רואה את הרשומות המשותפות).</li>
+<li>לשמור על השירות מפני שימוש לרעה.</li>
+</ul>
+<p>אנחנו לא משתמשים במידע לפרסום, לא מוכרים אותו, ולא משתמשים בו למטרות אחרות.</p>
+</section>
+
+<section aria-labelledby="voluntary">
+<h2 id="voluntary">מסירת המידע היא מרצון</h2>
+<p>אין חובה חוקית למסור לנו מידע. אפשר לשאול בלי למלא פרופיל, ובלי לכתוב שם, מספר זהות או פרטים רפואיים. כדאי לכתוב רק מה שצריך כדי לקבל תשובה.</p>
+<p><strong>סטודנטים שפונים לרכז אקדמי:</strong> אפשר לבקש שהפנייה לא תעבור דרך כלי הבינה המלאכותית. במקרה כזה הרכז רק מתעד את הפנייה (בלי לשלוח אותה לספק) ומטפל בה בעצמו.</p>
+</section>
+
+<section aria-labelledby="ai">
+<h2 id="ai">בינה מלאכותית וספק בחו״ל</h2>
+<p>התשובות נוצרות אוטומטית על ידי מודל בינה מלאכותית של ספק חיצוני: <span class="ph">[שם ספק המודל ושם המודל]</span>. הגישה למודל עוברת דרך שירות מתווך בשם אופן־ראוטר (OpenRouter). השרתים של שני הספקים נמצאים <strong>מחוץ לישראל</strong> <span class="ph">[מדינות השרתים, למשל ארצות הברית]</span>. לכן השאלה, ובגרסת הרכזים גם הפנייה של הסטודנט, מועברות לחו״ל.</p>
+<ul>
+<li>הגדרנו את החשבון כך שהספקים לא ישמרו את התוכן ולא ישתמשו בו לאימון מודלים. <span class="note">לבדוק לפני פרסום: שההגדרה הזו פעילה בפועל, בחשבון ובקוד.</span></li>
+<li>הבסיס להעברה לחו״ל: <span class="ph">[הסכם עיבוד נתונים עם אופן־ראוטר ותנאי ספק המודל – לבדיקת עורך דין]</span>.</li>
+<li>תשובה של בינה מלאכותית <strong>עלולה לטעות</strong>. ליד כל תשובה מופיעים הסעיפים שעליהם היא מבוססת. לפני שמחליטים משהו חשוב, קראו את הנוסח הרשמי או פנו לרכז אקדמי באגודה: <span class="ph">[קישור לפנייה לרכזים]</span>.</li>
+</ul>
+</section>
+
+<section aria-labelledby="voice">
+<h2 id="voice">הקלטה בקול</h2>
+<p>אפשר לשאול בקול במקום להקליד. זיהוי הדיבור נעשה בשירות של הדפדפן, לא אצלנו: בכרום ההקלטה מעובדת אצל גוגל (Google), ובספארי אצל אפל (Apple). שרתי השירותים האלה נמצאים בחו״ל. אנחנו מקבלים רק את הטקסט שזוהה, לא את ההקלטה. ההקלטה נשמרת אצל הספקים לפי התנאים שלהם.</p>
+<p>בגרסת הרכזים: לא להקליט פרטים אישיים של סטודנטים בקול.</p>
+</section>
+
+<section aria-labelledby="sheet">
+<h2 id="sheet">טבלת המעקב בגוגל (גרסת הרכזים)</h2>
+<p>פרטים מתוך כל פנייה מועתקים לטבלת מעקב בגוגל שיטס (Google Sheets) של האגודה: שם הסטודנט, כותרת, פקולטה, תיאור קצר, סטטוס, הצעד הבא והערות. הטבלה נמצאת בחשבון <span class="ph">[חשבון הגוגל שבו נמצאת הטבלה]</span>, והגישה אליה מוגבלת ל־<span class="ph">[מי מורשה לגשת לטבלה]</span>. השרתים של גוגל נמצאים בחו״ל.</p>
+</section>
+
+<section aria-labelledby="who-sees">
+<h2 id="who-sees">מי רואה את המידע</h2>
+<div class="tablewrap">
+<table>
+<caption class="note" style="caption-side:top;text-align:start">המידע בגרסת הרכזים נשמר בשני מקומות</caption>
+<thead><tr><th scope="col">רשומה</th><th scope="col">מה יש בה</th><th scope="col">מי רואה</th></tr></thead>
+<tbody>
+<tr><td>רשומה משותפת</td><td>סיכום העובדות, התשובות, שם הסטודנט, פקולטה, קורס, סטטוס</td><td>הרכז שטיפל בפנייה, וראש תחום האקדמיה באגודה</td></tr>
+<tr><td>רשומה פרטית</td><td>הפנייה כפי שהועתקה, שמות קבצים מצורפים, נוסח מכתבים</td><td>רק הרכז שטיפל בפנייה</td></tr>
+<tr><td>טבלת המעקב</td><td>שם, כותרת, תיאור קצר, סטטוס, צעד הבא</td><td><span class="ph">[מי מורשה לגשת לטבלה]</span></td></tr>
+</tbody>
+</table>
+</div>
+<p>ספקים שמעבדים את המידע בשבילנו:</p>
+<ul>
+<li>קלאודפלייר (Cloudflare) – אחסון האתר והשרת, ומאגר הפניות (D1). <span class="ph">[אזור האחסון של המאגר]</span></li>
+<li>אופן־ראוטר (OpenRouter) וספק המודל – יצירת התשובות.</li>
+<li>גוגל (Google) – טבלת המעקב, וזיהוי דיבור בכרום.</li>
+<li>אפל (Apple) – זיהוי דיבור בספארי.</li>
+</ul>
+<p>לא נמסור מידע לגורם אחר, אלא בהסכמתכם או אם החוק מחייב.</p>
+</section>
+
+<section aria-labelledby="retention">
+<h2 id="retention">כמה זמן המידע נשמר</h2>
+<ul>
+<li><strong>הבוט הציבורי</strong>: תוכן השאלות לא נשמר בשרת שלנו. הפרופיל נשמר במכשיר שלכם עד שתמחקו אותו (ניקוי נתוני האתר בדפדפן).</li>
+<li><strong>פניות שנסגרו</strong>: נמחקות שנה אחרי הסגירה.</li>
+<li><strong>פניות פתוחות ושאלות כלליות</strong>: <span class="ph">[תקופה שהאגודה תקבע – ההצעה: פנייה בלי פעילות 6 חודשים נסגרת אוטומטית; שאלות כלליות נמחקות אחרי 12 חודשים]</span>.</li>
+<li><strong>טבלת המעקב</strong>: <span class="ph">[תקופה שהאגודה תקבע – ההצעה: כמו הרשומות במאגר]</span>.</li>
+<li><strong>גיבויים</strong>: מידע שנמחק עשוי להישאר בגיבוי של ספק האחסון עד <span class="ph">[מספר ימים]</span> ימים.</li>
+<li><strong>ניסיונות כניסה שנכשלו</strong>: נמחקים אחרי שעה.</li>
+</ul>
+</section>
+
+<section aria-labelledby="rights">
+<h2 id="rights">הזכויות שלכם ואיך לפנות</h2>
+<p>לפי חוק הגנת הפרטיות, אפשר לבקש:</p>
+<ul>
+<li><strong>לעיין</strong> במידע שנשמר עליכם;</li>
+<li><strong>לתקן</strong> מידע שגוי או חסר;</li>
+<li><strong>למחוק</strong> מידע.</li>
+</ul>
+<p><strong>איך פונים:</strong> שולחים דוא״ל אל <span class="ph">[כתובת דוא"ל לפניות פרטיות]</span>, או בטלפון <span class="ph ltr">[טלפון]</span>. כדאי לכתוב שם מלא, באיזה רכז או באיזו פקולטה טיפלו בפנייה, ובערך מתי. ייתכן שנבקש לאמת את זהותכם לפני שנמסור מידע.</p>
+<p>נענה <strong>תוך 30 יום</strong> מקבלת הבקשה. אם לא נוכל לעשות מה שביקשתם, נסביר למה.</p>
+<p>שאלות בבוט הציבורי לא נשמרות אצלנו, ולכן אין לנו מה להציג או למחוק מהן. את הפרופיל אפשר למחוק בעצמכם בדפדפן.</p>
+<p>אם לא קיבלתם מענה מספק, אפשר להתלונן לרשות להגנת הפרטיות.</p>
+</section>
+
+<section aria-labelledby="security">
+<h2 id="security">אבטחת מידע</h2>
+<ul>
+<li>כל התקשורת עם האתר מוצפנת (HTTPS).</li>
+<li>לגרסת הרכזים נכנסים רק עם קוד גישה אישי. קוד של רכז שעזב מבוטל.</li>
+<li>ההפרדה בין הרשומה המשותפת לרשומה הפרטית נאכפת בשרת.</li>
+<li>הרכזים חותמים על התחייבות לסודיות.</li>
+<li>אנחנו עובדים לפי נוהל אבטחה ותוכנית לטיפול באירוע אבטחה, ומדווחים לרשות להגנת הפרטיות לפי החוק.</li>
+</ul>
+<p>אין מערכת מאובטחת לגמרי. לכן כדאי לא לכתוב פרטים שלא נחוצים לשאלה.</p>
+</section>
+
+<section aria-labelledby="contact">
+<h2 id="contact">יצירת קשר</h2>
+<ul>
+<li>פרטיות: <span class="ph">[כתובת דוא"ל לפניות פרטיות]</span></li>
+<li>טלפון: <span class="ph ltr">[טלפון]</span></li>
+<li>דואר: <span class="ph">[כתובת]</span></li>
+</ul>
+<p>נעדכן את ההודעה הזו כשמשהו משתנה (למשל ספק חדש). תאריך העדכון מופיע למעלה.</p>
+</section>
+
+<section id="ar" lang="ar" dir="rtl" aria-labelledby="ar-h">
+<h2 id="ar-h">إشعار الخصوصية – ملخص بالعربية</h2>
+<p class="note" lang="he">תרגום טיוטה – לבדיקת דובר ערבית לפני פרסום.</p>
+<ul>
+<li>يدير هذه الخدمة اتحاد الطلاب في الجامعة العبرية <span class="ph" lang="he">[שם משפטי של האגודה]</span>. وهي ليست خدمة رسمية للجامعة، والنص الملزم هو نص أنظمة الجامعة.</li>
+<li><strong>البوت العام:</strong> نرسل سؤالكم، وما تختارون إدخاله في الملف الشخصي، إلى نموذج ذكاء اصطناعي لدى مزوّد خارجي عبر خدمة OpenRouter. خوادم المزوّدين خارج إسرائيل. لا يحفظ خادمنا نص الأسئلة. الملف الشخصي محفوظ على جهازكم فقط.</li>
+<li><strong>نسخة المنسقين:</strong> ينسخ منسقو الشؤون الأكاديمية في الاتحاد رسائل الطلاب (وقد تتضمن أسماء وأرقام هواتف وتفاصيل صحية) للحصول على اقتراح للمعالجة. تُحفظ الحالات في سجل مشترك يراه رئيس قسم الشؤون الأكاديمية، وفي سجل خاص لا يراه إلا المنسق، وتُنسخ تفاصيل مختصرة إلى جدول متابعة في Google Sheets.</li>
+<li>يمكن للطلاب أن يطلبوا ألا تُرسل رسالتهم إلى الذكاء الاصطناعي. عندها يكتفي المنسق بتوثيق الحالة ومعالجتها بنفسه.</li>
+<li><strong>الإدخال الصوتي</strong> يمر عبر خدمة التعرف على الكلام في المتصفح (Google في Chrome، وApple في Safari).</li>
+<li>تقديم المعلومات طوعي. تُحذف الحالات المغلقة بعد سنة من إغلاقها.</li>
+<li>إجابات الذكاء الاصطناعي قد تحتوي على أخطاء.</li>
+<li><strong>حقوقكم:</strong> الاطلاع على المعلومات وتصحيحها وحذفها. نرد خلال 30 يومًا. للتواصل: <span class="ph" lang="he">[כתובת דוא"ל לפניות פרטיות]</span></li>
+</ul>
+</section>
+
+<section id="en" lang="en" dir="ltr" aria-labelledby="en-h">
+<h2 id="en-h">Privacy notice – summary in English</h2>
+<ul>
+<li>This service is run by the Hebrew University student union, <span class="ph" lang="he" dir="rtl">[שם משפטי של האגודה]</span>. It is not an official university service; the binding text is always the university's own regulations.</li>
+<li><strong>Public bot:</strong> your question, and any profile details you choose to fill in, are sent to an AI model of an external vendor through OpenRouter. Their servers are outside Israel. Our server does not store your questions. Your profile is kept only on your device.</li>
+<li><strong>Coordinators' version:</strong> the union's academic coordinators paste students' messages (which may include names, phone numbers and health details) to get a suggested diagnosis. Cases are kept in a shared record that the head of academic affairs can see, and in a private record that only the coordinator can see. A short summary is copied to a tracking sheet in Google Sheets.</li>
+<li>Students may ask that their message not be sent to the AI tool. The coordinator then only records the case and handles it without the tool.</li>
+<li><strong>Voice input</strong> uses your browser's speech service (Google in Chrome, Apple in Safari).</li>
+<li>Giving information is voluntary. Closed cases are deleted one year after closing.</li>
+<li>AI answers may contain mistakes.</li>
+<li><strong>Your rights:</strong> access, correction and deletion. We reply within 30 days. Contact: <span class="ph" lang="he" dir="rtl">[כתובת דוא"ל לפניות פרטיות]</span></li>
+</ul>
+</section>
+
+<footer>
+<p><a href="./negishut.html">הצהרת נגישות</a> · <a href="../">חזרה לבוט</a></p>
+</footer>
+</main>
+</body>
+</html>

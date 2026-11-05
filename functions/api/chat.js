@@ -19,7 +19,7 @@ export async function onRequestPost({ request, env }) {
   if (!origin && request.headers.get('Sec-Fetch-Site') !== 'same-origin' && !url.searchParams.has('test')) return json('forbidden', 403);
   if (!env.OPENROUTER_KEY || !env.MODEL) return json('the server is not set up yet (OPENROUTER_KEY, MODEL)', 503);
   const test = url.searchParams.has('test');
-  if ((test || 'model' in Object.fromEntries(url.searchParams)) && !(await who(request, env) || {}).admin) return json('the comparison runs for the head only', 403);
+  if ((test || 'model' in Object.fromEntries(url.searchParams)) && !((w => w.admin || w.bench)(await who(request, env) || {}))) return json('the comparison runs for the head only', 403);
   const ip = request.headers.get('CF-Connecting-IP') || 'x';
   if (limited(ip, test ? 100000 : Number(env.PER_HOUR || 40))) return json('too many', 429);
   let body;
@@ -55,7 +55,8 @@ export async function onRequestPost({ request, env }) {
     // 4.11.2026 (security review): answers are a few thousand tokens; the comparison keeps its larger room. PRIVACY=1 (a setting)
     // asks OpenRouter for providers that keep no data; ?private=1 on a comparison call tries it before the setting is turned on
     body: JSON.stringify(Object.assign({ model, messages, stream: !!body.stream, max_tokens: big ? (body.stream ? 16000 : 8000) : (body.stream ? 6000 : 2000), temperature: 0.2, usage: { include: true } }, exp.has('noreason') ? {} : exp.has('reasonoff') ? { reasoning: { enabled: false } } : exp.has('reasonmin') ? { reasoning: { effort: 'minimal', exclude: true } } : { reasoning: { effort: 'low', exclude: true } },
-      env.PRIVACY === '1' || (test && url.searchParams.has('private')) ? { provider: { data_collection: 'deny' } } : {}))
+      // 5.11.2026 (the blind review): the preview copies (/next/, /coord-next/, the header X-Preview) always ask for providers that keep nothing
+      env.PRIVACY === '1' || request.headers.get('X-Preview') === '1' || (test && url.searchParams.has('private')) ? { provider: { data_collection: 'deny' } } : {}))
   });
   return new Response(r.body, { status: r.status, headers: { 'Content-Type': r.headers.get('Content-Type') || 'application/json', 'Cache-Control': 'no-store' } });
 }

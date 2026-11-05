@@ -46,6 +46,11 @@ export async function who(request, env) {
   const f = await env.DB.prepare('SELECT COUNT(*) AS n FROM fails WHERE ip = ? AND t > ?').bind(ip, hour).first();
   if (f && f.n >= FAILS_PER_HOUR) return null;
   if (env.ADMIN_CODE && (raw === env.ADMIN_CODE || sent === env.ADMIN_CODE)) return { uid: 'admin', name: 'רמ"ח', admin: true };
+  // 5.11.2026 (the blind review: the head's own code was the automation's secret too): two narrow tokens, each good for one job.
+  // NOTIFY_TOKEN only counts new cases (/api/notify); BENCH_TOKEN only runs the comparison (?test, the bench page's memory log).
+  // Neither reads or writes the log, the codes or the sheet. Until they are set, the automation keeps using the head's code
+  if (env.NOTIFY_TOKEN && raw === env.NOTIFY_TOKEN) return { uid: 'notify', name: 'התראות', admin: false, notify: true };
+  if (env.BENCH_TOKEN && raw === env.BENCH_TOKEN) return { uid: 'bench', name: 'בדיקות', admin: false, bench: true };
   const r = await env.DB.prepare('SELECT uid, name FROM codes WHERE hash = ?').bind(await sha(normCode(raw))).first();
   if (r) return { uid: r.uid, name: r.name, admin: false };
   await env.DB.batch([env.DB.prepare('INSERT INTO fails (ip, t) VALUES (?, ?)').bind(ip, Date.now()), env.DB.prepare('DELETE FROM fails WHERE t < ?').bind(hour)]);
@@ -54,6 +59,7 @@ export async function who(request, env) {
 // what the storage rules allow (as in the page inside Claude): log/<uid>/... is that coordinator's and the head's;
 // data/users/<uid>/... is that person's alone; the list "log" and the shared "dir" and "answers" are the head's
 export function allowed(u, path, write) {
+  if (u.notify || u.bench) return false;   // the narrow tokens never reach the storage
   const s = String(path).split('/').filter(Boolean);
   if (!s.length || s.some(x => x === '.' || x === '..')) return false;
   if (s[0] === 'data' && s[1] === 'users') return s.length >= 3 && s[2] === u.uid;

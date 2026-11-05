@@ -17,7 +17,7 @@
   async function post(input, opts, stream) {
     var r;
     try {
-      r = await fetch(API, { method: 'POST', headers: Object.assign({ 'Content-Type': 'application/json' }, BENCH_MODEL ? { 'X-Code': (function () { try { return localStorage.getItem('takanon-code') || ''; } catch (_) { return ''; } })() } : {}), signal: opts && opts.signal,
+      r = await fetch(API, { method: 'POST', headers: Object.assign({ 'Content-Type': 'application/json' }, /^\/next\//.test(location.pathname) ? { 'X-Preview': '1' } : {}, BENCH_MODEL ? { 'X-Code': (function () { try { return localStorage.getItem('takanon-code') || ''; } catch (_) { return ''; } })() } : {}), signal: opts && opts.signal,
         body: JSON.stringify(Object.assign({ input: input, tier: (opts && opts.modelTier) || 'default', stream: !!stream }, BENCH_MODEL ? { model: BENCH_MODEL } : {})) });
     } catch (e) { if (opts && opts.signal && opts.signal.aborted) throw err('cancelled'); throw err('network', 'אין חיבור לשרת'); }
     if (r.status === 429) throw err('rate_limited', 'יותר מדי שאלות בזמן קצר. נסו שוב בעוד כמה דקות.');

@@ -57,7 +57,17 @@ export async function onRequestPost({ request, env }) {
     await env.DB.prepare('UPDATE docs SET data = ?, t = ? WHERE path = ?').bind(JSON.stringify(merged), now, path).run();
     return json({ ok: true });
   }
-  if (op === 'delete') { await env.DB.prepare('DELETE FROM docs WHERE path = ? OR path LIKE ?').bind(path, path + '/%').run(); return json({ ok: true }); }
+  if (op === 'delete') {
+    await env.DB.prepare('DELETE FROM docs WHERE path = ? OR path LIKE ?').bind(path, path + '/%').run();
+    // 5.11.2026 (the blind review: a case the head deleted left the student's message in its private record): from the preview
+    // copy (X-Preview), a deleted case takes its private record with it, as the yearly sweep already does
+    const sg = segs(path);
+    if (request.headers.get('X-Preview') === '1' && sg.length === 4 && sg[0] === 'log' && sg[2] === 'cases') {
+      const priv = 'data/users/' + sg[1] + '/priv/cases/' + sg[3];
+      await env.DB.prepare('DELETE FROM docs WHERE path = ? OR path LIKE ?').bind(priv, priv + '/%').run();
+    }
+    return json({ ok: true });
+  }
   if (op === 'add') {
     if (n % 2 === 0) return text('a collection path', 400);
     const id = 'a' + crypto.randomUUID().replace(/-/g, '').slice(0, 19);

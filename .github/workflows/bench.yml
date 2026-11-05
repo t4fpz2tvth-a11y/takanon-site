@@ -19,4 +19,4 @@ jobs:
       - run: git config --global --add safe.directory "$GITHUB_WORKSPACE" && cd /tmp && npm init -y >/dev/null && npm i playwright@1.52.0
       - run: NODE_PATH=/tmp/node_modules node bench/run.mjs
         env:
-          BENCH_CODE: ${{ secrets.BENCH_CODE }}
+          BENCH_CODE: ${{ secrets.BENCH_TOKEN || secrets.BENCH_CODE }}

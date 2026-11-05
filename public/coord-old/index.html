@@ -18,7 +18,7 @@
   window.__cost = 0;
   // 5.11.2026 (the blind review): the preview copy (/coord-next/) tells the server so: the model's vendor keeps nothing, and a
   // deleted case takes its private record with it. Its sign-in box is a real dialog, with a label and announced errors
-  var PV = /^\/coord-next\//.test(location.pathname);
+  var PV = !/^\/coord-old\//.test(location.pathname);   // 5.11.2026 (Yoni: "תוציא הכל לבוטים"): the preview's behaviour is the live one, at /coord/ too
   if (BENCH) { try { localStorage.setItem('reg-bot-tour-v3', '1'); } catch (_) {} }
   function memDb(b) {
     var p = String(b.path || ''), now = Date.now();
@@ -118,6 +118,8 @@
     return overlay();
   }
   meReady = signIn().then(function (m) { me = m; if (!BENCH) adminTools(); return m; });
+  window.__tkSite = true;   // 5.11.2026: the page knows it runs on the site
+  window.__tkFeedback = function (body) { return call('/api/feedback', body); };   // the feedback goes with this coordinator's sign-in
   window.__tkSignedIn = meReady;   // 5.11.2026: the preview copy starts its first-visit tour only after the sign-in
   // ---- the model
   async function sample(input, opts) {
@@ -207,19 +209,88 @@
     return null;
   } };
   // ---- the head's tools: the access codes, and signing out
+  // 5.11.2026 (craft round): in the preview copy, the page's own confirmation instead of the browser's (labelled, focus inside,
+  // Escape says no); elsewhere the browser's, as before
+  function askIn(msg, yes, no) {
+    if (!PV) return Promise.resolve(confirm(msg));
+    return new Promise(function (res) {
+      var dk = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches, back = document.activeElement;
+      var d = document.createElement('div'); d.setAttribute('role', 'alertdialog'); d.setAttribute('aria-modal', 'true'); d.setAttribute('aria-labelledby', 'tk-ask-t');
+      d.setAttribute('style', 'position:fixed;inset:0;z-index:120;background:rgba(14,19,30,.45);display:grid;place-items:center;padding:16px;font:16px/1.6 inherit');
+      d.innerHTML = '<div dir="rtl" style="background:' + (dk ? '#161D2B' : '#fff') + ';color:' + (dk ? '#E6EAF2' : '#141B2D') + ';max-width:420px;width:100%;box-sizing:border-box;padding:1.2rem;border-radius:14px;display:grid;gap:.9rem;box-shadow:0 12px 40px rgba(0,0,0,.25)">' +
+        '<p id="tk-ask-t" style="margin:0"></p><div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" data-a="1" style="font:inherit;min-height:44px;padding:.4rem 1rem;border:0;border-radius:10px;background:' + (dk ? '#9DB2FF' : '#2747B8') + ';color:' + (dk ? '#0E131E' : '#fff') + ';cursor:pointer"></button><button type="button" data-a="0" style="font:inherit;min-height:44px;padding:.4rem 1rem;border-radius:10px;border:1px solid ' + (dk ? '#66718A' : '#9BA5BA') + ';background:transparent;color:inherit;cursor:pointer"></button></div></div>';
+      d.querySelector('#tk-ask-t').textContent = msg; d.querySelector('[data-a="1"]').textContent = yes; d.querySelector('[data-a="0"]').textContent = no || 'ביטול';
+      var others = [].filter.call(document.body.children, function (x) { return !x.inert; }); others.forEach(function (x) { x.inert = true; });
+      var end = function (v) { document.removeEventListener('keydown', key, true); others.forEach(function (x) { x.inert = false; }); d.remove(); try { back && back.focus(); } catch (_) {} res(v); };
+      var key = function (e) { if (e.key === 'Escape') { e.preventDefault(); end(false); } else if (e.key === 'Tab') { var bs = d.querySelectorAll('button'), f = bs[0], l = bs[bs.length - 1]; if (e.shiftKey && document.activeElement === f) { e.preventDefault(); l.focus(); } else if (!e.shiftKey && document.activeElement === l) { e.preventDefault(); f.focus(); } } };
+      document.addEventListener('keydown', key, true);
+      d.addEventListener('click', function (e) { var b = e.target.closest('button[data-a]'); if (b) end(b.dataset.a === '1'); });
+      document.body.appendChild(d); d.querySelector('[data-a="0"]').focus();
+    });
+  }
+  // 5.11.2026 (Yoni: "לשונית שמגיעה לרמ"ח בתוך בוט הרכזים"): the public bot's feedback, for the head; preview copy only
+  function feedbackTab(btn) {
+    var dk = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches;
+    var esc = function (s) { return String(s == null ? '' : s).replace(/[<>&"]/g, function (c) { return { '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;' }[c]; }); };
+    var d = document.createElement('div'); d.setAttribute('role', 'dialog'); d.setAttribute('aria-modal', 'true'); d.setAttribute('aria-labelledby', 'tk-fb-t');
+    d.setAttribute('style', 'position:fixed;inset:0;z-index:100;background:rgba(14,19,30,.6);display:grid;place-items:center;padding:16px;font:15px/1.6 inherit');
+    var line = dk ? '#29334A' : '#D7DCE6', soft = dk ? '#9BA5BA' : '#566079';
+    d.innerHTML = '<div dir="rtl" style="background:' + (dk ? '#161D2B' : '#fff') + ';color:' + (dk ? '#E6EAF2' : '#141B2D') + ';max-width:640px;width:100%;box-sizing:border-box;padding:1.2rem;border-radius:14px;display:grid;gap:.7rem;max-height:90vh;overflow:auto">' +
+      '<h2 id="tk-fb-t" style="font-size:1.15rem;margin:0">משובים על התשובות</h2><p style="margin:0;color:' + soft + ';font-size:.9rem">מהבוט הציבורי (סטודנטים, בלי שם) ומבוט הרכזים (עם שם הרכז/ת). מספרי זהות הוסרו לפני השמירה. כל משוב נמחק אחרי שנה.</p>' +
+      '<div role="group" aria-label="אילו משובים להציג" id="tk-fb-f" style="display:flex;gap:6px;flex-wrap:wrap"><button type="button" data-f="" aria-pressed="true">הכל</button><button type="button" data-f="public" aria-pressed="false">מהבוט הציבורי</button><button type="button" data-f="coord" aria-pressed="false">מהרכזים</button></div>' +
+      '<div id="tk-fb-list" aria-live="polite">טוען…</div><button type="button" id="tk-fb-close" style="font:inherit;min-height:44px;border-radius:10px;border:1px solid ' + line + ';background:transparent;color:inherit">סגירה</button></div>';
+    var app = document.querySelector('.app'), bar = btn.closest('div'); if (app) app.inert = true; if (bar) bar.inert = true;
+    var done = function () { document.removeEventListener('keydown', onKey, true); if (app) app.inert = false; if (bar) bar.inert = false; try { btn.focus(); } catch (_) {} counts(); };
+    var onKey = function (e) { if (e.key === 'Escape' && d.isConnected && !document.querySelector('[role="alertdialog"]')) { e.preventDefault(); d.remove(); done(); } };
+    document.addEventListener('keydown', onKey, true);
+    document.body.appendChild(d);
+    var list = d.querySelector('#tk-fb-list'), only = '';
+    d.querySelectorAll('#tk-fb-f button').forEach(function (b) { b.setAttribute('style', 'font:inherit;min-height:40px;padding:.2rem .8rem;border-radius:999px;border:1px solid ' + line + ';background:transparent;color:inherit;cursor:pointer'); });
+    var paintF = function () { d.querySelectorAll('#tk-fb-f button').forEach(function (b) { var on = b.dataset.f === only; b.setAttribute('aria-pressed', String(on)); b.style.fontWeight = on ? '700' : '400'; b.style.borderColor = on ? (dk ? '#9DB2FF' : '#2747B8') : line; }); };
+    d.querySelector('#tk-fb-f').addEventListener('click', function (e) { var b = e.target.closest('button[data-f]'); if (!b) return; only = b.dataset.f; paintF(); load(); }); paintF();
+    var tag = function (r) { var c = r === 'כן' ? (dk ? '#86EFAC' : '#166534') : r === 'לא' ? (dk ? '#FCA5A5' : '#991B1B') : (dk ? '#FFC985' : '#7A4A06'); return '<b style="color:' + c + '">' + esc(r) + '</b>'; };
+    async function load() {
+      try {
+        var r = await call('/api/db', { op: 'list', path: 'fb', order: 't0', dir: 'desc', limit: 300 }); if (!r.ok) throw new Error('שגיאה ' + r.status);
+        var docs = ((await r.json()).docs || []).filter(function (x) { return !only || (x.data.src || 'public') === only; });
+        var srcOf = function (f) { return f.src === 'coord' ? 'מרכז/ת' + (f.from ? ': ' + esc(f.from) : '') : 'מהבוט הציבורי'; };
+        if (!docs.length) { list.textContent = only ? 'אין משובים מהסוג הזה.' : 'עוד אין משובים.'; return; }
+        var un = docs.filter(function (x) { return !x.data.read; }).length;
+        list.innerHTML = '<p style="margin:0 0 .4rem">' + docs.length + ' משובים' + (un ? ', ' + un + ' חדשים' : '') + '</p>' + docs.map(function (x) { var f = x.data, when = ''; try { when = new Date(f.t0).toLocaleString('he-IL', { dateStyle: 'short', timeStyle: 'short' }); } catch (_) {}
+          return '<article data-id="' + esc(x.id) + '" style="border-top:1px solid ' + line + ';padding:.6rem 0;' + (f.read ? 'opacity:.75' : '') + '">' +
+            '<p style="margin:0">' + tag(f.r) + ' · <b>' + srcOf(f) + '</b> · <span style="color:' + soft + '">' + esc(when) + (f.read ? ' · נקרא' : ' · חדש') + '</span></p>' +
+            '<p style="margin:.2rem 0"><b>' + (f.src === 'coord' ? 'השאלה או ההודעה:' : 'השאלה:') + '</b> ' + esc(f.q || '—') + '</p>' + (f.text ? '<p style="margin:.2rem 0"><b>מה כתבו:</b> ' + esc(f.text) + '</p>' : '') +
+            (f.a ? '<details><summary style="cursor:pointer;min-height:32px">תחילת התשובה</summary><p style="margin:.3rem 0;white-space:pre-wrap;color:' + soft + '">' + esc(f.a) + '</p></details>' : '') +
+            '<div style="display:flex;gap:8px;margin-top:.3rem">' + (f.read ? '' : '<button type="button" data-read style="font:inherit;min-height:40px;padding:.2rem .8rem;border-radius:10px;border:1px solid ' + line + ';background:transparent;color:inherit">סימון כנקרא</button>') +
+            '<button type="button" data-del style="font:inherit;min-height:40px;padding:.2rem .8rem;border-radius:10px;border:1px solid ' + line + ';background:transparent;color:inherit">מחיקה</button></div></article>'; }).join('');
+      } catch (e) { list.textContent = 'המשובים לא נטענו: ' + e.message; }
+    }
+    list.addEventListener('click', async function (e) {
+      var a = e.target.closest('article'); if (!a) return; var id = a.dataset.id;
+      if (e.target.closest('[data-read]')) { await call('/api/db', { op: 'update', path: 'fb/' + id, data: { read: true } }); load(); }
+      if (e.target.closest('[data-del]') && await askIn('למחוק את המשוב הזה? אי אפשר לשחזר.', 'מחיקה', 'ביטול')) { await call('/api/db', { op: 'delete', path: 'fb/' + id }); load(); }
+    });
+    d.querySelector('#tk-fb-close').addEventListener('click', function () { d.remove(); done(); });
+    load(); setTimeout(function () { var h = d.querySelector('#tk-fb-close'); if (h) h.focus(); }, 0);
+    async function counts() { try { var r = await call('/api/db', { op: 'list', path: 'fb', limit: 2000 }); var n = ((await r.json()).docs || []).filter(function (x) { return !x.data.read; }).length; btn.textContent = 'משובים' + (n ? ' (' + n + ' חדשים)' : ''); } catch (_) {} }
+    feedbackTab.counts = counts;
+  }
   function adminTools() {
     var bar = document.createElement('div');
     // audit 3.11.2026: a bar at the top of the page, not floating over the question box while scrolling
     bar.setAttribute('style', 'display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px;padding:6px 12px 0;font:14px system-ui,Arial,sans-serif');
-    bar.innerHTML = (me.admin ? '<button type="button" id="tk-admin">קודי גישה לרכזים</button><button type="button" id="tk-sheet">טבלת המעקב</button>' : '') + '<button type="button" id="tk-out">יציאה (' + (me.name || '').replace(/[<>&"]/g, '') + ')</button>';
+    bar.innerHTML = (me.admin ? '<button type="button" id="tk-admin">קודי גישה לרכזים</button><button type="button" id="tk-sheet">טבלת המעקב</button>' + (PV ? '<button type="button" id="tk-fb">משובים</button>' : '') : '') + '<button type="button" id="tk-out">יציאה (' + (me.name || '').replace(/[<>&"]/g, '') + ')</button>';
     bar.querySelectorAll('button').forEach(function (b) { b.setAttribute('style', 'font:inherit;min-height:40px;padding:6px 12px;border-radius:8px;border:1px solid #9BA5BA;background:rgba(255,255,255,.9);color:#141B2D;cursor:pointer'); });
     // 5.11.2026 (review, preview): signing out is a quiet link, not the page's most visible button; the colours follow the theme
     if (PV) { var dk = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches;
       bar.querySelectorAll('button').forEach(function (b) { b.style.background = dk ? '#161D2B' : '#fff'; b.style.color = dk ? '#E6EAF2' : '#141B2D'; b.style.borderColor = dk ? '#66718A' : '#9BA5BA'; });
       var o = bar.querySelector('#tk-out'); o.style.border = '0'; o.style.background = 'none'; o.style.textDecoration = 'underline'; o.style.color = dk ? '#9BA5BA' : '#566079'; o.style.fontSize = '13px'; }
     document.body.prepend(bar);
-    bar.querySelector('#tk-out').addEventListener('click', function () { if (confirm('לצאת מהמכשיר הזה? בכניסה הבאה יידרש הקוד שוב.')) { try { localStorage.removeItem(KEY); } catch (_) {} code = ''; fetch('/api/db', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{"op":"logout"}' }).catch(function () {}).then(function () { location.reload(); }); } });
+    bar.querySelector('#tk-out').addEventListener('click', async function () { if (await askIn('לצאת מהמכשיר הזה? בכניסה הבאה יידרש הקוד שוב.', 'יציאה', 'ביטול')) { try { localStorage.removeItem(KEY); } catch (_) {} code = ''; fetch('/api/db', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{"op":"logout"}' }).catch(function () {}).then(function () { location.reload(); }); } });
     if (!me.admin) return;
+    var fbB = bar.querySelector('#tk-fb');
+    if (fbB) { fbB.addEventListener('click', function () { feedbackTab(fbB); });
+      (async function () { try { var r = await call('/api/db', { op: 'list', path: 'fb', limit: 2000 }); var n = ((await r.json()).docs || []).filter(function (x) { return !x.data.read; }).length; if (n) fbB.textContent = 'משובים (' + n + ' חדשים)'; } catch (_) {} })(); }
     bar.querySelector('#tk-sheet').addEventListener('click', async function () {
       var st = ''; try { var r0 = await call('/api/sheet', { op: 'status' }); st = (await r0.json()).connected ? 'הטבלה מחוברת. אפשר להחליף את הקישור:' : 'הטבלה עוד לא מחוברת.'; } catch (_) {}
       var url = prompt(st + '\n\nהדביקו כאן את הקישור של היישום מגוגל אפס סקריפט (מסתיים ב־/exec):');
@@ -261,8 +332,8 @@
       function showCode(j) { var box = d.querySelector('#tk-new'); box.hidden = false;
         box.innerHTML = 'הקוד של ' + esc(j.name) + ': <b style="font-size:1.2rem;user-select:all">' + esc(j.code) + '</b><br>העבירו אותו לרכז/ת. הוא מוצג רק עכשיו. אפשר להקליד אותו עם רווחים או בלי, והמקפים לא חייבים להיות מדויקים.'; }
       d.querySelector('#tk-list').addEventListener('click', async function (e) { var rb = e.target.closest('button[data-reset]');
-        if (rb) { if (!confirm('ליצור קוד חדש? הקוד הקודם יפסיק לעבוד, והמקרים שלו/ה נשארים.')) return; try { showCode(await codes({ op: 'reset', uid: rb.dataset.reset })); } catch (e3) { alert(e3.message); } return; }
-        var b = e.target.closest('button[data-uid]'); if (!b || !confirm('לבטל את הקוד? הרכז/ת לא יוכל/תוכל להיכנס איתו יותר.')) return; await codes({ op: 'revoke', uid: b.dataset.uid }); refresh(); });
+        if (rb) { if (!(await askIn('ליצור קוד חדש? הקוד הקודם יפסיק לעבוד, והמקרים של הרכז/ת נשארים.', 'כן, קוד חדש', 'ביטול'))) return; try { showCode(await codes({ op: 'reset', uid: rb.dataset.reset })); } catch (e3) { alert(e3.message); } return; }
+        var b = e.target.closest('button[data-uid]'); if (!b || !(await askIn('לבטל את הקוד? הרכז/ת לא יוכל/תוכל להיכנס איתו יותר.', 'ביטול הקוד', 'השארת הקוד'))) return; await codes({ op: 'revoke', uid: b.dataset.uid }); refresh(); });
       d.querySelector('form').addEventListener('submit', async function (e) { e.preventDefault(); var n = d.querySelector('#tk-name').value.trim(); if (!n) return;
         try { showCode(await codes({ op: 'create', name: n }));
           d.querySelector('#tk-name').value = ''; refresh(); } catch (e2) { alert(e2.message); } });

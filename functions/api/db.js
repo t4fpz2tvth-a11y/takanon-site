@@ -16,6 +16,8 @@ async function sweep(env) {
       const [, uid, , id] = segs(r.path), priv = 'data/users/' + uid + '/priv/cases/' + id;
       await env.DB.prepare('DELETE FROM docs WHERE path = ? OR path LIKE ? OR path = ? OR path LIKE ?').bind(r.path, r.path + '/%', priv, priv + '/%').run();
     }
+    // 5.11.2026: the public bot's feedback is kept for one year
+    await env.DB.prepare("DELETE FROM docs WHERE coll = 'fb' AND t < ?").bind(now - 365 * 864e5).run();
   } catch (_) {}
 }
 export async function onRequestPost({ request, env }) {

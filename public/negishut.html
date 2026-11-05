@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>הצהרת נגישות – בוט התקנון</title>
+<style>
+:root{
+  color-scheme: light dark;
+  --bg:#ffffff; --ink:#1a1d24; --muted:#4b5563; --rule:#8a94a6; --soft:#f2f4f8;
+  --accent:#1f4fd1; --ph-bg:#fff4c2; --ph-ink:#4a3700;
+  --draft-bg:#b42318; --draft-ink:#ffffff;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#11151c; --ink:#e8ebf0; --muted:#b4bcc8; --rule:#5b6576; --soft:#1a202b;
+    --accent:#9db2ff; --ph-bg:#3d3310; --ph-ink:#ffe7a3;
+    --draft-bg:#ffb4ab; --draft-ink:#3a0a05;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#11151c; --ink:#e8ebf0; --muted:#b4bcc8; --rule:#5b6576; --soft:#1a202b;
+  --accent:#9db2ff; --ph-bg:#3d3310; --ph-ink:#ffe7a3;
+  --draft-bg:#ffb4ab; --draft-ink:#3a0a05;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:system-ui,-apple-system,"Segoe UI","Noto Sans Hebrew","Arial Hebrew",Arial,sans-serif;
+  font-size:1.0625rem;line-height:1.7}
+main{max-width:46rem;margin:0 auto;padding:1rem 16px 3rem}
+.draft{margin:0 0 1rem;padding:.75rem 1rem;border-radius:.5rem;background:var(--draft-bg);color:var(--draft-ink);font-weight:700}
+.skip{position:absolute;inset-inline-start:16px;top:-3rem;background:var(--bg);color:var(--accent);padding:.5rem .75rem;border:2px solid var(--accent);border-radius:.4rem}
+.skip:focus{top:.5rem}
+h1{font-size:1.75rem;line-height:1.3;margin:1rem 0 .25rem}
+h2{font-size:1.3rem;line-height:1.35;margin:2rem 0 .5rem;padding-top:.75rem;border-top:1px solid var(--rule)}
+h3{font-size:1.1rem;margin:1.25rem 0 .25rem}
+p,ul,ol{margin:.5rem 0}
+ul,ol{padding-inline-start:1.4rem}
+li{margin:.25rem 0}
+.lead{color:var(--muted);margin-top:0}
+a{color:var(--accent);text-underline-offset:.2em}
+a:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:2px}
+.back{display:inline-block;padding:.6rem 0;min-height:44px;font-weight:600}
+nav.toc{background:var(--soft);border-radius:.5rem;padding:.5rem 1rem;margin:1rem 0}
+nav.toc ul{margin:.25rem 0}
+.ph{background:var(--ph-bg);color:var(--ph-ink);padding:0 .25em;border-radius:.2em;border:1px dashed currentColor}
+.note{background:var(--ph-bg);color:var(--ph-ink);border-radius:.4rem;padding:.4rem .75rem;font-size:.95rem}
+.box{background:var(--soft);border-radius:.5rem;padding:.75rem 1rem;margin:1rem 0}
+.ltr{direction:ltr;unicode-bidi:isolate}
+table{border-collapse:collapse;width:100%;margin:.75rem 0;font-size:.97rem}
+th,td{border:1px solid var(--rule);padding:.4rem .55rem;text-align:start;vertical-align:top}
+th{background:var(--soft)}
+.tablewrap{overflow-x:auto}
+section[lang="ar"]{font-family:system-ui,-apple-system,"Segoe UI","Noto Sans Arabic","Geeza Pro",Tahoma,Arial,sans-serif}
+section[lang="en"]{font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+footer{margin-top:2.5rem;padding-top:1rem;border-top:1px solid var(--rule);color:var(--muted);font-size:.95rem}
+</style>
+</head>
+<body>
+<a class="skip" href="#content">דילוג לתוכן</a>
+<main id="content">
+<p class="draft" role="note">טיוטה לבדיקת עורך דין / מורשה נגישות – לא לפרסום לפני אישור</p>
+
+<a class="back" href="../">→ חזרה לבוט</a>
+
+<h1>הצהרת נגישות</h1>
+<p class="lead">״מה אומר התקנון?״ – בוט התקנון של אגודת הסטודנטים באוניברסיטה העברית.</p>
+<p>ההצהרה עודכנה בתאריך <span class="ph">[תאריך עדכון ההצהרה]</span>.</p>
+
+<nav class="toc" aria-label="תוכן העניינים">
+<ul>
+<li><a href="#operator">מי מפעיל את השירות</a></li>
+<li><a href="#standard">המחויבות שלנו והתקן</a></li>
+<li><a href="#scope">על מה ההצהרה חלה</a></li>
+<li><a href="#measures">מה כבר נגיש</a></li>
+<li><a href="#limits">מגבלות ידועות (בטיפול)</a></li>
+<li><a href="#alt">דרך אחרת לקבל את המידע</a></li>
+<li><a href="#report">דיווח על בעיה או בקשה להתאמה</a></li>
+<li><a href="#coordinator">רכז הנגישות</a></li>
+<li><a href="#physical">הסדרי נגישות בשירות פנים אל פנים</a></li>
+<li><a href="#exemptions">פטורים</a></li>
+<li><a href="#review">מתי ואיך נבדקה הנגישות</a></li>
+</ul>
+</nav>
+
+<section aria-labelledby="operator">
+<h2 id="operator">מי מפעיל את השירות</h2>
+<p>את השירות מפעילה <span class="ph">[שם משפטי של האגודה]</span>, <span class="ph">[מספר עמותה]</span>. הבוט הוא שירות של האגודה, ולא שירות רשמי של האוניברסיטה העברית. הנוסח המחייב הוא תמיד הנוסח הרשמי של תקנוני האוניברסיטה.</p>
+</section>
+
+<section aria-labelledby="standard">
+<h2 id="standard">המחויבות שלנו והתקן</h2>
+<p>אנחנו רוצים שכל הסטודנטים יוכלו להשתמש בבוט, כולל אנשים עם מוגבלות. השירות אמור לעמוד בתקן הישראלי 5568 (חלק 1, מהדורת 2023, שמבוסס על הנחיות WCAG 2.0) ברמה AA, לפי תקנות שוויון זכויות לאנשים עם מוגבלות (התאמות נגישות לשירות), התשע״ג–2013, תקנות 35 עד 35ה.</p>
+<p>עדיין יש בשירות ליקויים. הם מפורטים למטה, ואנחנו מטפלים בהם.</p>
+</section>
+
+<section aria-labelledby="scope">
+<h2 id="scope">על מה ההצהרה חלה</h2>
+<ul>
+<li>הבוט הציבורי: <span class="ph ltr">[כתובת האתר]</span></li>
+<li>גרסת הרכזים (<span class="ltr">/coord/</span>), כולל מסך הכניסה</li>
+<li>התצוגה הקלאסית של הבוט</li>
+<li>האפליקציה שאפשר להתקין מהדפדפן</li>
+<li>התשובות שהבוט מנסח בעזרת בינה מלאכותית (זה תוכן של האגודה)</li>
+</ul>
+<p><strong>לא בשליטתנו:</strong> מסמכים ודפים של האוניברסיטה שהבוט מקשר אליהם. את הנגישות שלהם קובעת האוניברסיטה. אם נתקלתם בבעיה באחד מהם, נשמח לעזור לקבל את המידע בדרך אחרת (ראו <a href="#alt">דרך אחרת לקבל את המידע</a>).</p>
+</section>
+
+<section aria-labelledby="measures">
+<h2 id="measures">מה כבר נגיש</h2>
+<ul>
+<li>אפשר להשתמש בבוט עם מקלדת בלבד.</li>
+<li>האתר בנוי בעברית מימין לשמאל, עם סימון שפה וכיוון נכונים לדף.</li>
+<li>ממשק בעברית, בערבית ובאנגלית.</li>
+<li>מצב כהה, לפי הגדרת המכשיר.</li>
+<li>כיבוד הגדרת ״הפחתת תנועה״: האנימציות נעצרות.</li>
+<li>אפשר להגדיל את הטקסט עד 200%. ברוחב מסך של 320 פיקסלים אין גלילה הצידה.</li>
+<li>במכשירים ניידים כפתורים ואזורי לחיצה בגודל של 44 פיקסלים לפחות.</li>
+<li>הודעות שגיאה מוקראות אוטומטית לקוראי מסך. התשובה לא מוקראת מילה אחרי מילה בזמן שהיא נכתבת.</li>
+<li>כפתורי הסעיפים מסמנים לקורא המסך אם הציטוט פתוח או סגור.</li>
+<li>סיור ההדרכה בגרסת הרכזים הוא חלון נגיש: המקלדת נשארת בתוכו, ו־Esc סוגר אותו.</li>
+<li>ליד כל תשובה מופיעים ציטוטים של הסעיפים שעליהם היא מבוססת.</li>
+<li>אפשר לשאול בקול, בדפדפנים שתומכים בזה (ראו <a href="#voice-note">הערה על הקלטה בקול</a>).</li>
+<li>אין באתר ״תוסף נגישות״. הנגישות בנויה בקוד עצמו.</li>
+<li>קוראי מסך שנבדקו: <span class="ph">[לפרט אילו קוראי מסך נבדקו בפועל, ובאיזו מערכת ודפדפן – למשל NVDA עם כרום, VoiceOver באייפון. עד היום לא נעשתה בדיקה עם קורא מסך אמיתי]</span>.</li>
+</ul>
+<p id="voice-note"><strong>הערה על הקלטה בקול:</strong> זיהוי הדיבור נעשה בשירות של הדפדפן, לא אצלנו – בכרום אצל גוגל ובספארי אצל אפל. בפיירפוקס האפשרות לא זמינה. מי שלא יכולים או לא רוצים להשתמש בזה יכולים להקליד, או לפנות אלינו בדרכים שלמטה. פרטים על הפרטיות בהקלטה: <a href="./privacy.html#voice">הודעת הפרטיות</a>.</p>
+</section>
+
+<section aria-labelledby="limits">
+<h2 id="limits">מגבלות ידועות (בטיפול)</h2>
+<p>בבדיקה שעשינו נמצאו הליקויים האלה. כולם בטיפול. ליד כל אחד יופיע תאריך יעד לתיקון.</p>
+
+<h3>גרסת הרכזים</h3>
+<ul>
+<li><strong>מסך הכניסה:</strong> בכניסה הראשונה המקלדת נתקעת בסיור ההדרכה שמאחורי מסך הכניסה, ואפשר להגיע לתיבת הקוד רק אחרי לחיצה על Esc. מסך הכניסה לא מוגדר כחלון, לתיבת הקוד אין תווית, והודעת השגיאה לא מוקראת. במצב כהה הניגודיות בתיבת הקוד נמוכה. בטיפול. <span class="ph">[תאריך יעד]</span></li>
+<li>בסוף סיור ההדרכה המיקוד לא חוזר לתיבת השאלה. בטיפול. <span class="ph">[תאריך יעד]</span></li>
+<li>חלק מהקישורים בכלי הרכזים קטנים מ־24 פיקסלים במחשב. בטיפול. <span class="ph">[תאריך יעד]</span></li>
+</ul>
+
+<h3>שאלה ותשובה</h3>
+<ul>
+<li>אחרי ששולחים שאלה המיקוד נעלם מהמסך, ואין הודעה לקורא המסך שהתשובה בהכנה או שהיא מוכנה. בטיפול. <span class="ph">[תאריך יעד]</span></li>
+<li>כשהתשובה מוכנה, קורא המסך עלול להקריא אותה כולה יחד עם כל מה שמתחתיה, וגם כל ציטוט שנפתח. בטיפול. <span class="ph">[תאריך יעד]</span></li>
+<li>פריטים שמקבלים מיקוד עלולים להיות מוסתרים מתחת לשורת השאלה הקבועה בתחתית המסך. בטיפול. <span class="ph">[תאריך יעד]</span></li>
+<li>בהגדלה גבוהה (200% עד 400%) שורת השאלה הקבועה בתחתית תופסת חלק גדול מהמסך. בטיפול. <span class="ph">[תאריך יעד]</span></li>
+<li>כפתורי ״ציטוט מהתקנון״ מוסתרים מהעין אבל המקלדת עוברת דרכם. בטיפול. <span class="ph">[תאריך יעד]</span></li>
+<li>לתיבת שאלת ההמשך אין שם לקורא המסך ואין תווית גלויה. בטיפול. <span class="ph">[תאריך יעד]</span></li>
+<li>אין כותרות בתוך התשובה (התשובה, הצעד הבא, למי פונים, משוב), ואי אפשר לקפוץ משאלה לשאלה. גם בעיון בתקנונים אין כותרות. בטיפול. <span class="ph">[תאריך יעד]</span></li>
+<li>התשובה הקצרה (״כן״ או ״לא״) מוקראת פעמיים. בטיפול. <span class="ph">[תאריך יעד]</span></li>
+<li>בחלק מהתשובות כתובת דוא״ל מוצגת עם מקף מיותר, והקישור אליה שגוי. מספרי סעיפים כמו 19.2.1 עלולים להיות מוצגים בסדר הפוך. בטיפול. <span class="ph">[תאריך יעד]</span></li>
+<li>כשהשירות לא זמין מוצגת הודעה לא מדויקת (״החיבור נקטע״). בטיפול. <span class="ph">[תאריך יעד]</span></li>
+</ul>
+
+<h3>מראה ושפה</h3>
+<ul>
+<li>במצב כהה יש ניגודיות נמוכה בבועת השאלה, בשורה התחתונה (שמוצגת לבנה), בכותרת ״הפקולטה שלי״ ובחלק מהטקסטים המנחים בתיבות. בטיפול. <span class="ph">[תאריך יעד]</span></li>
+<li>הגבולות של תיבות וכפתורים חלשים, וסימון המיקוד בתיבות בהיר מדי. בטיפול. <span class="ph">[תאריך יעד]</span></li>
+<li>בממשק באנגלית ובערבית חלק מהטקסטים נשארו בעברית בלי סימון שפה, ולכן קורא המסך מקריא אותם בקול הלא נכון. בטיפול. <span class="ph">[תאריך יעד]</span></li>
+</ul>
+
+<h3>כלים נוספים</h3>
+<ul>
+<li><strong>מחשבון המועדים:</strong> כשפותחים אותו המיקוד לא עובר אליו, ושגיאה (למשל תאריך חסר) לא מסומנת בשדה. בטיפול. <span class="ph">[תאריך יעד]</span></li>
+<li><strong>הקלטה בקול:</strong> קורא המסך מקריא את מצב הכפתור בצורה מבלבלת, והודעת ״מקשיב…״ לא תמיד מוקראת. בטיפול. <span class="ph">[תאריך יעד]</span></li>
+<li>אין קישור ״דילוג לתיבת השאלה״ בגרסת הרכזים. בטיפול. <span class="ph">[תאריך יעד]</span></li>
+<li>חלק מקישורי חלון הציטוט (העתקה, סגירה) קטנים מ־24 פיקסלים במחשב. בטיפול. <span class="ph">[תאריך יעד]</span></li>
+<li>יש רכיבים שממוקמים בקוד הדף במקום לא תקין. הדפדפנים מתמודדים עם זה, אבל זה לא תקני. בטיפול. <span class="ph">[תאריך יעד]</span></li>
+</ul>
+
+<h3>חשוב לדעת</h3>
+<ul>
+<li>התשובות נכתבות על ידי בינה מלאכותית ועלולות לטעות. ליד כל תשובה יש קישור לסעיפים שעליהם היא מבוססת.</li>
+<li>הקלטה בקול עובדת דרך שירות הדיבור של הדפדפן (גוגל או אפל), ולא עובדת בפיירפוקס.</li>
+</ul>
+</section>
+
+<section aria-labelledby="alt">
+<h2 id="alt">דרך אחרת לקבל את המידע</h2>
+<p>אם קשה לכם להשתמש בבוט, אפשר לקבל את אותו מידע ישירות מהרכזים האקדמיים של האגודה:</p>
+<ul>
+<li>דוא״ל: <span class="ph">[כתובת דוא"ל של תחום האקדמיה]</span></li>
+<li>טלפון: <span class="ph ltr">[טלפון]</span></li>
+</ul>
+<p>נחזור אליכם תוך <span class="ph">[X]</span> ימי עבודה.</p>
+</section>
+
+<section aria-labelledby="report">
+<h2 id="report">דיווח על בעיה או בקשה להתאמה</h2>
+<p>נתקלתם בבעיית נגישות, או שאתם צריכים התאמה? ספרו לנו. הדרכים האלה לא תלויות בבוט:</p>
+<ul>
+<li>דוא״ל: <span class="ph">[כתובת דוא"ל לפניות נגישות]</span></li>
+<li>טלפון: <span class="ph ltr">[טלפון לפניות נגישות]</span></li>
+<li>טופס: <span class="ph">[קישור לטופס נגיש, אם יהיה]</span></li>
+</ul>
+<p>כדי שנוכל לעזור מהר, כדאי לכתוב:</p>
+<ul>
+<li>באיזה דף או מסך הייתה הבעיה, ומה ניסיתם לעשות;</li>
+<li>באיזה מכשיר ודפדפן השתמשתם;</li>
+<li>באיזו טכנולוגיה מסייעת השתמשתם, אם בכלל (למשל קורא מסך או הגדלה).</li>
+</ul>
+<p>נאשר שקיבלנו את הפנייה ונענה תוך <span class="ph">[X]</span> ימי עבודה. אם התיקון ייקח זמן, נגיד לכם מתי הוא צפוי, ובינתיים נעזור לקבל את המידע בדרך אחרת.</p>
+</section>
+
+<section aria-labelledby="coordinator">
+<h2 id="coordinator">רכז הנגישות</h2>
+<p class="note">למלא רק אם האגודה חייבת למנות רכז נגישות (למשל אם יש לה 25 עובדים או יותר). מורשה הנגישות יקבע. אם אין חובה – למחוק את הסעיף.</p>
+<ul>
+<li>שם: <span class="ph">[שם רכז הנגישות]</span></li>
+<li>תפקיד: <span class="ph">[תפקיד]</span></li>
+<li>דוא״ל: <span class="ph">[כתובת דוא"ל]</span></li>
+<li>טלפון: <span class="ph ltr">[טלפון]</span></li>
+</ul>
+</section>
+
+<section aria-labelledby="physical">
+<h2 id="physical">הסדרי נגישות בשירות פנים אל פנים</h2>
+<p><span class="ph">[אם לאגודה יש שעות קבלה או משרד: לתאר את הסדרי הנגישות הפיזיים, או לקשר לדף שמתאר אותם. אם אין – למחוק את הסעיף]</span></p>
+</section>
+
+<section aria-labelledby="exemptions">
+<h2 id="exemptions">פטורים</h2>
+<p><span class="ph">[רק אם עורך דין או מורשה נגישות אישרו פטור – לפרט אותו ואת החלופה שניתנת. למשל: פטור לתוכן בגרסת הרכזים, שמיועדת למשתמשים רשומים מראש בלבד. אם אין פטור – למחוק את הסעיף]</span></p>
+</section>
+
+<section aria-labelledby="review">
+<h2 id="review">מתי ואיך נבדקה הנגישות</h2>
+<ul>
+<li>בדיקה טכנית ראשונה, אוטומטית ובתסריטים (מקלדת, ניגודיות, עץ הנגישות של הדפדפן, הגדלה): נובמבר 2026. היא לא נעשתה עם קורא מסך אמיתי.</li>
+<li>בדיקת מורשה נגישות: <span class="ph">[שם מורשה הנגישות]</span>, <span class="ph">[תאריך הבדיקה]</span>, <span class="ph">[איך נבדק – ידנית ואוטומטית, באילו מכשירים וקוראי מסך]</span>.</li>
+<li>ההצהרה עודכנה: <span class="ph">[תאריך עדכון ההצהרה]</span>.</li>
+</ul>
+</section>
+
+<footer>
+<p><a href="./privacy.html">הודעת פרטיות</a> · <a href="../">חזרה לבוט</a></p>
+</footer>
+</main>
+</body>
+</html>

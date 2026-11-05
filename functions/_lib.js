@@ -65,5 +65,6 @@ export function allowed(u, path, write) {
   if (s[0] === 'data' && s[1] === 'users') return s.length >= 3 && s[2] === u.uid;
   if (s[0] === 'log') { if (s.length === 1) return u.admin && !write; return u.admin || s[1] === u.uid; }
   if (s[0] === 'dir' || s[0] === 'answers') return u.admin;
+  if (s[0] === 'fb') return u.admin;   // 5.11.2026: the public bot's feedback, for the head only
   return false;
 }

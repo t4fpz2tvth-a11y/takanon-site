@@ -236,12 +236,12 @@
     d.setAttribute('style', 'position:fixed;inset:0;z-index:100;background:rgba(14,19,30,.6);display:grid;place-items:center;padding:16px;font:15px/1.6 inherit');
     var line = 'var(--field-edge, #8A93A6)', soft = dk ? '#9BA5BA' : '#566079';
     d.innerHTML = '<div dir="rtl" style="background:' + (dk ? '#161D2B' : '#fff') + ';color:' + (dk ? '#E6EAF2' : '#141B2D') + ';max-width:640px;width:100%;box-sizing:border-box;padding:1.2rem;border-radius:14px;display:grid;gap:.7rem;max-height:90vh;overflow:auto">' +
-      '<h2 id="tk-fb-t" style="font-size:1.15rem;margin:0">משובים על התשובות</h2><p style="margin:0;color:' + soft + ';font-size:.9rem">מהבוט הציבורי (סטודנטים, בלי שם) ומבוט הרכזים (עם שם הרכז/ת). מספרי זהות הוסרו לפני השמירה. כל משוב נמחק אחרי שנה.</p>' +
+      '<div style="position:sticky;top:-1.2rem;margin:-1.2rem -1.2rem 0;padding:1.2rem 1.2rem .5rem;background:' + (dk ? '#161D2B' : '#fff') + ';display:flex;justify-content:space-between;align-items:center;gap:8px;z-index:1"><h2 id="tk-fb-t" style="font-size:1.15rem;margin:0">משובים על התשובות</h2><button type="button" id="tk-fb-close" style="font:inherit;min-height:44px;padding:0 1rem;border-radius:10px;border:1px solid ' + line + ';background:transparent;color:inherit;cursor:pointer">סגירה</button></div><p style="margin:0;color:' + soft + ';font-size:.9rem">מהבוט הציבורי (סטודנטים, בלי שם) ומבוט הרכזים (עם שם הרכז/ת). מספרי זהות הוסרו לפני השמירה. כל משוב נמחק אחרי שנה.</p>' +
       '<div role="group" aria-label="אילו משובים להציג" id="tk-fb-f" style="display:flex;gap:6px;flex-wrap:wrap"><button type="button" data-f="" aria-pressed="true">הכל</button><button type="button" data-f="public" aria-pressed="false">מהבוט הציבורי</button><button type="button" data-f="coord" aria-pressed="false">מהרכזים</button></div>' +
-      '<p id="tk-fb-say" role="status" style="margin:0;min-height:1.4em"></p><div id="tk-fb-list">טוען…</div><button type="button" id="tk-fb-close" style="font:inherit;min-height:44px;border-radius:10px;border:1px solid ' + line + ';background:transparent;color:inherit">סגירה</button></div>';
+      '<p id="tk-fb-say" role="status" style="margin:0;min-height:1.4em"></p><div id="tk-fb-list">טוען…</div></div>';
     var app = document.querySelector('.app'), bar = btn.closest('div'); if (app) app.inert = true; if (bar) bar.inert = true;
     var done = function () { document.removeEventListener('keydown', onKey, true); if (app) app.inert = false; if (bar) bar.inert = false; try { btn.focus(); } catch (_) {} counts(); };
-    var onKey = function (e) { if (e.key === 'Escape' && d.isConnected && !document.querySelector('[role="alertdialog"]')) { e.preventDefault(); d.remove(); done(); } };
+    var onKey = function (e) { if (e.key === 'Escape' && d.isConnected && !document.querySelector('[role="alertdialog"]')) { e.preventDefault(); commitDel(); d.remove(); done(); } };
     document.addEventListener('keydown', onKey, true);
     document.body.appendChild(d);
     var list = d.querySelector('#tk-fb-list'), only = '';
@@ -267,16 +267,25 @@
       } catch (e) { list.textContent = 'המשובים לא נטענו: ' + e.message; }
     }
     var say = d.querySelector('#tk-fb-say');
-    var after = async function (id, msg) { var arts = [].slice.call(list.querySelectorAll('article')), i = arts.findIndex(function (x) { return x.dataset.id === id; });
+    var after = async function (id, msg) { await commitDel(); var arts = [].slice.call(list.querySelectorAll('article')), i = arts.findIndex(function (x) { return x.dataset.id === id; });
       await load(); say.textContent = msg; counts();
       var next = list.querySelectorAll('article')[Math.max(0, i)], b = next && next.querySelector('button');
       if (b) b.focus(); else { list.setAttribute('tabindex', '-1'); list.focus(); } };
     list.addEventListener('click', async function (e) {
       var a = e.target.closest('article'); if (!a) return; var id = a.dataset.id;
       if (e.target.closest('[data-read]')) { await call('/api/db', { op: 'update', path: 'fb/' + id, data: { read: true } }); after(id, 'סומן כנקרא.'); }
-      if (e.target.closest('[data-del]') && await askIn('למחוק את המשוב הזה? אי אפשר לשחזר.', 'מחיקה', 'ביטול')) { await call('/api/db', { op: 'delete', path: 'fb/' + id }); after(id, 'המשוב נמחק.'); }
+      if (e.target.closest('[data-del]')) {   // gone at once, with "ביטול" for 6 s; only then deleted (undo beats confirm)
+        await commitDel();
+        var arts = [].slice.call(list.querySelectorAll('article')), i = arts.indexOf(a), next = arts[i + 1] || arts[i - 1];
+        a.hidden = true; pendingDel = { id: id, a: a, t: setTimeout(commitDel, 6000) };
+        say.innerHTML = 'המשוב נמחק. <button type="button" id="tk-fb-undo" style="font:inherit;min-height:40px;padding:0 .8rem;border-radius:10px;border:1px solid ' + line + ';background:transparent;color:inherit;cursor:pointer">ביטול</button>';
+        say.querySelector('#tk-fb-undo').addEventListener('click', function () { if (!pendingDel) return; clearTimeout(pendingDel.t); pendingDel.a.hidden = false; var b0 = pendingDel.a.querySelector('button'); pendingDel = null; say.textContent = 'המחיקה בוטלה.'; if (b0) b0.focus(); });
+        var nb = next && next.querySelector('button'); if (nb) nb.focus(); else say.querySelector('#tk-fb-undo').focus();
+      }
     });
-    d.querySelector('#tk-fb-close').addEventListener('click', function () { d.remove(); done(); });
+    var pendingDel = null;
+    async function commitDel() { if (!pendingDel) return; var pd = pendingDel; pendingDel = null; clearTimeout(pd.t); try { await call('/api/db', { op: 'delete', path: 'fb/' + pd.id }); } catch (_) {} pd.a.remove(); if (say.querySelector('#tk-fb-undo')) say.textContent = 'המשוב נמחק.'; counts(); }
+    d.querySelector('#tk-fb-close').addEventListener('click', function () { commitDel(); d.remove(); done(); });
     load(); setTimeout(function () { var h = d.querySelector('#tk-fb-t'); if (h) { h.setAttribute('tabindex', '-1'); h.focus(); } }, 0);
     async function counts() { try { var r = await call('/api/db', { op: 'list', path: 'fb', limit: 2000 }); var n = ((await r.json()).docs || []).filter(function (x) { return !x.data.read; }).length; btn.textContent = 'משובים' + (n ? ' (' + n + ' חדשים)' : ''); } catch (_) {} }
     feedbackTab.counts = counts;

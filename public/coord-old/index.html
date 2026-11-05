@@ -19,6 +19,7 @@
   // 5.11.2026 (the blind review): the preview copy (/coord-next/) tells the server so: the model's vendor keeps nothing, and a
   // deleted case takes its private record with it. Its sign-in box is a real dialog, with a label and announced errors
   var PV = !/^\/coord-old\//.test(location.pathname);   // 5.11.2026 (Yoni: "תוציא הכל לבוטים"): the preview's behaviour is the live one, at /coord/ too
+  var PV2 = /^\/coord-next\//.test(location.pathname);   // 5.11.2026 (the UX audit): the new preview copy
   if (BENCH) { try { localStorage.setItem('reg-bot-tour-v3', '1'); } catch (_) {} }
   function memDb(b) {
     var p = String(b.path || ''), now = Date.now();
@@ -308,10 +309,31 @@
       (async function () { try { var r = await call('/api/db', { op: 'list', path: 'fb', limit: 2000 }); var n = ((await r.json()).docs || []).filter(function (x) { return !x.data.read; }).length; if (n) fbB.textContent = 'משובים (' + n + ' חדשים)'; } catch (_) {} })(); }
     bar.querySelector('#tk-sheet').addEventListener('click', async function () {
       var st = ''; try { var r0 = await call('/api/sheet', { op: 'status' }); st = (await r0.json()).connected ? 'הטבלה מחוברת. אפשר להחליף את הקישור:' : 'הטבלה עוד לא מחוברת.'; } catch (_) {}
-      var url = prompt(st + '\n\nהדביקו כאן את הקישור של היישום מגוגל אפס סקריפט (מסתיים ב־/exec):');
-      if (!url) return;
-      var r = await call('/api/sheet', { op: 'config', url: url.trim() }); var t = await r.text();
-      alert(r.ok ? 'הטבלה חוברה ונבדקה. מעכשיו "סנכרון לטבלת המעקב" ביומן כותב אליה.' : 'החיבור נכשל: ' + t);
+      if (!PV2) {
+        var url = prompt(st + '\n\nהדביקו כאן את הקישור של היישום מגוגל אפס סקריפט (מסתיים ב־/exec):');
+        if (!url) return;
+        var r = await call('/api/sheet', { op: 'config', url: url.trim() }); var t = await r.text();
+        alert(r.ok ? 'הטבלה חוברה ונבדקה. מעכשיו "סנכרון לטבלת המעקב" ביומן כותב אליה.' : 'החיבור נכשל: ' + t);
+        return;
+      }
+      // 5.11.2026 (the UX audit, #38): the bot's own dialog, not the browser's
+      var dk2 = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches, back2 = document.activeElement;
+      var sd = document.createElement('div'); sd.setAttribute('role', 'dialog'); sd.setAttribute('aria-modal', 'true'); sd.setAttribute('aria-labelledby', 'tk-sheet-t');
+      sd.setAttribute('style', 'position:fixed;inset:0;z-index:120;background:rgba(14,19,30,.45);display:grid;place-items:center;padding:16px;font:16px/1.6 inherit');
+      sd.innerHTML = '<form dir="rtl" style="background:' + (dk2 ? '#161D2B' : '#fff') + ';color:' + (dk2 ? '#E6EAF2' : '#141B2D') + ';max-width:480px;width:100%;box-sizing:border-box;padding:1.2rem;border-radius:14px;display:grid;gap:.6rem">' +
+        '<h2 id="tk-sheet-t" style="margin:0;font-size:1.1rem">טבלת המעקב</h2><p style="margin:0" id="tk-sheet-st"></p>' +
+        '<label style="display:grid;gap:.3rem"><span>הקישור של היישום מגוגל אפס סקריפט (מסתיים ב־/exec)</span><input id="tk-sheet-url" type="url" required placeholder="https://script.google.com/macros/s/…/exec" style="font:inherit;min-height:44px;padding:.3rem .6rem;border-radius:10px;border:1px solid var(--field-edge, #8A93A6);background:var(--sheet, #fff);color:inherit;min-width:0"></label>' +
+        '<p id="tk-sheet-out" role="status" style="margin:0"></p>' +
+        '<div style="display:flex;gap:8px;flex-wrap:wrap"><button type="submit" style="font:inherit;min-height:44px;padding:.4rem 1rem;border:0;border-radius:10px;background:var(--accent, #2B4FB8);color:#fff;cursor:pointer">חיבור ובדיקה</button><button type="button" id="tk-sheet-x" style="font:inherit;min-height:44px;padding:.4rem 1rem;border-radius:10px;border:1px solid var(--field-edge, #8A93A6);background:none;color:inherit;cursor:pointer">סגירה</button></div></form>';
+      sd.querySelector('#tk-sheet-st').textContent = st;
+      var others2 = [].filter.call(document.body.children, function (x) { return !x.inert; }); others2.forEach(function (x) { x.inert = true; });
+      var end2 = function () { document.removeEventListener('keydown', key2, true); others2.forEach(function (x) { x.inert = false; }); sd.remove(); try { back2 && back2.focus(); } catch (_) {} };
+      var key2 = function (e) { if (e.key === 'Escape') { e.preventDefault(); end2(); } };
+      document.addEventListener('keydown', key2, true);
+      sd.querySelector('#tk-sheet-x').addEventListener('click', end2);
+      sd.querySelector('form').addEventListener('submit', async function (e) { e.preventDefault(); var out = sd.querySelector('#tk-sheet-out'), u = sd.querySelector('#tk-sheet-url').value.trim(); if (!u) return; out.textContent = 'בודק את החיבור…';
+        try { var r2 = await call('/api/sheet', { op: 'config', url: u }); var t2 = await r2.text(); out.textContent = r2.ok ? 'הטבלה חוברה ונבדקה. מעכשיו "סנכרון לטבלת המעקב" ביומן כותב אליה.' : 'החיבור נכשל: ' + t2; } catch (e4) { out.textContent = 'החיבור נכשל: ' + e4.message; } });
+      document.body.appendChild(sd); sd.querySelector('#tk-sheet-url').focus();
     });
     bar.querySelector('#tk-admin').addEventListener('click', async function () {
       var d = document.createElement('div');
@@ -347,15 +369,26 @@
       }
       refresh();
       d.querySelector('#tk-close').addEventListener('click', function () { d.remove(); });
+      function sayIn(m) { var box = d.querySelector('#tk-new'); box.hidden = false; box.setAttribute('role', 'status'); box.textContent = 'לא הצליח: ' + m; }
       function showCode(j) { var box = d.querySelector('#tk-new'); box.hidden = false;
         if (PV) { box.style.background = 'var(--amber-soft)'; box.style.color = 'var(--amber-ink)'; box.setAttribute('role', 'status'); box.setAttribute('tabindex', '-1'); setTimeout(function () { try { box.focus(); } catch (_) {} }, 0); }
-        box.innerHTML = 'הקוד של ' + esc(j.name) + ': <b style="font-size:1.2rem;user-select:all">' + esc(j.code) + '</b><br>העבירו אותו לרכז/ת. הוא מוצג רק עכשיו. אפשר להקליד אותו עם רווחים או בלי, והמקפים לא חייבים להיות מדויקים.'; }
+        box.innerHTML = 'הקוד של ' + esc(j.name) + ': <b style="font-size:1.2rem;user-select:all">' + esc(j.code) + '</b><br>העבירו אותו לרכז/ת. הוא מוצג רק עכשיו. אפשר להקליד אותו עם רווחים או בלי, והמקפים לא חייבים להיות מדויקים.';
+        if (PV2) {   // 5.11.2026 (the UX audit, #38): copied in one tap, or sent in WhatsApp
+          var msg = 'הקוד שלך לבוט התקנון של הרכזים: ' + j.code + '\nכניסה: ' + location.origin + '/coord/';
+          var row = document.createElement('div'); row.setAttribute('style', 'display:flex;gap:8px;flex-wrap:wrap;margin-top:.5rem');
+          row.innerHTML = '<button type="button" id="tk-copy-code" style="font:inherit;min-height:44px;padding:.4rem 1rem;border-radius:10px;border:1px solid var(--field-edge, #8A93A6);background:var(--sheet, #fff);color:inherit;cursor:pointer">העתקת הקוד</button>' +
+            '<a id="tk-wa-code" target="_blank" rel="noopener" style="font:inherit;min-height:44px;display:inline-flex;align-items:center;padding:.4rem 1rem;border-radius:10px;border:1px solid var(--field-edge, #8A93A6);color:inherit;text-decoration:none">שליחה בוואטסאפ</a><span id="tk-copy-note" aria-live="polite" style="align-self:center"></span>';
+          row.querySelector('#tk-wa-code').href = 'https://wa.me/?text=' + encodeURIComponent(msg);
+          row.querySelector('#tk-copy-code').addEventListener('click', function () { var note = row.querySelector('#tk-copy-note'); var done = function (ok) { note.textContent = ok ? 'הועתק' : 'ההעתקה לא הצליחה: סמנו את הקוד והעתיקו'; };
+            try { navigator.clipboard.writeText(j.code).then(function () { done(true); }, function () { done(false); }); } catch (_) { done(false); } });
+          box.appendChild(row);
+        } }
       d.querySelector('#tk-list').addEventListener('click', async function (e) { var rb = e.target.closest('button[data-reset]');
-        if (rb) { if (!(await askIn('ליצור קוד חדש? הקוד הקודם יפסיק לעבוד, והמקרים של הרכז/ת נשארים.', 'כן, קוד חדש', 'ביטול'))) return; try { showCode(await codes({ op: 'reset', uid: rb.dataset.reset })); } catch (e3) { alert(e3.message); } return; }
-        var b = e.target.closest('button[data-uid]'); if (!b || !(await askIn('לבטל את הקוד? הרכז/ת לא יוכל/תוכל להיכנס איתו יותר.', 'ביטול הקוד', 'השארת הקוד'))) return; await codes({ op: 'revoke', uid: b.dataset.uid }); await refresh(); if (PV) { var nf = d.querySelector('#tk-name'); if (nf) nf.focus(); } });
+        if (rb) { if (!(await askIn('ליצור קוד חדש? הקוד הקודם יפסיק לעבוד, והמקרים של הרכז/ת נשארים.', 'כן, קוד חדש', 'ביטול'))) return; try { showCode(await codes({ op: 'reset', uid: rb.dataset.reset })); } catch (e3) { (PV2 ? sayIn(e3.message) : alert(e3.message)); } return; }
+        var b = e.target.closest('button[data-uid]'); if (!b || !(await askIn('לבטל את הקוד? הרכז/ת לא יוכל/תוכל להיכנס איתו יותר.', 'ביטול הקוד', 'השארת הקוד'))) return; var gone = (b.closest('div') && b.closest('div').querySelector('span')) ? b.closest('div').querySelector('span').textContent : ''; await codes({ op: 'revoke', uid: b.dataset.uid }); await refresh(); if (PV2) { var nb = d.querySelector('#tk-new'); if (nb) { nb.hidden = false; nb.setAttribute('role', 'status'); nb.textContent = 'הקוד של ' + gone + ' בוטל.'; } } if (PV) { var nf = d.querySelector('#tk-name'); if (nf) nf.focus(); } });
       d.querySelector('form').addEventListener('submit', async function (e) { e.preventDefault(); var n = d.querySelector('#tk-name').value.trim(); if (!n) return;
         try { showCode(await codes({ op: 'create', name: n }));
-          d.querySelector('#tk-name').value = ''; refresh(); } catch (e2) { alert(e2.message); } });
+          d.querySelector('#tk-name').value = ''; refresh(); } catch (e2) { (PV2 ? sayIn(e2.message) : alert(e2.message)); } });
     });
   }
 })();

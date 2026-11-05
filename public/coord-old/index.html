@@ -46,7 +46,11 @@
   async function dbCall(body) {
     if (BENCH) return memDb(body);
     var r = await call('/api/db', body);
-    if (r.status === 401) { signOut(); throw err('permission_denied', 'צריך להיכנס שוב'); }
+    if (r.status === 401) {
+      // 5.11.2026 (review, preview): a code revoked or replaced mid-work: the sign-in box comes back, and the write waits for it
+      if (PV && !BENCH && document.body) { code = ''; try { localStorage.removeItem(KEY); } catch (_) {} if (!reauth) reauth = overlay('הקוד הוחלף או בוטל. הכניסו את הקוד החדש שקיבלתם מרמ"ח, והשינויים יישמרו.').then(function (m) { reauth = null; me = m; return m; }); await reauth; return dbCall(body); }
+      signOut(); throw err('permission_denied', 'צריך להיכנס שוב');
+    }
     var j = null; try { j = await r.json(); } catch (_) {}
     if (!r.ok) throw err((j && j.code) || (r.status === 403 ? 'permission_denied' : 'error'), (j && j.message) || ('שגיאה ' + r.status));
     return j;
@@ -54,7 +58,8 @@
   // ---- sign in
   var me = null, meReady;
   function signOut() { try { localStorage.removeItem(KEY); } catch (_) {} code = ''; fetch('/api/db', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{"op":"logout"}', keepalive: true }).catch(function () {}); }
-  function overlay() {
+  var reauth = null;
+  function overlay(why) {
     return new Promise(function (resolve) {
       var d = document.createElement('div');
       d.id = 'tk-login';
@@ -75,6 +80,7 @@
         var unInert = function () { if (app) app.inert = false; };
         var obs = new MutationObserver(function () { if (!d.isConnected) { unInert(); obs.disconnect(); } }); obs.observe(document.body, { childList: true });
       }
+      if (why && PV) { var hm = d.querySelector('#tk-help'); if (hm) hm.textContent = why; }
       document.body.appendChild(d);
       var f = d.querySelector('form');
       d.querySelector('#tk-code').focus();
@@ -224,6 +230,20 @@
         '<b style="font-size:1.1rem">קודי גישה לרכזים</b><div id="tk-list">טוען…</div>' +
         '<form style="display:flex;gap:6px"><input id="tk-name" placeholder="שם הרכז/ת" style="flex:1;font:inherit;padding:.4rem;border:1px solid #D7DCE6;border-radius:8px"><button style="font:inherit;padding:.4rem .8rem;border:0;border-radius:8px;background:#2747B8;color:#fff">יצירת קוד</button></form>' +
         '<div id="tk-new" style="background:#FBEFD9;padding:.6rem;border-radius:8px" hidden></div><button type="button" id="tk-close" style="font:inherit;padding:.4rem;border-radius:8px;border:1px solid #D7DCE6;background:#fff">סגירה</button></div>';
+      if (PV) {   // 5.11.2026 (review, preview): a real dialog: labelled, focus inside, Escape closes, the page behind is inert, theme colours
+        var dk2 = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches, opener = this;
+        d.setAttribute('role', 'dialog'); d.setAttribute('aria-modal', 'true'); d.setAttribute('aria-labelledby', 'tk-codes-title');
+        var inner = d.firstChild; inner.style.background = dk2 ? '#161D2B' : '#fff'; inner.style.color = dk2 ? '#E6EAF2' : '#141B2D';
+        var tb = inner.querySelector('b'); if (tb) { var h = document.createElement('h2'); h.id = 'tk-codes-title'; h.style.cssText = 'font-size:1.1rem;margin:0'; h.textContent = tb.textContent; tb.replaceWith(h); }
+        var nm = inner.querySelector('#tk-name'); if (nm) { var lb = document.createElement('label'); lb.htmlFor = 'tk-name'; lb.textContent = 'שם הרכז/ת'; lb.style.fontWeight = '600'; nm.closest('form').before(lb); nm.style.background = dk2 ? '#0E131E' : '#fff'; nm.style.color = 'inherit'; }
+        var cl = inner.querySelector('#tk-close'); if (cl) { cl.style.background = 'transparent'; cl.style.color = 'inherit'; cl.style.minHeight = '44px'; }
+        var app2 = document.querySelector('.app'); if (app2) app2.inert = true;
+        var done = function () { if (app2) app2.inert = false; document.removeEventListener('keydown', onKey, true); try { opener.focus(); } catch (_) {} };
+        var onKey = function (e) { if (e.key === 'Escape' && d.isConnected) { e.preventDefault(); d.remove(); done(); } };
+        document.addEventListener('keydown', onKey, true);
+        new MutationObserver(function (m, o) { if (!d.isConnected) { o.disconnect(); done(); } }).observe(document.body, { childList: true });
+        setTimeout(function () { if (nm) nm.focus(); }, 0);
+      }
       document.body.appendChild(d);
       var esc = function (s) { return String(s).replace(/[<>&"]/g, function (c) { return { '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;' }[c]; }); };
       async function codes(body) { var r = await call('/api/codes', body); if (!r.ok) throw err('error', 'שגיאה ' + r.status + ' ' + (await r.text())); return r.json(); }

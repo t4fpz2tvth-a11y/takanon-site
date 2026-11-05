@@ -75,9 +75,11 @@
           '<h1 id="tk-title" style="font-size:1.2rem;margin:0">מה אומר התקנון? · גרסת רכזים</h1><p style="margin:0" id="tk-help">הכניסו את קוד הגישה האישי שקיבלתם מרמ"ח (ראש מחלקת אקדמיה).</p>' +
           '<label for="tk-code" style="font-weight:600">קוד גישה</label>' +
           '<input id="tk-code" type="password" autocomplete="current-password" aria-describedby="tk-help tk-msg" style="font:inherit;font-size:16px;padding:.6rem;border:1px solid ' + (dark ? '#66718A' : '#8A93A6') + ';border-radius:8px;background:' + (dark ? '#0E131E' : '#fff') + ';color:inherit" dir="ltr">' +
-          '<button style="font:inherit;padding:.6rem;min-height:44px;border:0;border-radius:8px;background:' + (dark ? '#9DB2FF' : '#2747B8') + ';color:' + (dark ? '#0E131E' : '#fff') + ';cursor:pointer">כניסה</button><p id="tk-msg" role="alert" style="margin:0;color:' + (dark ? '#FCA5A5' : '#B42318') + '"></p></form>';
+          '<button style="font:inherit;padding:.6rem;min-height:44px;border:0;border-radius:8px;background:' + (dark ? '#9DB2FF' : '#2747B8') + ';color:' + (dark ? '#0E131E' : '#fff') + ';cursor:pointer">כניסה</button><p id="tk-msg" role="alert" style="margin:0;min-height:3.2em;color:' + (dark ? '#FCA5A5' : '#B42318') + '"></p></form>';
         var app = document.querySelector('.app'); if (app) app.inert = true;
-        var unInert = function () { if (app) app.inert = false; };
+        // 5.11.2026 (craft round): everything else on the page is inert too (the skip link was reachable with Tab)
+        var others = [].filter.call(document.body.children, function (x) { return x !== app && !x.inert; }); others.forEach(function (x) { x.inert = true; });
+        var unInert = function () { if (app) app.inert = false; others.forEach(function (x) { x.inert = false; }); setTimeout(function () { var q = document.getElementById('q'); if (q && document.activeElement === document.body) q.focus({ preventScroll: true }); }, 60); };
         var obs = new MutationObserver(function () { if (!d.isConnected) { unInert(); obs.disconnect(); } }); obs.observe(document.body, { childList: true });
       }
       if (why && PV) { var hm = d.querySelector('#tk-help'); if (hm) hm.textContent = why; }
@@ -88,6 +90,7 @@
         e.preventDefault();
         code = d.querySelector('#tk-code').value.trim();
         var m = d.querySelector('#tk-msg'); m.textContent = 'בודק…';
+        var gb = f.querySelector('button'); if (PV && gb) gb.disabled = true;   // 5.11.2026 (craft round): one press while checking
         try {
           var r = await call('/api/db', { op: 'me' });
           if (r.status === 401) { m.textContent = 'הקוד לא מוכר. בדקו אותו או בקשו קוד חדש מרמ"ח.'; return; }
@@ -95,6 +98,7 @@
           try { localStorage.setItem(KEY, code); } catch (_) {}
           d.remove(); resolve(await r.json());
         } catch (e2) { m.textContent = e2.message; }
+        finally { if (gb) gb.disabled = false; }
       });
     });
   }

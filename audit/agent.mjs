@@ -68,13 +68,16 @@ async function tool(st, name, a) {
     default: return 'כלי לא מוכר';
   }
 }
+const EXP = {};   // per model: 'reasonoff', or '' once the model refused ("Reasoning is mandatory": the default low effort, hidden)
 async function chat(model, messages) {
+  if (!(model in EXP)) EXP[model] = 'reasonoff';
   for (let attempt = 0; ; attempt++) {
-    const r = await fetch(SITE + '/api/chat?test=1&exp=reasonoff', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Code': encodeURIComponent(CODE) }, body: JSON.stringify({ model, input: messages, tools: TOOLS, tool_choice: 'auto', max_tokens: 16000 }) });
+    const r = await fetch(SITE + '/api/chat?test=1&exp=' + EXP[model], { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Code': encodeURIComponent(CODE) }, body: JSON.stringify({ model, input: messages, tools: TOOLS, tool_choice: 'auto', max_tokens: 16000 }) });
     const t = await r.text();
     let j = null; try { j = JSON.parse(t); } catch (_) {}
     if (r.ok && j && !j.error && j.choices) return j;
     const msg = 'HTTP ' + r.status + ' ' + (j && j.error ? JSON.stringify(j.error) : t).slice(0, 300);
+    if (EXP[model] === 'reasonoff' && /Reasoning is mandatory/.test(t)) { EXP[model] = ''; console.log('   reasoning stays on for', model); continue; }
     if (attempt < 2 && (r.status >= 500 || r.status === 429 || !j)) { console.log('   retry:', msg); await new Promise(res => setTimeout(res, 20000)); continue; }
     throw new Error(msg);
   }

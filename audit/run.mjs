@@ -15,13 +15,14 @@ for (const [k, v] of Object.entries(caps)) {
   parts.push({ type: 'image_url', image_url: { url: SITE + '/audit/img/' + k + '.jpg' } });
 }
 parts.push({ type: 'text', text: '\n\nכתוב עכשיו את מסמך האבחון המלא בעברית, לפי ההנחיה שבחלק א.' });
-async function ask(model) {
+// 6.11.2026 (run 2): some models refuse reasoning off ("Reasoning is mandatory"); those get the default low effort, kept hidden
+async function ask(model, exp = 'reasonoff') {
   const t0 = Date.now();
-  const r = await fetch(SITE + '/api/chat?test=1&exp=reasonoff', {
+  const r = await fetch(SITE + '/api/chat?test=1&exp=' + exp, {
     method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Code': encodeURIComponent(CODE) },
     body: JSON.stringify({ model, stream: true, input: [{ role: 'user', content: parts }] }),
   });
-  if (!r.ok) { const t = await r.text(); throw new Error(model + ': HTTP ' + r.status + ' ' + t.slice(0, 300)); }
+  if (!r.ok) { const t = await r.text(); if (exp === 'reasonoff' && /Reasoning is mandatory/.test(t)) { console.log('  reasoning stays on for', model); return ask(model, ''); } throw new Error(model + ': HTTP ' + r.status + ' ' + t.slice(0, 300)); }
   const reader = r.body.getReader(), dec = new TextDecoder(); let buf = '', text = '', usage = null, finish = '';
   for (;;) {
     const { done, value } = await reader.read(); if (done) break;

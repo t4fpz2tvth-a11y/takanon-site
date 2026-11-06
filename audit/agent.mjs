@@ -7,7 +7,8 @@ import fs from 'node:fs';
 import { createRequire } from 'node:module';
 const { chromium } = createRequire(process.env.PW_DIR || '/tmp/')('playwright');
 const SITE = process.env.AUDIT_SITE || 'https://takanon-site.pages.dev';
-const CODE = process.env.BENCH_CODE || '';
+const CODE = process.env.BENCH_CODE || '';           // the comparison calls (?test=1): the head's or the bench token
+const COORD = process.env.AUDIT_COORD_CODE || CODE;   // the browser's sign-in on /coord/: a coordinator code made for the audits, never the head's
 if (!CODE) { console.log('BENCH_CODE secret is missing'); process.exit(1); }
 const req = JSON.parse(fs.readFileSync('audit/agent_request.json', 'utf8'));
 const STEPS = req.steps || 40;
@@ -39,7 +40,7 @@ async function newPage(st, wide) {
   if (st.ctx) await st.ctx.close();
   st.desktop = !!wide;
   st.ctx = await browser.newContext({ viewport: wide ? { width: 1280, height: 900 } : { width: 390, height: 844 }, isMobile: !wide, hasTouch: !wide, locale: 'he-IL' });
-  await st.ctx.addInitScript(c => { try { localStorage.setItem('takanon-code', c); } catch (_) {} }, CODE);
+  await st.ctx.addInitScript(c => { try { localStorage.setItem('takanon-code', c); } catch (_) {} }, COORD);
   st.page = await st.ctx.newPage();
 }
 const vis = async st => { try { return clip(await st.page.evaluate(WALK), 7000); } catch (e) { return 'הדף לא נקרא: ' + e.message; } };

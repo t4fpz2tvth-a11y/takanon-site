@@ -2,7 +2,7 @@ import { who } from '../_lib.js';
 // "מה אומר התקנון?" — the site's own small server function (Cloudflare Pages Function, 3.11.2026), at /api/chat.
 // It keeps the OpenRouter key (the secret OPENROUTER_KEY, set in the Cloudflare project's settings, never in this code),
 // answers only the site itself, limits each visitor's questions, and passes the model's answer back as it is written.
-// Settings (Variables and Secrets): OPENROUTER_KEY (secret), MODEL, MODEL_QUICK, PER_HOUR (default 40),
+// Settings (Variables and Secrets): OPENROUTER_KEY (secret), MODEL, MODEL_QUICK, PER_HOUR (default 40), COORD_PER_HOUR (default 200),
 // TEST_MODELS (comma-separated: the models test.html may compare; empty = the comparison page is off).
 const hits = new Map();   // per visitor (IP), this server copy only: a first guard; the key's own spending limit is the real one
 function limited(ip, perHour) {
@@ -21,7 +21,11 @@ export async function onRequestPost({ request, env }) {
   const test = url.searchParams.has('test');
   if ((test || 'model' in Object.fromEntries(url.searchParams)) && !((w => w.admin || w.bench)(await who(request, env) || {}))) return json('the comparison runs for the head only', 403);
   const ip = request.headers.get('CF-Connecting-IP') || 'x';
-  if (limited(ip, test ? 100000 : Number(env.PER_HOUR || 40))) return json('too many', 429);
+  // 6.11.2026 (the external audit's agents, four on one address, were cut off at 40): a signed-in coordinator or the head
+  // counts by their own code, not by the shared office address, with room for a shift of cases (COORD_PER_HOUR, default 200)
+  const me = test ? null : (request.headers.get('X-Code') || request.headers.get('Cookie')) ? await who(request, env) : null;
+  const own = me && !me.bench && !me.notify;
+  if (limited(own ? 'u:' + me.uid : ip, test ? 100000 : own ? Number(env.COORD_PER_HOUR || 200) : Number(env.PER_HOUR || 40))) return json('too many', 429);
   let body;
   try { body = await request.json(); } catch (_) { return json('bad request', 400); }
   const messages = typeof body.input === 'string' ? [{ role: 'user', content: body.input }] : body.input;

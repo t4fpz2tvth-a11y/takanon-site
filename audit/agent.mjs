@@ -7,9 +7,12 @@ import fs from 'node:fs';
 import { createRequire } from 'node:module';
 const { chromium } = createRequire(process.env.PW_DIR || '/tmp/')('playwright');
 const SITE = process.env.AUDIT_SITE || 'https://takanon-site.pages.dev';
-const CODE = process.env.BENCH_CODE || '';           // the comparison calls (?test=1): the head's or the bench token
-const COORD = process.env.AUDIT_COORD_CODE || CODE;   // the browser's sign-in on /coord/: a coordinator code made for the audits, never the head's
+const CODE = process.env.BENCH_CODE || '';   // the comparison calls (?test=1) and the codes API: the head's code (or the bench token)
 if (!CODE) { console.log('BENCH_CODE secret is missing'); process.exit(1); }
+// the browser's sign-in on /coord/ (6.11.2026, Yoni): a coordinator code of the run's own, made through /api/codes at the start and
+// revoked at the end with everything it logged; the models never see any code. AUDIT_COORD_CODE, when set, is used instead.
+let COORD = process.env.AUDIT_COORD_CODE || '', coordUid = null;
+const api = (path, body, code, extra) => fetch(SITE + path, { method: 'POST', headers: Object.assign({ 'Content-Type': 'application/json', 'X-Code': encodeURIComponent(code) }, extra || {}), body: JSON.stringify(body) });
 const req = JSON.parse(fs.readFileSync('audit/agent_request.json', 'utf8'));
 const STEPS = req.steps || 40;
 const packet = fs.readFileSync('audit/packet.md', 'utf8');
@@ -126,12 +129,29 @@ async function runModel(model) {
     for (const [name, a] of JSON.parse(process.env.AUDIT_DRY)) { const out = await tool(st, name, a || {}); console.log('\n### ' + name + ' ' + JSON.stringify(a || {}) + '\n' + (typeof out === 'string' ? out.slice(0, 1500) : 'image ' + out.image.length)); }
     await browser.close(); return;
   }
+  const t0 = Date.now();
+  if (!COORD) {
+    const r = await api('/api/codes', { op: 'create', name: 'סוכני בדיקה ' + new Date().toISOString().slice(0, 16).replace('T', ' ') }, CODE);
+    if (r.ok) { const j = await r.json(); COORD = j.code; coordUid = j.uid; console.log('a coordinator code for this run was made; it is revoked at the end'); }
+    else { COORD = CODE; console.log('no coordinator code could be made (HTTP ' + r.status + '): the browser signs in with the main code'); }
+  }
   const meta = { run: req.run, t: new Date().toISOString(), steps: STEPS, models: {} };
   await Promise.all((req.models || []).map(async model => {
     console.log('agent', model);
-    try { const r = await runModel(model); fs.writeFileSync('audit/agent_' + slug(model) + '.md', '<!-- ' + model + ' · ' + new Date().toISOString().slice(0, 16) + ' · ' + JSON.stringify(r.usage) + ' · steps=' + r.log.length + ' images=' + r.images + ' -->\n\n' + r.doc.trim() + '\n'); fs.writeFileSync('audit/agent_' + slug(model) + '.log.json', JSON.stringify(r.log, null, 1)); meta.models[model] = { ok: true, chars: r.doc.length, usage: r.usage, steps: r.log.length }; console.log('  done:', model, r.doc.length, 'chars', JSON.stringify(r.usage)); }
+    try { const r = await runModel(model); fs.writeFileSync('audit/agent_run' + req.run + '_' + slug(model) + '.md', '<!-- ' + model + ' · ' + new Date().toISOString().slice(0, 16) + ' · ' + JSON.stringify(r.usage) + ' · steps=' + r.log.length + ' images=' + r.images + ' -->\n\n' + r.doc.trim() + '\n'); fs.writeFileSync('audit/agent_run' + req.run + '_' + slug(model) + '.log.json', JSON.stringify(r.log, null, 1)); meta.models[model] = { ok: true, chars: r.doc.length, usage: r.usage, steps: r.log.length }; console.log('  done:', model, r.doc.length, 'chars', JSON.stringify(r.usage)); }
     catch (e) { meta.models[model] = { ok: false, error: String(e.message).slice(0, 400) }; console.log('  failed:', model, e.message.slice(0, 300)); }
   }));
-  fs.writeFileSync('audit/agent.meta.json', JSON.stringify(meta, null, 1));
+  fs.writeFileSync('audit/agent_run' + req.run + '.meta.json', JSON.stringify(meta, null, 1));
   await browser.close();
+  // the run's traces go: its cases and private records (as the coordinator), its public feedback (as the head), then its code
+  if (coordUid) {
+    try {
+      await api('/api/db', { op: 'delete', path: 'log/' + coordUid }, COORD);
+      await api('/api/db', { op: 'delete', path: 'data/users/' + coordUid }, COORD);
+      const fb = await api('/api/db', { op: 'list', path: 'fb' }, CODE); let n = 0;
+      if (fb.ok) for (const d of ((await fb.json()).docs || [])) if (d.data && ((d.data.from || '').startsWith('סוכני בדיקה') || (d.data.t0 && Date.parse(d.data.t0) >= t0))) { await api('/api/db', { op: 'delete', path: 'fb/' + d.id }, CODE); n++; }
+      await api('/api/codes', { op: 'revoke', uid: coordUid }, CODE);
+      console.log('cleaned: the run\'s cases, ' + n + ' feedback rows, and its code');
+    } catch (e) { console.log('cleanup failed: ' + e.message.slice(0, 200)); }
+  }
 })();

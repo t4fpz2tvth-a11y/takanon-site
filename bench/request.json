@@ -1,1 +1,1 @@
-{"models": ["anthropic/claude-haiku-5.5"], "batch": 1, "k": 3, "exp": "live", "run": 63, "target": "next", "tag": "pv6", "set": "valid"}
+{"models": ["anthropic/claude-haiku-5.5"], "batch": 1, "k": 3, "exp": "live", "run": 64, "target": "coord-next", "tag": "pv6", "set": "valid"}

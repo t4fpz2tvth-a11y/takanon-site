@@ -5,11 +5,13 @@
  "tag": "qa1",
  "exp": "live",
  "judge": "openai/gpt-6.1-sol",
- "judges": null,
+ "judges": [
+  "openai/gpt-6.1-sol"
+ ],
  "reps": 1,
  "site": "https://takanon-site.pages.dev",
- "started": "2026-11-06T10:55:39.133Z",
- "written": "2026-11-06T11:03:39.837Z",
+ "started": "2026-11-06T12:22:10.883Z",
+ "written": "2026-11-06T12:24:37.656Z",
  "finished": true,
  "builds": [
   "15bea341"

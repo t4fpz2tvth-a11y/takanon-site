@@ -3,9 +3,9 @@
   "anthropic/claude-haiku-5.5"
  ],
  "batch": 1,
- "run": 57,
+ "run": 58,
  "k": 3,
- "target": "",
+ "target": "coord",
  "tag": "qa1",
  "set": "qa",
  "exp": "live"

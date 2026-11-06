@@ -5,30 +5,30 @@
  "tag": "qa1",
  "exp": "live",
  "judge": "openai/gpt-6.1-sol",
- "judges": null,
+ "judges": [
+  "openai/gpt-6.1-sol"
+ ],
  "reps": 1,
  "site": "https://takanon-site.pages.dev",
- "started": "2026-11-06T11:04:49.129Z",
- "written": "2026-11-06T11:15:51.121Z",
+ "started": "2026-11-06T12:26:02.587Z",
+ "written": "2026-11-06T12:28:29.094Z",
  "finished": true,
  "builds": [
   "15bea341"
  ],
  "summary": {
   "anthropic/claude-haiku-5.5": {
-   "rows": 48,
+   "rows": 45,
    "scored": 45,
-   "infra": 3,
-   "infra_by": {
-    "truncated": 3
-   },
+   "infra": 0,
+   "infra_by": {},
    "unscored": 0,
    "mean": 1.089,
    "mean_unseen": 1.089,
    "scored_unseen": 45,
    "no_serious": 0.644,
    "reps": 1,
-   "left_out_share": 0.063,
+   "left_out_share": 0,
    "builds": [
     "15bea341"
    ]

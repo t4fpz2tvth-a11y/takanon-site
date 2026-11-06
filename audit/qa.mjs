@@ -210,6 +210,7 @@ async function agent(model, kind, st, sys, user, tools, steps) {
     const shots = [];
     for (const c of calls) {
       let a = {}; try { a = JSON.parse(c.function.arguments || '{}'); } catch (_) {}
+      if (c.function.name === 'finish' && kind === 'explore' && step < (req.min_steps || 0)) { messages.push({ role: 'tool', tool_call_id: c.id, content: 'מוקדם לסיים: עברו רק ' + step + ' צעדים מתוך ' + steps + '. המשך לבדוק את מה שעוד לא בדקת (בוט הרכזים, תהליכי הרכזים, מחשבון המועדים, נכונות בתחומים נוספים), ורק אחר כך finish.' }); continue; }
       if (c.function.name === 'finish') { doc = a.document || ''; messages.push({ role: 'tool', tool_call_id: c.id, content: 'התקבל' }); continue; }
       if (doc !== null) { messages.push({ role: 'tool', tool_call_id: c.id, content: 'הסתיים' }); continue; }
       let out; try { out = await tool(st, c.function.name, a); } catch (e) { out = 'שגיאה: ' + e.message.split('\n')[0]; }

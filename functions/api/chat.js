@@ -60,7 +60,17 @@ export async function onRequestPost({ request, env }) {
   const messages = typeof body.input === 'string' ? [{ role: 'user', content: body.input }] : body.input;
   // 4.11.2026: the page's own limit is 256 KB of prompt (sample.limits); a little more for the message wrapper, no more
   // 6.11.2026 (the external audit's agents): a comparison call may carry a long tool conversation with screenshots
-  if (!Array.isArray(messages) || messages.length > (test ? 400 : 40) || JSON.stringify(messages).length > (test ? 3000000 : 300000)) return json('bad request', 400);
+  // 6.11.2026 14:29 (Yoni: files on the site, "גם תמונות וסריקות"): a signed-in coordinator's message may carry pictures (the
+  // page makes them small first): at most 8 in one call, each a JPEG, PNG, WebP or GIF data address, and up to 12 MB in all;
+  // anyone else sends text only, as before
+  let pics = 0, badPart = false;
+  if (Array.isArray(messages)) for (const m of messages) if (m && Array.isArray(m.content)) for (const pt of m.content) {
+    if (pt && pt.type === 'text' && typeof pt.text === 'string') continue;
+    if (pt && pt.type === 'image_url' && pt.image_url && /^data:image\/(?:jpeg|png|webp|gif);base64,[A-Za-z0-9+/=]+$/.test(String(pt.image_url.url || ''))) { pics++; continue; }
+    badPart = true;
+  }
+  if (badPart || (pics && !(own || test)) || pics > 8) return json('bad request', 400);
+  if (!Array.isArray(messages) || messages.length > (test ? 400 : 40) || JSON.stringify(messages).length > (test ? 3000000 : pics ? 12000000 : 300000)) return json('bad request', 400);
   // the models the comparison page may ask for (3.11.2026): this fixed list, and any in TEST_MODELS
   const BUILTIN_TESTS = ['anthropic/claude-haiku-5.5', 'anthropic/claude-sonnet-5.5', 'openai/gpt-5.4', 'openai/gpt-6-luna', 'deepseek/deepseek-v4.1-flash', 'minimax/minimax-m3.1-flash', 'z-ai/glm-5.3-flash', 'xiaomi/mimo-v2.6-flash', 'qwen/qwen3.8-flash', 'inception/mercury-3', 'google/gemini-3.8-flash', 'openai/gpt-6.1-terra', 'anthropic/claude-sonnet-5.5',
     'deepseek/deepseek-v4.1-flash-1017', '~deepseek/deepseek-pro-latest', 'openai/gpt-6-luna-pro', 'xiaomi/mimo-v2.6-pro', 'z-ai/glm-5.3-flashx', 'cohere/command-a-plus', 'mistralai/mistral-large-4-0', 'nvidia/nemotron-3.5-super-vl', 'meta/muse-spark-1.3', 'qwen/qwen3.8-max-0902', 'google/gemini-4-argon', 'x-ai/grok-4.7', 'moonshotai/kimi-k3.1-pro', 'inclusionai/ling-3.1-flash', 'reflection/beam-1.0-501b-a23b', 'stepfun/step-5-preview', 'openai/gpt-6.1-sol'];
@@ -76,6 +86,7 @@ export async function onRequestPost({ request, env }) {
     const j = m.content.search(/\n\n(?:Student details \(given by the student\)|Details of the student's case)/);
     if (j > 0) m.content = m.content.slice(0, j) + MARK + m.content.slice(j);
   }
+  for (const m of messages) if (m && Array.isArray(m.content)) for (const pt of m.content) if (pt && pt.type === 'text' && typeof pt.text === 'string') pt.text = pt.text.split(MARK).join('');
   for (const m of messages) if (m && typeof m.content === 'string' && m.content.indexOf(MARK) >= 0) {
     const i = m.content.indexOf(MARK), head = m.content.slice(0, i), tail = m.content.slice(i + 1).split(MARK).join('');
     m.content = exp.has('cache') && /^anthropic\//.test(model) ? [{ type: 'text', text: head, cache_control: { type: 'ephemeral' } }, { type: 'text', text: tail }] : head + tail;

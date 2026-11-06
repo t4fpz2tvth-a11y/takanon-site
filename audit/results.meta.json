@@ -1,28 +1,24 @@
 {
- "run": 1,
- "t": "2026-11-06T05:49:40.262Z",
+ "run": 2,
+ "t": "2026-11-06T05:54:50.052Z",
  "site": "https://takanon-site.pages.dev",
  "models": {
   "openai/gpt-6.1-sol": {
    "ok": false,
-   "error": "openai/gpt-6.1-sol: HTTP 413 {\"error\":{\"message\":\"Downloaded image content cannot exceed 30MB\",\"code\":413,\"metadata\":{\"provider_name\":null}}}"
+   "error": "openai/gpt-6.1-sol: HTTP 400 {\"error\":{\"message\":\"Reasoning is mandatory for this endpoint and cannot be disabled.\",\"code\":400,\"metadata\":{\"provider_name\":null}}}"
   },
   "google/gemini-4-argon": {
    "ok": false,
-   "error": "google/gemini-4-argon: HTTP 413 {\"error\":{\"message\":\"Downloaded image content cannot exceed 30MB\",\"code\":413,\"metadata\":{\"provider_name\":null}}}"
+   "error": "google/gemini-4-argon: HTTP 400 {\"error\":{\"message\":\"Reasoning is mandatory for this endpoint and cannot be disabled.\",\"code\":400,\"metadata\":{\"provider_name\":null}}}"
   },
   "openai/gpt-5.4": {
-   "ok": false,
-   "error": "openai/gpt-5.4: HTTP 403 model not allowed"
-  },
-  "anthropic/claude-sonnet-5.5": {
    "ok": true,
-   "chars": 0,
+   "chars": 35575,
    "usage": {
-    "prompt_tokens": 144748,
-    "completion_tokens": 6000,
-    "total_tokens": 150748,
-    "cost": 0.349496,
+    "prompt_tokens": 50439,
+    "completion_tokens": 14685,
+    "total_tokens": 65124,
+    "cost": 0.3463725,
     "is_byok": false,
     "prompt_tokens_details": {
      "cached_tokens": 0,
@@ -31,18 +27,22 @@
      "video_tokens": 0
     },
     "cost_details": {
-     "upstream_inference_cost": 0.349496,
-     "upstream_inference_prompt_cost": 0.289496,
-     "upstream_inference_completions_cost": 0.06
+     "upstream_inference_cost": 0.3463725,
+     "upstream_inference_prompt_cost": 0.1260975,
+     "upstream_inference_completions_cost": 0.220275
     },
     "completion_tokens_details": {
-     "reasoning_tokens": 6000,
+     "reasoning_tokens": 0,
      "image_tokens": 0,
      "audio_tokens": 0
     }
    },
-   "finish": "length",
-   "secs": 66
+   "finish": "stop",
+   "secs": 407
+  },
+  "anthropic/claude-sonnet-5.5": {
+   "ok": false,
+   "error": "anthropic/claude-sonnet-5.5: HTTP 400 {\"error\":{\"message\":\"Reasoning is mandatory for this endpoint and cannot be disabled.\",\"code\":400,\"metadata\":{\"provider_name\":null}}}"
   }
  }
 }

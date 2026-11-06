@@ -1,8 +1,9 @@
-import { who } from '../_lib.js';
+import { who, setup, sha } from '../_lib.js';
 // "מה אומר התקנון?" — the site's own small server function (Cloudflare Pages Function, 3.11.2026), at /api/chat.
 // It keeps the OpenRouter key (the secret OPENROUTER_KEY, set in the Cloudflare project's settings, never in this code),
 // answers only the site itself, limits each visitor's questions, and passes the model's answer back as it is written.
-// Settings (Variables and Secrets): OPENROUTER_KEY (secret), MODEL, MODEL_QUICK, PER_HOUR (default 40), COORD_PER_HOUR (default 200),
+// Settings (Variables and Secrets): OPENROUTER_KEY (secret), MODEL, MODEL_QUICK, PER_HOUR (default 40, per browser), IP_PER_HOUR
+// (default 300, per address), COORD_PER_HOUR (default 200),
 // TEST_MODELS (comma-separated: the models test.html may compare; empty = the comparison page is off).
 const hits = new Map();   // per visitor (IP), this server copy only: a first guard; the key's own spending limit is the real one
 function limited(ip, perHour) {
@@ -10,6 +11,22 @@ function limited(ip, perHour) {
   h.push(now); hits.set(ip, h);
   if (hits.size > 5000) hits.clear();
   return h.length > perHour;
+}
+// 6.11.2026 (the QA round: a campus or office address is shared by many students, and the count above is kept per server copy,
+// so it neither holds nor is fair): the count is kept in the shared storage (D1, table hits, by the hour, the hour before
+// counted by the part still within the last 60 minutes), per browser (the page's own random id, X-Client) with a wider cap
+// per address, per coordinator by the code. Keys are hashed; nothing else is kept. Any storage error: the count in memory
+async function overLimit(env, keys) {   // keys: [[key, per hour], ...]
+  const now = Date.now(), h = Math.floor(now / 3600e3), frac = (now % 3600e3) / 3600e3;
+  await setup(env);
+  const ups = keys.map(([k]) => env.DB.prepare('INSERT INTO hits (k, h, n) VALUES (?, ?, 1) ON CONFLICT (k, h) DO UPDATE SET n = n + 1 RETURNING n').bind(k, h));
+  const prev = keys.map(([k]) => env.DB.prepare('SELECT n FROM hits WHERE k = ? AND h = ?').bind(k, h - 1));
+  const rs = await env.DB.batch([...ups, ...prev]);
+  if (Math.random() < 0.02) env.DB.prepare('DELETE FROM hits WHERE h < ?').bind(h - 2).run().catch(() => {});
+  return keys.some(([, lim], i) => {
+    const cur = ((rs[i] && rs[i].results || [])[0] || {}).n || 1, before = ((rs[keys.length + i] && rs[keys.length + i].results || [])[0] || {}).n || 0;
+    return cur + before * (1 - frac) > lim;
+  });
 }
 const json = (s, status) => new Response(s, { status, headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' } });
 export async function onRequestPost({ request, env }) {
@@ -25,7 +42,19 @@ export async function onRequestPost({ request, env }) {
   // counts by their own code, not by the shared office address, with room for a shift of cases (COORD_PER_HOUR, default 200)
   const me = test ? null : (request.headers.get('X-Code') || request.headers.get('Cookie')) ? await who(request, env) : null;
   const own = me && !me.bench && !me.notify;
-  if (limited(own ? 'u:' + me.uid : ip, test ? 100000 : own ? Number(env.COORD_PER_HOUR || 200) : Number(env.PER_HOUR || 40))) return json('too many', 429);
+  if (!test) {
+    const perB = Number(env.PER_HOUR || 40), perIp = Number(env.IP_PER_HOUR || 300), perC = Number(env.COORD_PER_HOUR || 200);
+    const cid = String(request.headers.get('X-Client') || '');
+    let over;
+    // a page that sends no browser id (the public pages until Yoni approves the new ones) keeps the count in memory, as before
+    const okCid = /^[A-Za-z0-9_-]{8,64}$/.test(cid);
+    if (!own && !okCid) over = limited(ip, perB);
+    else try {
+      if (!env.DB) throw new Error('no storage');
+      over = await overLimit(env, own ? [['u:' + me.uid, perC]] : [['c:' + (await sha(cid + '|hits')).slice(0, 24), perB], ['ip:' + (await sha(ip + '|hits')).slice(0, 24), perIp]]);
+    } catch (_) { over = limited(own ? 'u:' + me.uid : ip, own ? perC : perB); }   // the storage did not answer: the count in memory, as before
+    if (over) return json('too many', 429);
+  }
   let body;
   try { body = await request.json(); } catch (_) { return json('bad request', 400); }
   const messages = typeof body.input === 'string' ? [{ role: 'user', content: body.input }] : body.input;

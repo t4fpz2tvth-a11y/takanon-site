@@ -14,7 +14,9 @@ export async function setup(env) {
     env.DB.prepare('CREATE TABLE IF NOT EXISTS docs (path TEXT PRIMARY KEY, coll TEXT NOT NULL, data TEXT NOT NULL, t INTEGER NOT NULL)'),
     env.DB.prepare('CREATE INDEX IF NOT EXISTS docs_coll ON docs (coll)'),
     env.DB.prepare('CREATE TABLE IF NOT EXISTS codes (hash TEXT PRIMARY KEY, uid TEXT NOT NULL, name TEXT NOT NULL, created INTEGER NOT NULL)'),
-    env.DB.prepare('CREATE TABLE IF NOT EXISTS fails (ip TEXT NOT NULL, t INTEGER NOT NULL)')
+    env.DB.prepare('CREATE TABLE IF NOT EXISTS fails (ip TEXT NOT NULL, t INTEGER NOT NULL)'),
+    // 6.11.2026 (the QA round): the questions' count per browser, per address and per coordinator, by the hour (api/chat.js)
+    env.DB.prepare('CREATE TABLE IF NOT EXISTS hits (k TEXT NOT NULL, h INTEGER NOT NULL, n INTEGER NOT NULL, PRIMARY KEY (k, h))')
   ]);
   ready = true;
 }

@@ -12,6 +12,9 @@ const scrub = (s, n) => String(s || '').replace(/\d[\d\s-]{6,12}\d/g, m => (m.re
 export async function onRequestPost({ request, env }) {
   const origin = request.headers.get('Origin');
   if (origin && origin !== new URL(request.url).origin) return text('forbidden', 403);
+  // 6.11.2026 (the QA round, Gemini: a script sent a feedback with no Origin and it was kept): as in /api/chat, a browser always
+  // sends Origin on this call; a call without one is not the site's page
+  if (!origin && request.headers.get('Sec-Fetch-Site') !== 'same-origin') return text('forbidden', 403);
   if (!env.DB) return text('the storage is not connected yet (binding DB)', 503);
   let b; try { b = await request.json(); } catch (_) { return text('bad request', 400); }
   await setup(env);

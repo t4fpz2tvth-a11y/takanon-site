@@ -26,7 +26,8 @@ export async function onRequestPost({ request, env }) {
   try { body = await request.json(); } catch (_) { return json('bad request', 400); }
   const messages = typeof body.input === 'string' ? [{ role: 'user', content: body.input }] : body.input;
   // 4.11.2026: the page's own limit is 256 KB of prompt (sample.limits); a little more for the message wrapper, no more
-  if (!Array.isArray(messages) || messages.length > 40 || JSON.stringify(messages).length > 300000) return json('bad request', 400);
+  // 6.11.2026 (the external audit's agents): a comparison call may carry a long tool conversation with screenshots
+  if (!Array.isArray(messages) || messages.length > (test ? 400 : 40) || JSON.stringify(messages).length > (test ? 3000000 : 300000)) return json('bad request', 400);
   // the models the comparison page may ask for (3.11.2026): this fixed list, and any in TEST_MODELS
   const BUILTIN_TESTS = ['anthropic/claude-haiku-5.5', 'anthropic/claude-sonnet-5.5', 'openai/gpt-5.4', 'openai/gpt-6-luna', 'deepseek/deepseek-v4.1-flash', 'minimax/minimax-m3.1-flash', 'z-ai/glm-5.3-flash', 'xiaomi/mimo-v2.6-flash', 'qwen/qwen3.8-flash', 'inception/mercury-3', 'google/gemini-3.8-flash', 'openai/gpt-6.1-terra', 'anthropic/claude-sonnet-5.5',
     'deepseek/deepseek-v4.1-flash-1017', '~deepseek/deepseek-pro-latest', 'openai/gpt-6-luna-pro', 'xiaomi/mimo-v2.6-pro', 'z-ai/glm-5.3-flashx', 'cohere/command-a-plus', 'mistralai/mistral-large-4-0', 'nvidia/nemotron-3.5-super-vl', 'meta/muse-spark-1.3', 'qwen/qwen3.8-max-0902', 'google/gemini-4-argon', 'x-ai/grok-4.7', 'moonshotai/kimi-k3.1-pro', 'inclusionai/ling-3.1-flash', 'reflection/beam-1.0-501b-a23b', 'stepfun/step-5-preview', 'openai/gpt-6.1-sol'];
@@ -54,7 +55,7 @@ export async function onRequestPost({ request, env }) {
     headers: { 'Authorization': 'Bearer ' + env.OPENROUTER_KEY, 'Content-Type': 'application/json', 'HTTP-Referer': url.origin, 'X-Title': 'Ma Omer HaTakanon' },
     // 4.11.2026 (security review): answers are a few thousand tokens; the comparison keeps its larger room. PRIVACY=1 (a setting)
     // asks OpenRouter for providers that keep no data; ?private=1 on a comparison call tries it before the setting is turned on
-    body: JSON.stringify(Object.assign({ model, messages, stream: !!body.stream, max_tokens: big ? (body.stream ? 16000 : 8000) : (body.stream ? 6000 : 2000), temperature: 0.2, usage: { include: true } }, exp.has('noreason') ? {} : exp.has('reasonoff') ? { reasoning: { enabled: false } } : exp.has('reasonmin') ? { reasoning: { effort: 'minimal', exclude: true } } : { reasoning: { effort: 'low', exclude: true } },
+    body: JSON.stringify(Object.assign(test && Array.isArray(body.tools) ? { tools: body.tools, tool_choice: body.tool_choice || 'auto' } : {}, { model, messages, stream: !!body.stream, max_tokens: big ? (body.stream ? 16000 : Math.min(16000, Math.max(8000, body.max_tokens | 0))) : (body.stream ? 6000 : 2000), temperature: 0.2, usage: { include: true } }, exp.has('noreason') ? {} : exp.has('reasonoff') ? { reasoning: { enabled: false } } : exp.has('reasonmin') ? { reasoning: { effort: 'minimal', exclude: true } } : { reasoning: { effort: 'low', exclude: true } },
       // 5.11.2026 (the blind review): the preview copies (/next/, /coord-next/, the header X-Preview) always ask for providers that keep nothing
       env.PRIVACY === '1' || request.headers.get('X-Preview') === '1' || (test && url.searchParams.has('private')) ? { provider: { data_collection: 'deny' } } : {}))
   });

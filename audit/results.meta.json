@@ -1,0 +1,48 @@
+{
+ "run": 1,
+ "t": "2026-11-06T05:49:40.262Z",
+ "site": "https://takanon-site.pages.dev",
+ "models": {
+  "openai/gpt-6.1-sol": {
+   "ok": false,
+   "error": "openai/gpt-6.1-sol: HTTP 413 {\"error\":{\"message\":\"Downloaded image content cannot exceed 30MB\",\"code\":413,\"metadata\":{\"provider_name\":null}}}"
+  },
+  "google/gemini-4-argon": {
+   "ok": false,
+   "error": "google/gemini-4-argon: HTTP 413 {\"error\":{\"message\":\"Downloaded image content cannot exceed 30MB\",\"code\":413,\"metadata\":{\"provider_name\":null}}}"
+  },
+  "openai/gpt-5.4": {
+   "ok": false,
+   "error": "openai/gpt-5.4: HTTP 403 model not allowed"
+  },
+  "anthropic/claude-sonnet-5.5": {
+   "ok": true,
+   "chars": 0,
+   "usage": {
+    "prompt_tokens": 144748,
+    "completion_tokens": 6000,
+    "total_tokens": 150748,
+    "cost": 0.349496,
+    "is_byok": false,
+    "prompt_tokens_details": {
+     "cached_tokens": 0,
+     "cache_write_tokens": 0,
+     "audio_tokens": 0,
+     "video_tokens": 0
+    },
+    "cost_details": {
+     "upstream_inference_cost": 0.349496,
+     "upstream_inference_prompt_cost": 0.289496,
+     "upstream_inference_completions_cost": 0.06
+    },
+    "completion_tokens_details": {
+     "reasoning_tokens": 6000,
+     "image_tokens": 0,
+     "audio_tokens": 0
+    }
+   },
+   "finish": "length",
+   "secs": 66
+  }
+ }
+}

@@ -345,7 +345,7 @@
     if (fbB) { fbB.addEventListener('click', function () { feedbackTab(fbB); });
       (async function () { try { var r = await call('/api/db', { op: 'list', path: 'fb', limit: 2000 }); var n = ((await r.json()).docs || []).filter(function (x) { return !x.data.read; }).length; if (n) fbB.textContent = 'משובים (' + n + ' חדשים)'; } catch (_) {} })(); }
     bar.querySelector('#tk-sheet').addEventListener('click', async function () {
-      var st = ''; try { var r0 = await call('/api/sheet', { op: 'status' }); st = (await r0.json()).connected ? 'הטבלה מחוברת. אפשר להחליף את הקישור:' : 'הטבלה עוד לא מחוברת.'; } catch (_) {}
+      var st = '', sj = {}; try { var r0 = await call('/api/sheet', { op: 'status' }); sj = await r0.json(); st = sj.connected ? 'הטבלה מחוברת. אפשר להחליף את הקישור:' : 'הטבלה עוד לא מחוברת.'; } catch (_) {}
       if (!PV2) {
         var url = prompt(st + '\n\nהדביקו כאן את הקישור של היישום מגוגל אפס סקריפט (מסתיים ב־/exec):');
         if (!url) return;
@@ -358,11 +358,16 @@
       var sd = document.createElement('div'); sd.setAttribute('role', 'dialog'); sd.setAttribute('aria-modal', 'true'); sd.setAttribute('aria-labelledby', 'tk-sheet-t');
       sd.setAttribute('style', 'position:fixed;inset:0;z-index:120;background:rgba(14,19,30,.45);display:grid;place-items:center;padding:16px;font:16px/1.6 inherit');
       sd.innerHTML = '<form dir="rtl" style="background:' + (dk2 ? '#161D2B' : '#fff') + ';color:' + (dk2 ? '#E6EAF2' : '#141B2D') + ';max-width:480px;width:100%;box-sizing:border-box;padding:1.2rem;border-radius:14px;display:grid;gap:.6rem">' +
-        '<h2 id="tk-sheet-t" style="margin:0;font-size:1.1rem">טבלת המעקב</h2><p style="margin:0" id="tk-sheet-st"></p>' +
+        '<h2 id="tk-sheet-t" style="margin:0;font-size:1.1rem">טבלת המעקב</h2><div id="tk-sheet-go" style="display:flex;gap:8px;flex-wrap:wrap"></div><p style="margin:0" id="tk-sheet-st"></p>' +
         '<label style="display:grid;gap:.3rem"><span>הקישור של היישום מגוגל אפס סקריפט (מסתיים ב־/exec)</span><input id="tk-sheet-url" type="url" required placeholder="https://script.google.com/macros/s/…/exec" style="font:inherit;min-height:44px;padding:.3rem .6rem;border-radius:10px;border:1px solid var(--field-edge, #8A93A6);background:var(--sheet, #fff);color:inherit;min-width:0"></label>' +
         '<p id="tk-sheet-out" role="status" style="margin:0"></p>' +
         '<div style="display:flex;gap:8px;flex-wrap:wrap"><button type="submit" style="font:inherit;min-height:44px;padding:.4rem 1rem;border:0;border-radius:10px;background:var(--accent, #2B4FB8);color:#fff;cursor:pointer">חיבור ובדיקה</button><button type="button" id="tk-sheet-x" style="font:inherit;min-height:44px;padding:.4rem 1rem;border-radius:10px;border:1px solid var(--field-edge, #8A93A6);background:none;color:inherit;cursor:pointer">סגירה</button></div></form>';
       sd.querySelector('#tk-sheet-st').textContent = st;
+      // 6.11.2026 12:26 (Yoni): straight links to the tracking sheet and to the department's Gmail; the server keeps them (head only),
+      // never this public code
+      var go = sd.querySelector('#tk-sheet-go');
+      [['view', 'פתיחת טבלת המעקב', /^https:\/\/docs\.google\.com\/spreadsheets\//], ['mail', 'פתיחת ג\'ימייל', /^https:\/\/mail\.google\.com\//]].forEach(function (L) { var u = String(sj[L[0]] || ''); if (!L[2].test(u)) return; var a = document.createElement('a'); a.href = u; a.target = '_blank'; a.rel = 'noopener'; a.textContent = L[1]; a.className = 'tk-sheet-link'; a.setAttribute('style', 'display:inline-flex;align-items:center;min-height:44px;padding:.3rem .9rem;border-radius:10px;border:1px solid var(--accent, #2B4FB8);color:var(--accent, #2B4FB8);font-weight:600;text-decoration:none'); go.appendChild(a); });
+      if (!go.children.length) go.remove();
       var others2 = [].filter.call(document.body.children, function (x) { return !x.inert; }); others2.forEach(function (x) { x.inert = true; });
       var end2 = function () { document.removeEventListener('keydown', key2, true); others2.forEach(function (x) { x.inert = false; }); sd.remove(); try { back2 && back2.focus(); } catch (_) {} };
       var key2 = function (e) { if (e.key === 'Escape') { e.preventDefault(); end2(); } };
@@ -370,7 +375,7 @@
       sd.querySelector('#tk-sheet-x').addEventListener('click', end2);
       sd.querySelector('form').addEventListener('submit', async function (e) { e.preventDefault(); var out = sd.querySelector('#tk-sheet-out'), u = sd.querySelector('#tk-sheet-url').value.trim(); if (!u) return; out.textContent = 'בודק את החיבור…';
         try { var r2 = await call('/api/sheet', { op: 'config', url: u }); var t2 = await r2.text(); out.textContent = r2.ok ? 'הטבלה חוברה ונבדקה. מעכשיו "סנכרון לטבלת המעקב" ביומן כותב אליה.' : 'החיבור נכשל: ' + t2; } catch (e4) { out.textContent = 'החיבור נכשל: ' + e4.message; } });
-      document.body.appendChild(sd); sd.querySelector('#tk-sheet-url').focus();
+      document.body.appendChild(sd); (sd.querySelector('.tk-sheet-link') || sd.querySelector('#tk-sheet-url')).focus();   // the links first: no keyboard popping up on a phone
     });
     bar.querySelector('#tk-admin').addEventListener('click', async function () {
       var d = document.createElement('div');

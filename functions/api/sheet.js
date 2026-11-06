@@ -28,14 +28,15 @@ export async function onRequestPost({ request, env }) {
   let b = {}; try { b = await request.json(); } catch (_) {}
   const row = await env.DB.prepare('SELECT data FROM docs WHERE path = ?').bind(PATH).first();
   const cfg = row ? JSON.parse(row.data) : {}, url = cfg.url || '';
-  if (b.op === 'status') return json({ connected: !!url });
+  // 6.11.2026 12:26 (Yoni): the dialog also opens the sheet itself and the department's Gmail; the links live here, not in the public code
+  if (b.op === 'status') return json({ connected: !!url, view: /^https:\/\/docs\.google\.com\/spreadsheets\//.test(cfg.view || '') ? cfg.view : '', mail: /^https:\/\/mail\.google\.com\//.test(cfg.mail || '') ? cfg.mail : '' });
   if (b.op === 'config') {
     const v = String(b.url || '').trim();
     if (!/^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec$/.test(v)) return text('הקישור צריך להתחיל ב־https://script.google.com/macros/s/ ולהסתיים ב־/exec', 400);
     const secret = secretOf(env, cfg) || newSecret();
     const ping = await pass(v, { tool: 'pair' }, secret);
     if (!ping.ok) return text(ping.error || 'הסקריפט לא ענה', 400);
-    await env.DB.prepare('INSERT OR REPLACE INTO docs (path, coll, data, t) VALUES (?, ?, ?, ?)').bind(PATH, 'config', JSON.stringify({ url: v, secret: cfg.secret || (env.SHEET_SECRET ? undefined : secret) }), Date.now()).run();
+    await env.DB.prepare('INSERT OR REPLACE INTO docs (path, coll, data, t) VALUES (?, ?, ?, ?)').bind(PATH, 'config', JSON.stringify({ url: v, secret: cfg.secret || (env.SHEET_SECRET ? undefined : secret), view: cfg.view, mail: cfg.mail }), Date.now()).run();
     return json({ ok: true, tab: ping.tab });
   }
   if (b.op === 'call') {

@@ -9,7 +9,7 @@ const req = JSON.parse(fs.readFileSync('audit/request.json', 'utf8'));
 const packet = fs.readFileSync('audit/packet.md', 'utf8');
 const caps = JSON.parse(fs.readFileSync('audit/captions.json', 'utf8')).captions;
 const slug = m => m.replace(/[^a-z0-9.]+/gi, '-').replace(/^-|-$/g, '');
-const parts = [{ type: 'text', text: packet + '\n\n## הצילומים (37), לפי הסדר והכיתוב שבחלק ב\n' }];
+const parts = [{ type: 'text', text: packet + '\n\n## הצילומים (26), לפי הסדר והכיתוב שבחלק ב\n' }];
 for (const [k, v] of Object.entries(caps)) {
   parts.push({ type: 'text', text: '\n' + v + ':' });
   parts.push({ type: 'image_url', image_url: { url: SITE + '/audit/img/' + k + '.jpg' } });
@@ -17,7 +17,7 @@ for (const [k, v] of Object.entries(caps)) {
 parts.push({ type: 'text', text: '\n\nכתוב עכשיו את מסמך האבחון המלא בעברית, לפי ההנחיה שבחלק א.' });
 async function ask(model) {
   const t0 = Date.now();
-  const r = await fetch(SITE + '/api/chat?test=1&exp=live', {
+  const r = await fetch(SITE + '/api/chat?test=1&exp=reasonoff', {
     method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Code': encodeURIComponent(CODE) },
     body: JSON.stringify({ model, stream: true, input: [{ role: 'user', content: parts }] }),
   });

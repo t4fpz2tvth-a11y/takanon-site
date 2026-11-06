@@ -1,1 +1,1 @@
-{"models": ["anthropic/claude-haiku-5.5"], "batch": 1, "k": 3, "exp": "live", "run": 59, "target": "", "tag": "qa1", "set": "qa", "judges": ["openai/gpt-6.1-sol"]}
+{"models": ["anthropic/claude-haiku-5.5"], "batch": 1, "k": 3, "exp": "live", "run": 60, "target": "coord", "tag": "qa1", "set": "qa", "judges": ["openai/gpt-6.1-sol"]}

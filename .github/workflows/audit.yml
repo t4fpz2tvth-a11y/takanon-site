@@ -1,0 +1,25 @@
+name: audit
+on:
+  push:
+    branches: [main]
+    paths: ['audit/request.json']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: audit
+  cancel-in-progress: false
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - run: node audit/run.mjs
+        env:
+          BENCH_CODE: ${{ secrets.BENCH_TOKEN || secrets.BENCH_CODE }}
+      - run: |
+          git config user.name "audit-bot" && git config user.email "audit-bot@users.noreply.github.com"
+          git add audit/results_*.md audit/results.meta.json
+          git commit -m "אבחון חיצוני: תוצאות [CI Skip]" || echo "nothing to commit"
+          git pull --rebase origin main && git push

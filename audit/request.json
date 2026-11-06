@@ -1,0 +1,4 @@
+{
+ "run": 1,
+ "models": ["openai/gpt-6.1-sol", "google/gemini-4-argon", "openai/gpt-5.4", "anthropic/claude-sonnet-5.5"]
+}

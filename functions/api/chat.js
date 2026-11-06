@@ -28,7 +28,7 @@ export async function onRequestPost({ request, env }) {
   // 4.11.2026: the page's own limit is 256 KB of prompt (sample.limits); a little more for the message wrapper, no more
   if (!Array.isArray(messages) || messages.length > 40 || JSON.stringify(messages).length > 300000) return json('bad request', 400);
   // the models the comparison page may ask for (3.11.2026): this fixed list, and any in TEST_MODELS
-  const BUILTIN_TESTS = ['anthropic/claude-haiku-5.5', 'openai/gpt-6-luna', 'deepseek/deepseek-v4.1-flash', 'minimax/minimax-m3.1-flash', 'z-ai/glm-5.3-flash', 'xiaomi/mimo-v2.6-flash', 'qwen/qwen3.8-flash', 'inception/mercury-3', 'google/gemini-3.8-flash', 'openai/gpt-6.1-terra', 'anthropic/claude-sonnet-5.5',
+  const BUILTIN_TESTS = ['anthropic/claude-haiku-5.5', 'anthropic/claude-sonnet-5.5', 'openai/gpt-5.4', 'openai/gpt-6-luna', 'deepseek/deepseek-v4.1-flash', 'minimax/minimax-m3.1-flash', 'z-ai/glm-5.3-flash', 'xiaomi/mimo-v2.6-flash', 'qwen/qwen3.8-flash', 'inception/mercury-3', 'google/gemini-3.8-flash', 'openai/gpt-6.1-terra', 'anthropic/claude-sonnet-5.5',
     'deepseek/deepseek-v4.1-flash-1017', '~deepseek/deepseek-pro-latest', 'openai/gpt-6-luna-pro', 'xiaomi/mimo-v2.6-pro', 'z-ai/glm-5.3-flashx', 'cohere/command-a-plus', 'mistralai/mistral-large-4-0', 'nvidia/nemotron-3.5-super-vl', 'meta/muse-spark-1.3', 'qwen/qwen3.8-max-0902', 'google/gemini-4-argon', 'x-ai/grok-4.7', 'moonshotai/kimi-k3.1-pro', 'inclusionai/ling-3.1-flash', 'reflection/beam-1.0-501b-a23b', 'stepfun/step-5-preview', 'openai/gpt-6.1-sol'];
   const tests = BUILTIN_TESTS.concat((env.TEST_MODELS || '').split(',').map(s => s.trim()).filter(Boolean));
   if (body.model && !(test && tests.includes(body.model))) return json('model not allowed', 403);

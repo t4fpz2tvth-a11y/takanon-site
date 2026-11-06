@@ -1,0 +1,35 @@
+{
+ "out": "bench/results_coord_pv4live.json",
+ "set": "valid",
+ "target": "coord",
+ "tag": "pv4live",
+ "exp": "live",
+ "judge": "openai/gpt-6.1-sol",
+ "judges": null,
+ "reps": 3,
+ "site": "https://takanon-site.pages.dev",
+ "started": "2026-11-06T08:57:27.023Z",
+ "written": "2026-11-06T09:07:27.583Z",
+ "finished": false,
+ "builds": [
+  "ebed1bee"
+ ],
+ "summary": {
+  "anthropic/claude-haiku-5.5": {
+   "rows": 51,
+   "scored": 51,
+   "infra": 0,
+   "infra_by": {},
+   "unscored": 0,
+   "mean": 1.059,
+   "mean_unseen": 1.024,
+   "scored_unseen": 41,
+   "no_serious": 0.686,
+   "reps": 2,
+   "left_out_share": 0,
+   "builds": [
+    "ebed1bee"
+   ]
+  }
+ }
+}

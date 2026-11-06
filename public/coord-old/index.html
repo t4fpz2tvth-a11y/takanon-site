@@ -20,6 +20,7 @@
   // deleted case takes its private record with it. Its sign-in box is a real dialog, with a label and announced errors
   var PV = !/^\/coord-old\//.test(location.pathname);   // 5.11.2026 (Yoni: "תוציא הכל לבוטים"): the preview's behaviour is the live one, at /coord/ too
   var PV2 = false;   // 5.11.2026 (the UX audit): the new preview copy
+  var PV4 = false;   // 6.11.2026 (the external audit's round): follows the page it wraps (mksite)
   if (BENCH) { try { localStorage.setItem('reg-bot-tour-v3', '1'); } catch (_) {} }
   function memDb(b) {
     var p = String(b.path || ''), now = Date.now();
@@ -235,6 +236,10 @@
     });
   }
   // 5.11.2026 (Yoni: "לשונית שמגיעה לרמ"ח בתוך בוט הרכזים"): the public bot's feedback, for the head; preview copy only
+  // 6.11.2026 (the external audit, Sonnet, GPT-6.1 Sol, GPT-5.4): the reasons readers tap, and a status for each feedback
+  var FB_WHYS = ['תלוי בפקולטה שלי', 'לא ענה על מה ששאלתי', 'ארוך מדי', 'לא ברור מה לעשות', 'הסעיף לא נכון', 'חסרה תשובה למקרה שלי'];
+  var FB_ST = { 'new': 'חדש', check: 'בבדיקה', fixed: 'תוקן', none: 'נסגר בלי שינוי' };
+  var fbSt = function (f) { return f.st || (f.read ? 'check' : 'new'); };
   function feedbackTab(btn) {
     var dk = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches;
     var esc = function (s) { return String(s == null ? '' : s).replace(/[<>&"]/g, function (c) { return { '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;' }[c]; }); };
@@ -244,6 +249,7 @@
     d.innerHTML = '<div dir="rtl" style="background:' + (dk ? '#161D2B' : '#fff') + ';color:' + (dk ? '#E6EAF2' : '#141B2D') + ';max-width:640px;width:100%;box-sizing:border-box;padding:1.2rem;border-radius:14px;display:grid;gap:.7rem;max-height:90vh;overflow:auto">' +
       '<div style="position:sticky;top:-1.2rem;margin:-1.2rem -1.2rem 0;padding:1.2rem 1.2rem .5rem;background:' + (dk ? '#161D2B' : '#fff') + ';display:flex;justify-content:space-between;align-items:center;gap:8px;z-index:1"><h2 id="tk-fb-t" style="font-size:1.15rem;margin:0">משובים על התשובות</h2><button type="button" id="tk-fb-close" style="font:inherit;min-height:44px;padding:0 1rem;border-radius:10px;border:1px solid ' + line + ';background:transparent;color:inherit;cursor:pointer">סגירה</button></div><p style="margin:0;color:' + soft + ';font-size:.9rem">מהבוט הציבורי (סטודנטים, בלי שם) ומבוט הרכזים (עם שם הרכז/ת). מספרי זהות הוסרו לפני השמירה. כל משוב נמחק אחרי שנה.</p>' +
       '<div role="group" aria-label="אילו משובים להציג" id="tk-fb-f" style="display:flex;gap:6px;flex-wrap:wrap"><button type="button" data-f="" aria-pressed="true">הכל</button><button type="button" data-f="public" aria-pressed="false">מהבוט הציבורי</button><button type="button" data-f="coord" aria-pressed="false">מהרכזים</button></div>' +
+      (PV4 ? '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><label>סיבה <select id="tk-fb-why" style="font:inherit;min-height:40px"><option value="">כל הסיבות</option>' + FB_WHYS.map(function (w) { return '<option>' + w + '</option>'; }).join('') + '</select></label><label>מצב <select id="tk-fb-st" style="font:inherit;min-height:40px"><option value="">הכל</option>' + Object.keys(FB_ST).map(function (k) { return '<option value="' + k + '">' + FB_ST[k] + '</option>'; }).join('') + '</select></label></div>' : '') +
       '<p id="tk-fb-say" role="status" style="margin:0;min-height:1.4em"></p><div id="tk-fb-list">טוען…</div></div>';
     var app = document.querySelector('.app'), bar = btn.closest('div'); if (app) app.inert = true; if (bar) bar.inert = true;
     var done = function () { document.removeEventListener('keydown', onKey, true); if (app) app.inert = false; if (bar) bar.inert = false; try { btn.focus(); } catch (_) {} counts(); };
@@ -259,20 +265,26 @@
     async function load() {
       try {
         var r = await call('/api/db', { op: 'list', path: 'fb', order: 't0', dir: 'desc', limit: 300 }); if (!r.ok) throw new Error('שגיאה ' + r.status);
-        var docs = ((await r.json()).docs || []).filter(function (x) { return !only || (x.data.src || 'public') === only; });
+        var whyF = PV4 && d.querySelector('#tk-fb-why') ? d.querySelector('#tk-fb-why').value : '', stF = PV4 && d.querySelector('#tk-fb-st') ? d.querySelector('#tk-fb-st').value : '';
+        var docs = ((await r.json()).docs || []).filter(function (x) { return (!only || (x.data.src || 'public') === only) && (!whyF || (x.data.why || []).indexOf(whyF) >= 0) && (!stF || fbSt(x.data) === stF); });
         var srcOf = function (f) { return f.src === 'coord' ? 'מרכז/ת' + (f.from ? ': ' + esc(f.from) : '') : 'מהבוט הציבורי'; };
         if (!docs.length) { list.textContent = only ? 'אין משובים מהסוג הזה.' : 'עוד אין משובים.'; return; }
         var un = docs.filter(function (x) { return !x.data.read; }).length;
         list.innerHTML = '<p style="margin:0 0 .4rem">' + docs.length + ' משובים' + (un ? ', ' + un + ' חדשים' : '') + '</p>' + docs.map(function (x) { var f = x.data, when = ''; try { var dd = new Date(f.t0); when = dd.getDate() + '.' + (dd.getMonth() + 1) + '.' + dd.getFullYear() + ' בשעה ' + String(dd.getHours()).padStart(2, '0') + ':' + String(dd.getMinutes()).padStart(2, '0'); } catch (_) {}
           return '<article data-id="' + esc(x.id) + '" style="border-top:1px solid ' + line + ';padding:.6rem 0">' +
             '<p style="margin:0">' + tag(f.r) + ' · <b>' + srcOf(f) + '</b> · <span style="color:' + soft + '">' + esc(when) + (f.read ? ' · נקרא' : '') + '</span>' + (f.read ? '' : ' <span style="display:inline-block;padding:0 .5rem;border-radius:999px;background:var(--accent-soft);color:var(--ink);font-size:.85rem">חדש</span>') + '</p>' +
-            '<p style="margin:.2rem 0"><b>' + (f.src === 'coord' ? 'השאלה או ההודעה:' : 'השאלה:') + '</b> ' + esc(f.q || '—') + '</p>' + (f.text ? '<p style="margin:.2rem 0"><b>מה כתבו:</b> ' + esc(f.text) + '</p>' : '') +
+            '<p style="margin:.2rem 0"><b>' + (f.src === 'coord' ? 'השאלה או ההודעה:' : 'השאלה:') + '</b> ' + esc(f.q || '—') + '</p>' + (f.text ? '<p style="margin:.2rem 0"><b>מה כתבו:</b> ' + esc(f.text) + '</p>' : '') + (PV4 && f.why && f.why.length ? '<p style="margin:.2rem 0"><b>למה:</b> ' + f.why.map(esc).join(' · ') + '</p>' : '') +
             (f.a ? '<details><summary style="cursor:pointer;min-height:32px">תחילת התשובה</summary><p style="margin:.3rem 0;white-space:pre-wrap;color:' + soft + '">' + esc(f.a) + '</p></details>' : '') +
-            '<div style="display:flex;gap:8px;margin-top:.3rem">' + (f.read ? '' : '<button type="button" data-read style="font:inherit;min-height:40px;padding:.2rem .8rem;border-radius:10px;border:1px solid ' + line + ';background:transparent;color:inherit">סימון כנקרא</button>') +
+            '<div style="display:flex;gap:8px;margin-top:.3rem;flex-wrap:wrap;align-items:center">' + (PV4 ? '<label>מצב <select data-st style="font:inherit;min-height:40px">' + Object.keys(FB_ST).map(function (k) { return '<option value="' + k + '"' + (fbSt(f) === k ? ' selected' : '') + '>' + FB_ST[k] + '</option>'; }).join('') + '</select></label>' : '') + (f.read || PV4 ? '' : '<button type="button" data-read style="font:inherit;min-height:40px;padding:.2rem .8rem;border-radius:10px;border:1px solid ' + line + ';background:transparent;color:inherit">סימון כנקרא</button>') +
             '<button type="button" data-del style="font:inherit;min-height:40px;padding:.2rem .8rem;border-radius:10px;border:1px solid ' + line + ';background:transparent;color:inherit">מחיקה</button></div></article>'; }).join('');
       } catch (e) { list.textContent = 'המשובים לא נטענו: ' + e.message; }
     }
     var say = d.querySelector('#tk-fb-say');
+    if (PV4) {
+      ['#tk-fb-why', '#tk-fb-st'].forEach(function (q) { var el = d.querySelector(q); if (el) el.addEventListener('change', load); });
+      list.addEventListener('change', async function (e) { var sel = e.target.closest('select[data-st]'); if (!sel) return; var a = sel.closest('article');
+        try { await call('/api/db', { op: 'update', path: 'fb/' + a.dataset.id, data: { st: sel.value, read: sel.value !== 'new' } }); say.textContent = 'המצב עודכן: ' + FB_ST[sel.value] + '.'; counts(); } catch (_) { say.textContent = 'המצב לא נשמר.'; } });
+    }
     var after = async function (id, msg) { await commitDel(); var arts = [].slice.call(list.querySelectorAll('article')), i = arts.findIndex(function (x) { return x.dataset.id === id; });
       await load(); say.textContent = msg; counts();
       var next = list.querySelectorAll('article')[Math.max(0, i)], b = next && next.querySelector('button');
@@ -311,6 +323,21 @@
         bar.querySelectorAll('button').forEach(function (b) { b.style.background = 'var(--sheet, #fff)'; b.style.color = 'var(--ink, #141B2D)'; b.style.borderColor = 'var(--field-edge, #8A93A6)'; b.style.fontFamily = 'inherit'; });
         o.style.background = 'none'; o.style.color = 'var(--muted, #566079)';
       } }
+    // 6.11.2026 (the external audit, all four models: three rows of controls above the box on a phone): the head's three tools
+    // sit behind one "ניהול" button; a new feedback still shows on it; signing out stays a quiet link
+    if (PV4 && me.admin) {
+      var tools = ['#tk-admin', '#tk-sheet', '#tk-fb'].map(function (q) { return bar.querySelector(q); }).filter(Boolean);
+      var mg = document.createElement('button'); mg.type = 'button'; mg.id = 'tk-mgmt'; mg.setAttribute('aria-expanded', 'false'); mg.setAttribute('aria-controls', 'tk-menu'); mg.textContent = 'ניהול';
+      mg.setAttribute('style', tools[0].getAttribute('style'));
+      var menu = document.createElement('div'); menu.id = 'tk-menu'; menu.hidden = true; menu.setAttribute('role', 'group'); menu.setAttribute('aria-label', 'כלי ניהול');
+      menu.setAttribute('style', 'flex-basis:100%;display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px');
+      tools.forEach(function (b) { menu.appendChild(b); });
+      bar.insertBefore(mg, bar.firstChild); bar.appendChild(menu);
+      mg.addEventListener('click', function () { menu.hidden = !menu.hidden; mg.setAttribute('aria-expanded', String(!menu.hidden)); if (!menu.hidden) tools[0].focus(); });
+      menu.addEventListener('click', function () { menu.hidden = true; mg.setAttribute('aria-expanded', 'false'); });
+      var fb0 = bar.querySelector('#tk-fb');
+      if (fb0) new MutationObserver(function () { var m = /\((\d+) חדשים\)/.exec(fb0.textContent); mg.textContent = m ? 'ניהול · ' + m[1] + ' משובים חדשים' : 'ניהול'; }).observe(fb0, { childList: true, characterData: true, subtree: true });
+    }
     document.body.prepend(bar);
     bar.querySelector('#tk-out').addEventListener('click', async function () { if (await askIn('לצאת מהמכשיר הזה? בכניסה הבאה יידרש הקוד שוב.', 'יציאה', 'ביטול')) { try { localStorage.removeItem(KEY); } catch (_) {} code = ''; fetch('/api/db', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{"op":"logout"}' }).catch(function () {}).then(function () { location.reload(); }); } });
     if (!me.admin) return;

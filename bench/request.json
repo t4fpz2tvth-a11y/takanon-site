@@ -3,9 +3,9 @@
   "anthropic/claude-haiku-5.5"
  ],
  "batch": 1,
- "run": 52,
+ "run": 53,
  "k": 3,
- "target": "next",
+ "target": "coord-next",
  "tag": "pv4",
  "set": "valid",
  "exp": "live"

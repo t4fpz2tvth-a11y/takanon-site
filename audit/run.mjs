@@ -20,7 +20,7 @@ async function ask(model, exp = 'reasonoff') {
   const t0 = Date.now();
   const r = await fetch(SITE + '/api/chat?test=1&exp=' + exp, {
     method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Code': encodeURIComponent(CODE) },
-    body: JSON.stringify({ model, stream: true, input: [{ role: 'user', content: parts }] }),
+    body: JSON.stringify({ model, stream: true, max_tokens: 32000, input: [{ role: 'user', content: parts }] }),   // reasoning counts inside; two documents were cut at 16000
   });
   if (!r.ok) { const t = await r.text(); if (exp === 'reasonoff' && /Reasoning is mandatory/.test(t)) { console.log('  reasoning stays on for', model); return ask(model, ''); } throw new Error(model + ': HTTP ' + r.status + ' ' + t.slice(0, 300)); }
   const reader = r.body.getReader(), dec = new TextDecoder(); let buf = '', text = '', usage = null, finish = '';

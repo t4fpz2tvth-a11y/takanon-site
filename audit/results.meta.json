@@ -1,24 +1,45 @@
 {
- "run": 2,
- "t": "2026-11-06T05:54:50.052Z",
+ "run": 3,
+ "t": "2026-11-06T06:06:18.819Z",
  "site": "https://takanon-site.pages.dev",
  "models": {
   "openai/gpt-6.1-sol": {
-   "ok": false,
-   "error": "openai/gpt-6.1-sol: HTTP 400 {\"error\":{\"message\":\"Reasoning is mandatory for this endpoint and cannot be disabled.\",\"code\":400,\"metadata\":{\"provider_name\":null}}}"
-  },
-  "google/gemini-4-argon": {
-   "ok": false,
-   "error": "google/gemini-4-argon: HTTP 400 {\"error\":{\"message\":\"Reasoning is mandatory for this endpoint and cannot be disabled.\",\"code\":400,\"metadata\":{\"provider_name\":null}}}"
-  },
-  "openai/gpt-5.4": {
    "ok": true,
-   "chars": 35575,
+   "chars": 31412,
    "usage": {
     "prompt_tokens": 50439,
-    "completion_tokens": 14685,
-    "total_tokens": 65124,
-    "cost": 0.3463725,
+    "completion_tokens": 12461,
+    "total_tokens": 62900,
+    "cost": 0.250706,
+    "is_byok": false,
+    "prompt_tokens_details": {
+     "cached_tokens": 0,
+     "cache_write_tokens": 50436,
+     "audio_tokens": 0,
+     "video_tokens": 0
+    },
+    "cost_details": {
+     "upstream_inference_cost": 0.250706,
+     "upstream_inference_prompt_cost": 0.126096,
+     "upstream_inference_completions_cost": 0.12461
+    },
+    "completion_tokens_details": {
+     "reasoning_tokens": 44,
+     "image_tokens": 0,
+     "audio_tokens": 0
+    }
+   },
+   "finish": "stop",
+   "secs": 224
+  },
+  "google/gemini-4-argon": {
+   "ok": true,
+   "chars": 34701,
+   "usage": {
+    "prompt_tokens": 74906,
+    "completion_tokens": 16000,
+    "total_tokens": 90906,
+    "cost": 0.309812,
     "is_byok": false,
     "prompt_tokens_details": {
      "cached_tokens": 0,
@@ -27,9 +48,9 @@
      "video_tokens": 0
     },
     "cost_details": {
-     "upstream_inference_cost": 0.3463725,
-     "upstream_inference_prompt_cost": 0.1260975,
-     "upstream_inference_completions_cost": 0.220275
+     "upstream_inference_cost": 0.309812,
+     "upstream_inference_prompt_cost": 0.149812,
+     "upstream_inference_completions_cost": 0.16
     },
     "completion_tokens_details": {
      "reasoning_tokens": 0,
@@ -37,12 +58,37 @@
      "audio_tokens": 0
     }
    },
-   "finish": "stop",
-   "secs": 407
+   "finish": "length",
+   "secs": 198
   },
   "anthropic/claude-sonnet-5.5": {
-   "ok": false,
-   "error": "anthropic/claude-sonnet-5.5: HTTP 400 {\"error\":{\"message\":\"Reasoning is mandatory for this endpoint and cannot be disabled.\",\"code\":400,\"metadata\":{\"provider_name\":null}}}"
+   "ok": true,
+   "chars": 22706,
+   "usage": {
+    "prompt_tokens": 79059,
+    "completion_tokens": 16000,
+    "total_tokens": 95059,
+    "cost": 0.318118,
+    "is_byok": false,
+    "prompt_tokens_details": {
+     "cached_tokens": 0,
+     "cache_write_tokens": 0,
+     "audio_tokens": 0,
+     "video_tokens": 0
+    },
+    "cost_details": {
+     "upstream_inference_cost": 0.318118,
+     "upstream_inference_prompt_cost": 0.158118,
+     "upstream_inference_completions_cost": 0.16
+    },
+    "completion_tokens_details": {
+     "reasoning_tokens": 0,
+     "image_tokens": 0,
+     "audio_tokens": 0
+    }
+   },
+   "finish": "length",
+   "secs": 152
   }
  }
 }

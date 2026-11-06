@@ -2,9 +2,11 @@
 // (כן / חלקית / לא) and an optional sentence, with no name. Anyone may send; only the head reads them (the "fb" collection,
 // through /api/db). Identity numbers are removed before anything is kept; each address may send a few an hour.
 // POST { r, q, a, build }            -> { id, k }   a new feedback (r: the rating)
-// POST { id, k, text?, r? }          -> { ok }       the sentence added, or the rating changed (k: the key the first call returned)
+// POST { id, k, text?, r?, why? }    -> { ok }       the sentence added, the rating changed, or the reasons tapped (k: the key the first call returned)
 import { json, text, setup, sha, who, codeCookie } from '../_lib.js';
 const RATINGS = ['כן', 'חלקית', 'לא'];
+// 6.11.2026 (the external audit, Sonnet: "חלקית" and "לא" said little): after them, the reader may tap reasons from this list
+const WHYS = ['תלוי בפקולטה שלי', 'לא ענה על מה ששאלתי', 'ארוך מדי', 'לא ברור מה לעשות', 'הסעיף לא נכון', 'חסרה תשובה למקרה שלי'];
 const PER_HOUR = 30;
 const scrub = (s, n) => String(s || '').replace(/\d[\d\s-]{6,12}\d/g, m => (m.replace(/\D/g, '').length >= 8 && m.replace(/\D/g, '').length <= 9 ? '[ת"ז הוסרה]' : m)).slice(0, n);
 export async function onRequestPost({ request, env }) {
@@ -22,6 +24,7 @@ export async function onRequestPost({ request, env }) {
     const d = JSON.parse(r.data);
     if (d.k !== await sha(String(b.k))) return json({ error: 'forbidden' }, 403);
     if (b.text !== undefined) d.text = scrub(b.text, 600);
+    if (Array.isArray(b.why)) d.why = b.why.map(String).filter(w => WHYS.includes(w)).slice(0, WHYS.length);
     if (RATINGS.includes(String(b.r || ''))) d.r = String(b.r);   // the rating changed after the first tap
     d.t1 = new Date(now).toISOString();
     await env.DB.prepare('UPDATE docs SET data = ? WHERE path = ?').bind(JSON.stringify(d), path).run();

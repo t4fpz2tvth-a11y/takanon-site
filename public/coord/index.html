@@ -218,6 +218,14 @@
   // ---- the head's tools: the access codes, and signing out
   // 5.11.2026 (craft round): in the preview copy, the page's own confirmation instead of the browser's (labelled, focus inside,
   // Escape says no); elsewhere the browser's, as before
+  // 6.11.2026 12:34 (Yoni): a tap outside a management window closes it (the codes, the tracking sheet, the feedback); a drag or a
+  // scroll that starts outside does not. Not the sign-in, not a yes/no question, not the tour
+  function tapOut(ov, close, keep) {
+    var st = null;
+    ov.addEventListener('pointerdown', function (e) { st = e.target === ov ? { x: e.clientX, y: e.clientY } : null; });
+    ov.addEventListener('pointercancel', function () { st = null; });
+    ov.addEventListener('pointerup', function (e) { var s = st; st = null; if (!s || e.target !== ov || Math.abs(e.clientX - s.x) > 10 || Math.abs(e.clientY - s.y) > 10) return; if (keep && keep()) return; close(); });
+  }
   function askIn(msg, yes, no) {
     if (!PV) return Promise.resolve(confirm(msg));
     return new Promise(function (res) {
@@ -304,6 +312,7 @@
     var pendingDel = null;
     async function commitDel() { if (!pendingDel) return; var pd = pendingDel; pendingDel = null; clearTimeout(pd.t); try { await call('/api/db', { op: 'delete', path: 'fb/' + pd.id }); } catch (_) {} pd.a.remove(); if (say.querySelector('#tk-fb-undo')) say.textContent = 'המשוב נמחק.'; counts(); }
     d.querySelector('#tk-fb-close').addEventListener('click', function () { commitDel(); d.remove(); done(); });
+    tapOut(d, function () { d.querySelector('#tk-fb-close').click(); });
     load(); setTimeout(function () { var h = d.querySelector('#tk-fb-t'); if (h) { h.setAttribute('tabindex', '-1'); h.focus(); } }, 0);
     async function counts() { try { var r = await call('/api/db', { op: 'list', path: 'fb', limit: 2000 }); var n = ((await r.json()).docs || []).filter(function (x) { return !x.data.read; }).length; btn.textContent = 'משובים' + (n ? ' (' + n + ' חדשים)' : ''); } catch (_) {} }
     feedbackTab.counts = counts;
@@ -373,6 +382,7 @@
       var key2 = function (e) { if (e.key === 'Escape') { e.preventDefault(); end2(); } };
       document.addEventListener('keydown', key2, true);
       sd.querySelector('#tk-sheet-x').addEventListener('click', end2);
+      tapOut(sd, end2);
       sd.querySelector('form').addEventListener('submit', async function (e) { e.preventDefault(); var out = sd.querySelector('#tk-sheet-out'), u = sd.querySelector('#tk-sheet-url').value.trim(); if (!u) return; out.textContent = 'בודק את החיבור…';
         try { var r2 = await call('/api/sheet', { op: 'config', url: u }); var t2 = await r2.text(); out.textContent = r2.ok ? 'הטבלה חוברה ונבדקה. מעכשיו "סנכרון לטבלת המעקב" ביומן כותב אליה.' : 'החיבור נכשל: ' + t2; } catch (e4) { out.textContent = 'החיבור נכשל: ' + e4.message; } });
       document.body.appendChild(sd); (sd.querySelector('.tk-sheet-link') || sd.querySelector('#tk-sheet-url')).focus();   // the links first: no keyboard popping up on a phone
@@ -411,6 +421,7 @@
       }
       refresh();
       d.querySelector('#tk-close').addEventListener('click', function () { d.remove(); });
+      tapOut(d, function () { d.remove(); }, function () { var nb = d.querySelector('#tk-new'); return !!nb && !nb.hidden && /הקוד של/.test(nb.textContent); });   // a new code on screen is shown only once: an outside tap keeps it
       function sayIn(m) { var box = d.querySelector('#tk-new'); box.hidden = false; box.setAttribute('role', 'status'); box.textContent = 'לא הצליח: ' + m; }
       function showCode(j) { var box = d.querySelector('#tk-new'); box.hidden = false;
         if (PV) { box.style.background = 'var(--amber-soft)'; box.style.color = 'var(--amber-ink)'; box.setAttribute('role', 'status'); box.setAttribute('tabindex', '-1'); setTimeout(function () { try { box.focus(); } catch (_) {} }, 0); }

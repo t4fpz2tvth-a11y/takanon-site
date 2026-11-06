@@ -1,74 +1,45 @@
 {
- "run": 3,
- "t": "2026-11-06T06:06:18.819Z",
+ "run": 4,
+ "t": "2026-11-06T06:20:49.180Z",
  "site": "https://takanon-site.pages.dev",
  "models": {
-  "openai/gpt-6.1-sol": {
+  "google/gemini-4-argon": {
    "ok": true,
-   "chars": 31412,
+   "chars": 52480,
    "usage": {
-    "prompt_tokens": 50439,
-    "completion_tokens": 12461,
-    "total_tokens": 62900,
-    "cost": 0.250706,
+    "prompt_tokens": 74906,
+    "completion_tokens": 24023,
+    "total_tokens": 98929,
+    "cost": 0.390042,
     "is_byok": false,
     "prompt_tokens_details": {
      "cached_tokens": 0,
-     "cache_write_tokens": 50436,
+     "cache_write_tokens": 0,
      "audio_tokens": 0,
      "video_tokens": 0
     },
     "cost_details": {
-     "upstream_inference_cost": 0.250706,
-     "upstream_inference_prompt_cost": 0.126096,
-     "upstream_inference_completions_cost": 0.12461
+     "upstream_inference_cost": 0.390042,
+     "upstream_inference_prompt_cost": 0.149812,
+     "upstream_inference_completions_cost": 0.24023
     },
     "completion_tokens_details": {
-     "reasoning_tokens": 44,
+     "reasoning_tokens": 0,
      "image_tokens": 0,
      "audio_tokens": 0
     }
    },
    "finish": "stop",
-   "secs": 224
-  },
-  "google/gemini-4-argon": {
-   "ok": true,
-   "chars": 34701,
-   "usage": {
-    "prompt_tokens": 74906,
-    "completion_tokens": 16000,
-    "total_tokens": 90906,
-    "cost": 0.309812,
-    "is_byok": false,
-    "prompt_tokens_details": {
-     "cached_tokens": 0,
-     "cache_write_tokens": 0,
-     "audio_tokens": 0,
-     "video_tokens": 0
-    },
-    "cost_details": {
-     "upstream_inference_cost": 0.309812,
-     "upstream_inference_prompt_cost": 0.149812,
-     "upstream_inference_completions_cost": 0.16
-    },
-    "completion_tokens_details": {
-     "reasoning_tokens": 0,
-     "image_tokens": 0,
-     "audio_tokens": 0
-    }
-   },
-   "finish": "length",
-   "secs": 198
+   "secs": 344
   },
   "anthropic/claude-sonnet-5.5": {
    "ok": true,
-   "chars": 22706,
+   "chars": 36289,
    "usage": {
     "prompt_tokens": 79059,
-    "completion_tokens": 16000,
-    "total_tokens": 95059,
-    "cost": 0.318118,
+    "completion_tokens": 25655,
+    "total_tokens": 104714,
+    "cost": 0.414668,
     "is_byok": false,
     "prompt_tokens_details": {
      "cached_tokens": 0,
@@ -77,9 +48,9 @@
      "video_tokens": 0
     },
     "cost_details": {
-     "upstream_inference_cost": 0.318118,
+     "upstream_inference_cost": 0.414668,
      "upstream_inference_prompt_cost": 0.158118,
-     "upstream_inference_completions_cost": 0.16
+     "upstream_inference_completions_cost": 0.25655
     },
     "completion_tokens_details": {
      "reasoning_tokens": 0,
@@ -87,8 +58,8 @@
      "audio_tokens": 0
     }
    },
-   "finish": "length",
-   "secs": 152
+   "finish": "stop",
+   "secs": 227
   }
  }
 }

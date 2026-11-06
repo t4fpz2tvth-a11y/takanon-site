@@ -57,9 +57,10 @@ export async function onRequestPost({ request, env }) {
   const r = await fetch('https://openrouter.ai/api/v1/chat/completions', {
     method: 'POST',
     headers: { 'Authorization': 'Bearer ' + env.OPENROUTER_KEY, 'Content-Type': 'application/json', 'HTTP-Referer': url.origin, 'X-Title': 'Ma Omer HaTakanon' },
-    // 4.11.2026 (security review): answers are a few thousand tokens; the comparison keeps its larger room. PRIVACY=1 (a setting)
+    // 4.11.2026 (security review): answers are a few thousand tokens; the comparison keeps its larger room. 6.11.2026 (the QA round):
+    // a streamed answer may ask for up to 12,000 (the coordinators' answer on a long, garbled faculty text), never more PRIVACY=1 (a setting)
     // asks OpenRouter for providers that keep no data; ?private=1 on a comparison call tries it before the setting is turned on
-    body: JSON.stringify(Object.assign(test && Array.isArray(body.tools) ? { tools: body.tools, tool_choice: body.tool_choice || 'auto' } : {}, { model, messages, stream: !!body.stream, max_tokens: big ? Math.min(32000, Math.max(body.stream ? 16000 : 8000, body.max_tokens | 0)) : (body.stream ? 6000 : 2000), temperature: 0.2, usage: { include: true } }, exp.has('noreason') ? {} : exp.has('reasonoff') ? { reasoning: { enabled: false } } : exp.has('reasonmin') ? { reasoning: { effort: 'minimal', exclude: true } } : { reasoning: { effort: 'low', exclude: true } },
+    body: JSON.stringify(Object.assign(test && Array.isArray(body.tools) ? { tools: body.tools, tool_choice: body.tool_choice || 'auto' } : {}, { model, messages, stream: !!body.stream, max_tokens: big ? Math.min(32000, Math.max(body.stream ? 16000 : 8000, body.max_tokens | 0)) : (body.stream ? Math.min(12000, Math.max(6000, body.max_tokens | 0)) : 2000), temperature: 0.2, usage: { include: true } }, exp.has('noreason') ? {} : exp.has('reasonoff') ? { reasoning: { enabled: false } } : exp.has('reasonmin') ? { reasoning: { effort: 'minimal', exclude: true } } : { reasoning: { effort: 'low', exclude: true } },
       // 5.11.2026 (the blind review): the preview copies (/next/, /coord-next/, the header X-Preview) always ask for providers that keep nothing
       env.PRIVACY === '1' || request.headers.get('X-Preview') === '1' || (test && url.searchParams.has('private')) ? { provider: { data_collection: 'deny' } } : {}))
   });

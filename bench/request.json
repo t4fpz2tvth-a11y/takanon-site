@@ -1,1 +1,1 @@
-{"models": ["anthropic/claude-haiku-5.5"], "batch": 5, "k": 3, "exp": "live", "run": 72, "target": "next", "tag": "pv6", "set": "valid", "judges": ["anthropic/claude-sonnet-5.5"]}
+{"models": ["anthropic/claude-haiku-5.5"], "batch": 5, "k": 3, "exp": "live", "run": 73, "target": "", "tag": "cons5", "set": "holdout", "reps": 5, "judge": "anthropic/claude-sonnet-5.5"}

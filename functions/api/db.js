@@ -1,6 +1,6 @@
 // The coordinators' storage (3.11.2026): the same calls the page makes inside Claude (doc get/set/update/delete,
 // collection add/orderBy/limit/get), kept in Cloudflare D1. POST { op, path, data?, order?, dir?, limit? } with X-Code.
-import { text, json, setup, who, allowed, codeCookie, setCookie } from '../_lib.js';
+import { text, json, setup, who, allowed, codeCookie, setCookie, newSession, endSession, locked } from '../_lib.js';
 const segs = p => String(p).split('/').filter(Boolean);
 // 4.11.2026 (Yoni's decision): a closed case is kept for one year from its closing, then removed with its steps and its
 // private record. Checked at most every six hours by each server copy, on the next call
@@ -26,19 +26,23 @@ export async function onRequestPost({ request, env }) {
   if (!env.DB) return text('the storage is not connected yet (binding DB)', 503);
   let b; try { b = await request.json(); } catch (_) { return text('bad request', 400); }
   // signing out on this device clears its sign-in cookie (4.11.2026)
-  if (b && b.op === 'logout') { const r = json({ ok: true }); r.headers.append('Set-Cookie', setCookie('')); return r; }
+  if (b && b.op === 'logout') { await endSession(env, codeCookie(request)); const r = json({ ok: true }); r.headers.append('Set-Cookie', setCookie('')); return r; }
   const u = await who(request, env);
-  if (!u) { const r = text('sign in', 401); if (codeCookie(request)) r.headers.append('Set-Cookie', setCookie('')); return r; }
+  // 10.11.2026: while the address is held back for wrong codes, a device's older cookie (the code itself) is not cleared: it works again when the hour passes
+  if (!u) { const r = text('sign in', 401); if (codeCookie(request) && !(await locked(request, env))) r.headers.append('Set-Cookie', setCookie('')); return r; }
   const op = b.op, path = segs(b.path || '').join('/');
   if (op === 'me') {
     // a sign-in with a code that works: this device keeps it in a cookie, so the next visits (also as an installed app) need no code
-    const r = json({ uid: u.uid, name: u.name, admin: u.admin });
-    const sent = String(request.headers.get('X-Code') || '').trim();
-    if (sent && /^[A-Za-z0-9%._~-]{1,600}$/.test(sent)) r.headers.append('Set-Cookie', setCookie(sent));
+    // 10.11.2026: the cookie is a token of this device's own, never the code; a device that still holds the code (in an older
+    // cookie or in the page) gets its token here, and the page then drops its copy of the code (session: true)
+    if (u.via === 'session' || u.notify || u.bench) return json({ uid: u.uid, name: u.name, admin: u.admin, session: u.via === 'session' });
+    let token = ''; try { token = await newSession(env, u); } catch (_) {}
+    const r = json({ uid: u.uid, name: u.name, admin: u.admin, session: !!token });
+    if (token) r.headers.append('Set-Cookie', setCookie(token));
     return r;
   }
   const write = ['set', 'update', 'delete', 'add'].includes(op);
-  if (!allowed(u, path, write)) return json({ code: 'permission_denied' }, 403);
+  if (!allowed(u, path, write, op)) return json({ code: 'permission_denied' }, 403);
   await setup(env);
   await sweep(env);
   const n = segs(path).length, now = Date.now();
@@ -73,7 +77,15 @@ export async function onRequestPost({ request, env }) {
   if (op === 'add') {
     if (n % 2 === 0) return text('a collection path', 400);
     const id = 'a' + crypto.randomUUID().replace(/-/g, '').slice(0, 19);
-    const s = JSON.stringify(b.data || {}); if (s.length > 900000) return text('too large', 413);
+    // 10.11.2026: an address a coordinator adds to the shared book is small, carries who added it, and each coordinator may add 200
+    let rec = b.data && typeof b.data === 'object' ? b.data : {};
+    if (path === 'dir' && !u.admin) {
+      rec = Object.assign({}, rec, { by: u.uid });
+      if (JSON.stringify(rec).length > 2000) return text('too large', 413);
+      const mine = await env.DB.prepare("SELECT COUNT(*) AS n FROM docs WHERE coll = 'dir' AND json_extract(data, '$.by') = ?").bind(u.uid).first();
+      if (mine && mine.n >= 200) return text('too many', 429);
+    }
+    const s = JSON.stringify(rec); if (s.length > 900000) return text('too large', 413);
     await env.DB.prepare('INSERT INTO docs (path, coll, data, t) VALUES (?, ?, ?, ?)').bind(path + '/' + id, path, s, now).run();
     return json({ id });
   }

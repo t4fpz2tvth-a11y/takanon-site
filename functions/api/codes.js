@@ -56,12 +56,12 @@ export async function onRequestPost({ request, env }) {
     for (let t = 0; t < 5; t++) {
       const code = easyCode(row.name, env);
       try {
-        await env.DB.batch([env.DB.prepare('DELETE FROM codes WHERE uid = ?').bind(String(b.uid)), env.DB.prepare('INSERT INTO codes (hash, uid, name, created) VALUES (?, ?, ?, ?)').bind(await sha(code), String(b.uid), row.name, row.created)]);
+        await env.DB.batch([env.DB.prepare('DELETE FROM sessions WHERE uid = ?').bind(String(b.uid)), env.DB.prepare('DELETE FROM codes WHERE uid = ?').bind(String(b.uid)), env.DB.prepare('INSERT INTO codes (hash, uid, name, created) VALUES (?, ?, ?, ?)').bind(await sha(code), String(b.uid), row.name, row.created)]);
         return json({ uid: b.uid, name: row.name, code });
       } catch (_) {}
     }
     return text('try again', 500);
   }
-  if (b.op === 'revoke') { await env.DB.prepare('DELETE FROM codes WHERE uid = ?').bind(String(b.uid || '')).run(); return json({ ok: true }); }
+  if (b.op === 'revoke') { await env.DB.batch([env.DB.prepare('DELETE FROM sessions WHERE uid = ?').bind(String(b.uid || '')), env.DB.prepare('DELETE FROM codes WHERE uid = ?').bind(String(b.uid || ''))]); return json({ ok: true }); }
   return text('unknown op', 400);
 }

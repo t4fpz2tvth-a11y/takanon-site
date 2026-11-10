@@ -54,6 +54,16 @@ export async function onRequestPost({ request, env }) {
       over = await overLimit(env, own ? [['u:' + me.uid, perC]] : [['c:' + (await sha(cid + '|hits')).slice(0, 24), perB], ['ip:' + (await sha(ip + '|hits')).slice(0, 24), perIp]]);
     } catch (_) { over = limited(own ? 'u:' + me.uid : ip, own ? perC : perB); }   // the storage did not answer: the count in memory, as before
     if (over) return json('too many', 429);
+    // 10.11.2026 (the Fable review, #3): the page builds the prompt, so this function passes on any text, and a script that
+    // changes its browser id is held only by the address cap: the key's credit could be drained and both bots stopped. One
+    // count for all visitors who are not signed in, by the day (PUBLIC_PER_DAY, default 2000 calls, about 1,000 questions);
+    // above it the public bot answers "not available" (503) until the next day, and the coordinators go on. A storage
+    // error never blocks
+    if (!own && env.DB) try {
+      const day = Math.floor(Date.now() / 864e5) + 10000000;   // above the hours' numbers, so their clean-up leaves it
+      const g = await env.DB.prepare("INSERT INTO hits (k, h, n) VALUES ('g:public', ?, 1) ON CONFLICT (k, h) DO UPDATE SET n = n + 1 RETURNING n").bind(day).first();
+      if (g && g.n > Number(env.PUBLIC_PER_DAY || 2000)) return json('the daily budget of the public bot is used up', 503);
+    } catch (_) {}
   }
   let body;
   try { body = await request.json(); } catch (_) { return json('bad request', 400); }

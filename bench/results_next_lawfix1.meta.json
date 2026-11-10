@@ -1,0 +1,35 @@
+{
+ "out": "bench/results_next_lawfix1.json",
+ "set": "lawfix",
+ "target": "next",
+ "tag": "lawfix1",
+ "exp": "live",
+ "judge": "anthropic/claude-sonnet-5.5",
+ "judges": null,
+ "reps": 1,
+ "site": "https://takanon-site.pages.dev",
+ "started": "2026-11-10T18:07:46.218Z",
+ "written": "2026-11-10T18:08:46.958Z",
+ "finished": true,
+ "builds": [
+  "1df8dca2"
+ ],
+ "summary": {
+  "anthropic/claude-haiku-5.5": {
+   "rows": 3,
+   "scored": 3,
+   "infra": 0,
+   "infra_by": {},
+   "unscored": 0,
+   "mean": 0.667,
+   "mean_unseen": 0.667,
+   "scored_unseen": 3,
+   "no_serious": 0.667,
+   "reps": 1,
+   "left_out_share": 0,
+   "builds": [
+    "1df8dca2"
+   ]
+  }
+ }
+}

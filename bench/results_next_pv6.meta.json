@@ -5,11 +5,13 @@
  "tag": "pv6",
  "exp": "live",
  "judge": "openai/gpt-6.1-sol",
- "judges": null,
+ "judges": [
+  "anthropic/claude-sonnet-5.5"
+ ],
  "reps": 1,
  "site": "https://takanon-site.pages.dev",
- "started": "2026-11-06T12:48:57.017Z",
- "written": "2026-11-06T12:55:57.582Z",
+ "started": "2026-11-10T10:32:08.356Z",
+ "written": "2026-11-10T10:32:41.245Z",
  "finished": true,
  "builds": [
   "5a7184cb"

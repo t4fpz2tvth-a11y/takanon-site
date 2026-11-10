@@ -1,1 +1,1 @@
-{"models": ["anthropic/claude-haiku-5.5"], "batch": 5, "k": 3, "exp": "live", "run": 80, "target": "public", "tag": "care2", "set": "care", "judge": "anthropic/claude-sonnet-5.5"}
+{"models": ["anthropic/claude-haiku-5.5"], "batch": 5, "k": 3, "exp": "live", "run": 81, "target": "next", "tag": "lawfix1", "set": "lawfix", "judge": "anthropic/claude-sonnet-5.5"}

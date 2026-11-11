@@ -2,6 +2,8 @@ import { who, setup, sha } from '../_lib.js';
 // "מה אומר התקנון?" — the site's own small server function (Cloudflare Pages Function, 3.11.2026), at /api/chat.
 // It keeps the OpenRouter key (the secret OPENROUTER_KEY, set in the Cloudflare project's settings, never in this code),
 // answers only the site itself, limits each visitor's questions, and passes the model's answer back as it is written.
+// 11.11.2026: OPENROUTER_KEY_TEST (secret, optional) = a second key, with a spending limit of its own, for the comparison runs
+// (?test=1, the head's or the bench's code): a test run can then never use up the credit the live bots answer with. Unset: one key.
 // Settings (Variables and Secrets): OPENROUTER_KEY (secret), MODEL, MODEL_QUICK, PER_HOUR (default 40, per browser), IP_PER_HOUR
 // (default 300, per address), COORD_PER_HOUR (default 200),
 // TEST_MODELS (comma-separated: the models test.html may compare; empty = the comparison page is off).
@@ -106,7 +108,7 @@ export async function onRequestPost({ request, env }) {
   const big = test && !exp.has('live');
   const r = await fetch('https://openrouter.ai/api/v1/chat/completions', {
     method: 'POST',
-    headers: { 'Authorization': 'Bearer ' + env.OPENROUTER_KEY, 'Content-Type': 'application/json', 'HTTP-Referer': url.origin, 'X-Title': 'Ma Omer HaTakanon' },
+    headers: { 'Authorization': 'Bearer ' + (test && env.OPENROUTER_KEY_TEST ? env.OPENROUTER_KEY_TEST : env.OPENROUTER_KEY), 'Content-Type': 'application/json', 'HTTP-Referer': url.origin, 'X-Title': 'Ma Omer HaTakanon' },
     // 4.11.2026 (security review): answers are a few thousand tokens; the comparison keeps its larger room. 6.11.2026 (the QA round):
     // a streamed answer may ask for up to 12,000 (the coordinators' answer on a long, garbled faculty text), never more PRIVACY=1 (a setting)
     // asks OpenRouter for providers that keep no data; ?private=1 on a comparison call tries it before the setting is turned on

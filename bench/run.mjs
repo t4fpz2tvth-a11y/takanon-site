@@ -65,7 +65,12 @@ await ctx.addInitScript(([c, s]) => {
   } catch (_) {}
 }, [CODE, [RKEY, JSON.stringify(seed)]]);
 const page = await ctx.newPage();
-await page.goto(SITE + '/bench.html?ci=' + Date.now() + (TARGET ? '&target=' + TARGET : '') + (TAG ? '&tag=' + TAG : '') + (SET ? '&set=' + SET : '') + (req.exp ? '&exp=' + encodeURIComponent(req.exp) : '') + (req.rmodel ? '&rmodel=' + encodeURIComponent(req.rmodel) : ''));
+await page.goto(SITE + '/bench.html?ci=' + Date.now() + (TARGET ? '&target=' + TARGET : '') + (TAG ? '&tag=' + TAG : '') + (SET ? '&set=' + SET : '') + (req.exp ? '&exp=' + encodeURIComponent(req.exp) : '') + (req.rmodel ? '&rmodel=' + encodeURIComponent(req.rmodel) : '') + (req.x ? '&x=' + encodeURIComponent(req.x) : ''));
+if (req.ground) {   // 11.11.2026: only the judge that reads the sections, on the answers already here that scored below req.ground
+  console.log('grounded judge:', JSON.stringify(await page.evaluate(([m, b]) => groundjudge(m, b), [req.judge || 'anthropic/claude-sonnet-5.5', Number(req.ground)])));
+  const R = await page.evaluate(() => R); printStats(R); commit(R, true);
+  await browser.close(); process.exit(0);
+}
 if (req.judges) {   // only more judges on the answers already here; no model is asked again
   console.log('left without a score (infrastructure failures not counted):', await page.evaluate(j => multijudge(j), req.judges));
   const R = await page.evaluate(() => R); printStats(R); commit(R, true);

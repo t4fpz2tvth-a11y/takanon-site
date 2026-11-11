@@ -64,7 +64,7 @@ async function judge(model, c, ans) {
 const JHASH = fnv(judge.toString());   // 5.11.2026: the judge prompt's version (a hash of the function that builds it), stamped on every judged row
 async function runOne(frame, model, c) {
   frame.src = 'about:blank'; await sleep(50);
-  frame.src = (TARGET ? '/' + TARGET + '/' : '/') + '?bench=1&model=' + encodeURIComponent(model) + (QS0.get('exp') ? '&exp=' + encodeURIComponent(QS0.get('exp')) : '') + (QS0.get('rmodel') ? '&rmodel=' + encodeURIComponent(QS0.get('rmodel')) : '') + '&r=' + Math.random();   // 11.11.2026: rmodel = the model of the side calls, when only the answer's model changes
+  frame.src = (TARGET ? '/' + TARGET + '/' : '/') + '?bench=1&model=' + encodeURIComponent(model) + (QS0.get('exp') ? '&exp=' + encodeURIComponent(QS0.get('exp')) : '') + (QS0.get('rmodel') ? '&rmodel=' + encodeURIComponent(QS0.get('rmodel')) : '') + (QS0.get('x') ? '&x=' + encodeURIComponent(QS0.get('x')) : '') + '&r=' + Math.random();   // 11.11.2026: rmodel = the model of the side calls, when only the answer's model changes
   await new Promise(r => frame.onload = r);
   const w = frame.contentWindow; const t0 = Date.now();
   await sleep(800);
@@ -91,7 +91,7 @@ async function runOne(frame, model, c) {
   let build = '', build_date = ''; try { build = String(w.eval('typeof BUILD !== "undefined" ? BUILD : ""')); build_date = String(w.eval('typeof BUILD_DATE !== "undefined" ? BUILD_DATE : ""')); } catch (_) {}
   const cutNote = !!(outs.length && outs[outs.length - 1].querySelector('.cut-note'));
   const infra = err ? 'error' : !finished ? 'timeout' : (cutNote || CUT_RE.test(ans)) ? 'truncated' : ans.replace(/\s/g, '').length < 20 ? 'empty' : '';
-  return { model, id: c.id, q: c.q, expect: expOf(c), expect_kind: (!COORD && c.expect_public) ? 'public' : 'main', set: SET, target: TARGET || 'public', exp: EXP, build, build_date, ts: new Date().toISOString(), infra, seen: !!c.seen, src_set: c.src_set || '', rmodel: QS0.get('rmodel') || '', ret: (() => { try { return w.__ret || null; } catch (_) { return null; } })(), answer: ans, err, seconds: (Date.now() - t0) / 1000, first, tChunk: w.__tChunk ? Math.round((w.__tChunk - p0) / 100) / 10 : null, tText: w.__tText ? Math.round((w.__tText - p0) / 100) / 10 : null, calls: (() => { try { return w.performance.getEntriesByType('resource').filter(e => /\/api\/chat/.test(e.name)).map(e => [e.startTime - p0, e.responseStart - p0, e.responseEnd - p0].map(x => Math.round(x / 100) / 10)); } catch (_) { return []; } })(), cost: w.__cost || 0 };
+  return { model, id: c.id, q: c.q, expect: expOf(c), expect_kind: (!COORD && c.expect_public) ? 'public' : 'main', set: SET, target: TARGET || 'public', exp: EXP, build, build_date, ts: new Date().toISOString(), infra, seen: !!c.seen, src_set: c.src_set || '', rmodel: QS0.get('rmodel') || '', x: QS0.get('x') || '', ret: (() => { try { return w.__ret || null; } catch (_) { return null; } })(), answer: ans, err, seconds: (Date.now() - t0) / 1000, first, tChunk: w.__tChunk ? Math.round((w.__tChunk - p0) / 100) / 10 : null, tText: w.__tText ? Math.round((w.__tText - p0) / 100) / 10 : null, calls: (() => { try { return w.performance.getEntriesByType('resource').filter(e => /\/api\/chat/.test(e.name)).map(e => [e.startTime - p0, e.responseStart - p0, e.responseEnd - p0].map(x => Math.round(x / 100) / 10)); } catch (_) { return []; } })(), cost: w.__cost || 0 };
 }
 // a second pass for answers the judge did not score (its per-minute limit): one at a time, slowly
 window.rejudge = async (jm) => {
@@ -105,6 +105,43 @@ window.rejudge = async (jm) => {
   return R.filter(r => r.score == null && !infraOf(r)).length;   // unscored quality rows; infrastructure failures are counted apart
 };
 // more judges on the same answers (3.11.2026, Yoni: a second, independent judge): each answer gets r.j2[judge] = { score, why }
+// 11.11.2026 (the retrieval diagnosis): a second judge that reads the sections the bot was shown, so a detail the sources give is
+// not called an invention and a detail they do not give is. It scores rows the first judge left below "below" (the row's "ret"
+// names the sections; a hidden copy of the bot's page gives their text). The first judge's score stays; this one is in r.g
+async function judgeCtx(model, c, ans, ctx) {
+  const prompt = 'אתם בודקים תשובה של בוט שעונה על שאלות לפי תקנוני האוניברסיטה העברית. לפניכם השאלה, הציפייה (מה שהתשובה צריכה לעשות, נכתבה על ידי מומחה), הסעיפים שהוצגו לבוט כמקורות, והתשובה.\n\nהשאלה:\n' + c.q + '\n\nהציפייה:\n' + expOf(c) +
+    '\n\nהסעיפים שהוצגו לבוט (המקורות שעמדו לרשותו; מזהה כל סעיף בסוגריים מרובעים כפולים):\n' + ctx + '\n\nהתשובה:\n' + ans +
+    '\n\nהערות לבודק: פרט בתשובה שמופיע בסעיפים שלמעלה נתמך ואינו טעות, גם כשאינו בציפייה. פרט עובדתי מוחשי (מספר, מועד, גוף מוסמך, ערוץ פנייה) שאינו בסעיפים ואינו בציפייה אינו נתמך: ציינו אותו בנימוק. שם, טלפון או כתובת מייל של בעל תפקיד מגיעים מרשימות אנשי הקשר שבמאגר ואינם המצאה. גרסת הרכזים עונה בעברית גם לשאלה באנגלית, וזה מכוון. מילים של ממשק (כפתורים, כותרות של חלקים) אינן חלק מהתשובה. מספרי סעיפים בכתיב שונה מעט הם אותו סעיף. כשהציפייה והסעיפים סותרים זה את זה, כתבו זאת בנימוק ודרגו לפי הסעיפים.' +
+    '\n\nדרגו: 2 = עומדת בציפייה בעיקרה ואין בה טעות מהותית; 1 = חלקית או עם טעות לא מהותית; 0 = טעות מהותית (זכאות, מועד, גוף מוסמך או מקור שגויים, המצאה), או שלא עונה. השיבו JSON בלבד: {"score": 0|1|2, "why": "משפט אחד בעברית", "unsupported": ["פרט לא נתמך, אם יש"]}';
+  let last = '';
+  for (let t = 0; t < 5; t++) {
+    try {
+      const r = await fetch('/api/chat?test=1', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Code': code() }, body: JSON.stringify({ model, stream: false, input: prompt }) });
+      if (!r.ok) throw new Error('HTTP ' + r.status + ' ' + (await r.text()).slice(0, 80));
+      const j = await r.json(); const s = j.choices[0].message.content; const o = JSON.parse(s.slice(s.indexOf('{'), s.lastIndexOf('}') + 1));
+      return { score: Number(o.score), why: o.why, unsupported: Array.isArray(o.unsupported) ? o.unsupported.slice(0, 6) : [], cost: Number(j.usage && j.usage.cost || 0), model, chars: ctx.length };
+    } catch (e) { last = String(e && e.message || e).slice(0, 120); await sleep(4000 * (t + 1)); }
+  }
+  return { score: null, why: 'השופט לא ענה: ' + last, cost: 0 };
+}
+window.groundjudge = async (model, below = 2, par = 3) => {
+  const f = document.createElement('iframe'); f.style.cssText = 'position:absolute;width:10px;height:10px;opacity:0'; document.body.appendChild(f);
+  f.src = (TARGET ? '/' + TARGET + '/' : '/') + '?bench=1&model=' + encodeURIComponent(model) + '&r=' + Math.random();
+  await new Promise(r => f.onload = r); await sleep(2500);
+  const w = f.contentWindow;
+  const todo = R.filter(r => r.answer && !infraOf(r) && r.ret && Array.isArray(r.ret.sent) && r.score != null && r.score < below && !(r.g && r.g.score != null));
+  const jobs = [];
+  for (const r of todo) {   // the texts first, one row at a time (a faculty's file may have to load)
+    const c = CASES.find(x => x.id === r.id); if (!c) continue;
+    try { for (const k of (r.ret.packs || [])) await w.loadPack(k); } catch (_) {}
+    let ctx = ''; try { ctx = String(w.contextFor(r.ret.sent, 70000)); } catch (e) { ctx = ''; }
+    if (ctx.length < 200) { r.g = { score: null, why: 'no text for the sections' }; continue; }
+    jobs.push([r, c, ctx]);
+  }
+  await Promise.all(Array.from({ length: par }, async () => { for (let t; (t = jobs.shift());) { const [r, c, ctx] = t; r.g = await judgeCtx(model, c, r.answer, ctx); save(); } }));
+  f.remove();
+  return { asked: todo.length, scored: R.filter(r => r.g && r.g.score != null).length };
+};
 window.multijudge = async (judges, par = 4) => {
   const todo = [];
   for (const r of R) { if (!r.answer || infraOf(r)) continue; for (const m of judges) if (!(r.j2 && r.j2[m] && r.j2[m].score != null)) todo.push([r, m]); }

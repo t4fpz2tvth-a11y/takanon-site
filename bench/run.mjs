@@ -65,7 +65,7 @@ await ctx.addInitScript(([c, s]) => {
   } catch (_) {}
 }, [CODE, [RKEY, JSON.stringify(seed)]]);
 const page = await ctx.newPage();
-await page.goto(SITE + '/bench.html?ci=' + Date.now() + (TARGET ? '&target=' + TARGET : '') + (TAG ? '&tag=' + TAG : '') + (SET ? '&set=' + SET : '') + (req.exp ? '&exp=' + encodeURIComponent(req.exp) : ''));
+await page.goto(SITE + '/bench.html?ci=' + Date.now() + (TARGET ? '&target=' + TARGET : '') + (TAG ? '&tag=' + TAG : '') + (SET ? '&set=' + SET : '') + (req.exp ? '&exp=' + encodeURIComponent(req.exp) : '') + (req.rmodel ? '&rmodel=' + encodeURIComponent(req.rmodel) : ''));
 if (req.judges) {   // only more judges on the answers already here; no model is asked again
   console.log('left without a score (infrastructure failures not counted):', await page.evaluate(j => multijudge(j), req.judges));
   const R = await page.evaluate(() => R); printStats(R); commit(R, true);

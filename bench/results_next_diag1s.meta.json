@@ -9,22 +9,22 @@
  "reps": 1,
  "site": "https://takanon-site.pages.dev",
  "started": "2026-11-11T09:46:43.904Z",
- "written": "2026-11-11T09:56:44.646Z",
- "finished": false,
+ "written": "2026-11-11T09:59:46.867Z",
+ "finished": true,
  "builds": [
   "001df25a"
  ],
  "summary": {
   "anthropic/claude-sonnet-5.5": {
-   "rows": 73,
-   "scored": 73,
+   "rows": 74,
+   "scored": 74,
    "infra": 0,
    "infra_by": {},
    "unscored": 0,
-   "mean": 1.658,
-   "mean_unseen": 1.701,
-   "scored_unseen": 67,
-   "no_serious": 0.945,
+   "mean": 1.662,
+   "mean_unseen": 1.706,
+   "scored_unseen": 68,
+   "no_serious": 0.946,
    "reps": 1,
    "left_out_share": 0,
    "builds": [

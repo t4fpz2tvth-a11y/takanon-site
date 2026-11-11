@@ -136,6 +136,7 @@ window.groundjudge = async (model, below = 2, par = 3) => {
     try { for (const k of (r.ret.packs || [])) await w.loadPack(k); } catch (_) {}
     let ctx = ''; try { ctx = String(w.contextFor(r.ret.sent, 70000)); } catch (e) { ctx = ''; }
     if (ctx.length < 200) { r.g = { score: null, why: 'no text for the sections' }; continue; }
+    if (r.ret.offices) ctx += '\n\n---\n\nרשימת הכתובות שהוצגה לבוט לצעד הבא (גוף שמופיע בה אינו המצאה):\n' + r.ret.offices;   // 11.11.2026: without it the judge called the bot's own contact list an invention
     jobs.push([r, c, ctx]);
   }
   await Promise.all(Array.from({ length: par }, async () => { for (let t; (t = jobs.shift());) { const [r, c, ctx] = t; r.g = await judgeCtx(model, c, r.answer, ctx); save(); } }));

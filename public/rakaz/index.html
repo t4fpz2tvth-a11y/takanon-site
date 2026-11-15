@@ -128,7 +128,7 @@ h1{font-family:var(--display);font-weight:700;color:var(--green);font-size:clamp
     <div class="bar">
       <div id="clock">08:00</div>
       <div class="stat"><span>קיבלו מענה</span><b id="score">0</b></div>
-      <div class="stat"><span>מקרים פתוחים <b class="inl" id="openN">0/8</b></span><div id="dots"></div></div>
+      <div class="stat"><span>מקרים פתוחים <b class="inl" id="openN">0/5</b></span><div id="dots"></div></div>
       <button id="pauseBtn" type="button">עצירה</button>
       <p id="now"><span id="nowText">בדרך: בוקר שקט</span><span id="dest">גבעת רם, 18:00</span><i id="prog"></i></p>
     </div>
@@ -141,7 +141,7 @@ h1{font-family:var(--display);font-weight:700;color:var(--green);font-size:clamp
       <h1>רכז ליום אחד</h1>
       <svg class="zig" viewBox="0 0 150 12" aria-hidden="true"><polyline points="0,10 10,2 20,10 30,2 40,10 50,2 60,10 70,2 80,10 90,2 100,10 110,2 120,10 130,2 140,10 150,2" fill="none" stroke="#265D34" stroke-width="2.5"/></svg>
       <p>יום חמישי. עברי התנין בדרך לפגישת הרכזים בגבעת רם, והמקרים לא מחכים. סגרו אותם בדרך והגיעו עד 18:00.</p>
-      <p class="how">מזיזים ימינה ושמאלה: אצבע, עכבר או חיצים. שמונה מקרים על הרצפה, ועברי נעצר.</p>
+      <p class="how">מזיזים ימינה ושמאלה: אצבע, עכבר או חיצים. חמישה מקרים על הרצפה, ועברי נעצר.</p>
       <div class="hero">
         <ul class="legend">
           <li><b>תופסים</b><span class="chip">מקרה חדש</span><span class="chip q">הידעת?</span></li>
@@ -377,18 +377,18 @@ const REV={h:'rev',haz:[['יום הפוך','rev'],['הכול הפוך היום',
 /* מכשולים: [משך בשניות, מה כתוב מעל עברי, מילה על המכשול עצמו] */
 const EFF={freeze:[1.5,'ממתין למענה…','עוצר'],slow:[4,'בהילוך איטי…','מאט'],rev:[4.5,'הכול הפוך!','הופך'],dark:[4.5,'חושך…','מחשיך'],ice:[5,'מחליק!','מחליק'],shrink:[5,'המגש התכווץ!','מכווץ'],wind:[5,'רוח! הבועות נסחפות','רוח']};
 const THANKS=['תודה!','הצלתם אותי','אלופים','נפתר!','וואו, מהר','המקרה נסגר','ידעתי שאתם הכתובת','אמא שלי מוסרת תודה','5 כוכבים','ממליץ לכל הכיתה','שמרתי את ההודעה','אפשר לחזור לישון','אתם אמיתיים?','הקלתם עליי'];
-const HOOK_LOSE=['עברי נתקע בדרך עם שמונה מקרים פתוחים. לפגישה האמיתית קל יותר להגיע, ושם נראה מה עוזר לסגור אותם.','ראיתם את הבוט שקפץ לשש שניות? בחמישי הוא נשאר לכל המשמרת.','אף אחד לא אמור לסגור את כל המקרים לבד. בחמישי נראה מה עוזר.','ככה נראית הדרך בלי עזרה. בחמישי נראה איך היא נראית עם.','הכרטיסים הצהובים עזרו? בחמישי כל התקנון במרחק שאלה אחת.','עברי לא הגיע, אבל לכם זה פשוט יותר: בלי מגש ובלי מכשולים. רק לבוא.'];
+const HOOK_LOSE=['עברי נתקע בדרך עם חמישה מקרים פתוחים. לפגישה האמיתית קל יותר להגיע, ושם נראה מה עוזר לסגור אותם.','ראיתם את הבוט שקפץ לשש שניות? בחמישי הוא נשאר לכל המשמרת.','אף אחד לא אמור לסגור את כל המקרים לבד. בחמישי נראה מה עוזר.','ככה נראית הדרך בלי עזרה. בחמישי נראה איך היא נראית עם.','הכרטיסים הצהובים עזרו? בחמישי כל התקנון במרחק שאלה אחת.','עברי לא הגיע, אבל לכם זה פשוט יותר: בלי מגש ובלי מכשולים. רק לבוא.'];
 const HOOK_WIN=['הגעתם לפגישה עם מגש על הראש. בחמישי נראה איך עושים את זה בלי להזיע.','עברי הגיע בזמן. עכשיו תורכם.','כל הכבוד. בחמישי נראה איך כל יום יכול להיראות ככה.','אם ככה זה עם מגש, חכו לראות מה מקבלים בחמישי.'];
 const CTA=['נתראה שם.','שמרו את הערב.','בואו, יהיה שווה.','עברי כבר שמר לכם מקום.','מחכים לכם.'];
 /* כל ערכי הכוונון במקום אחד. משנים כאן אחרי שמשחקים. */
 const CFG={
-  maxOpen:8,        // כמה מקרים פתוחים עוצרים את הדרך
+  maxOpen:5,        // כמה מקרים פתוחים עוצרים את הדרך
   general:.3,       // איזה חלק מהבועות ומהמכשולים בכל כותרת בא מהמאגר הכללי
   introCount:8,     // כמה בועות חיוביות נופלות לפני המבזק הראשון
   stageCount:20,    // כמה בועות חיוביות נופלות בין מבזק למבזק
-  spawn0:1.6,       // שניות בין נפילות בתחילת היום: מרווח, שיהיה זמן לקרוא
-  spawn1:1.2,       // בכמה מתקצר המרווח עד סוף היום (צפוף רק בסוף)
-  fall0:.13,fall1:.3, // מהירות נפילה (חלק מגובה המסך בשנייה): התחלה, ותוספת עד הסוף
+  spawn0:1.35,      // שניות בין נפילות בתחילת היום
+  spawn1:1.0,       // בכמה מתקצר המרווח עד סוף היום
+  fall0:.17,fall1:.3, // מהירות נפילה (חלק מגובה המסך בשנייה): התחלה, ותוספת עד הסוף
   sprint:.8,        // מכפיל המרווח בשעה האחרונה
   speed:1.35,       // מהירות עברי (רוחבי מגרש בשנייה)
   tray:38,          // חצי רוחב המגש
@@ -521,7 +521,7 @@ function P(){ // כמה מהיום עבר, בין 0 ל־1, לפי מה שכבר 
   let h=0;for(let i=0;i<stageIdx;i++)h+=HOURS[i];
   return Math.min(1,(h+HOURS[stageIdx]*Math.min(1,nGood/stages[stageIdx].quota))/10);
 }
-function speed(){const prog=mode==='play'?P():.1;return H*(CFG.fall0+CFG.fall1*Math.pow(prog,1.4))*(sprint?1.1:1)}
+function speed(){const prog=mode==='play'?P():.1;return H*(CFG.fall0+CFG.fall1*Math.pow(prog,.9))*(sprint?1.1:1)} // עולה מהר כבר בשלבים הראשונים
 function spawn(type,th){
   const it={type,y:-40*S,rot:0,done:false,vy:speed()*(.92+Math.random()*.16)};
   if(type==='req'){const g=th!==BASE&&mode==='play'&&Math.random()<Math.max(CFG.general,Math.min(.6,1-th.req.length/14))?BASE:th; /* כותרת עם מעט מקרים נשענת יותר על המאגר הכללי, כדי שלא יחזרו על עצמם */ it.text=pick(g.h+'r',g.req);it.rot=(Math.random()-.5)*.08}
@@ -632,7 +632,7 @@ function rotate(key,arr){let i=0;try{i=(+localStorage.getItem(key)||0)}catch(e){
 function finish(win){
   mode='over';musicOn=false;keys.l=keys.r=false;$('got').classList.remove('show');
   if(ac){const n=ac.currentTime;if(win)[523,659,784,1047].forEach((f,i)=>tone(f,n+i*.11,.22,'triangle',.09));else[[233,220],[220,208],[208,196],[196,150]].forEach((p,i)=>tone(p[0],n+i*.42,i===3?.9:.38,'sawtooth',.06,i===3,p[1]))}
-  $('endTag').textContent=win?'18:00, הגעתם לפגישה!':$('clock').textContent+', שמונה מקרים פתוחים עצרו אתכם';
+  $('endTag').textContent=win?'18:00, הגעתם לפגישה!':$('clock').textContent+', חמישה מקרים פתוחים עצרו אתכם';
   $('endScore').textContent=helped;
   $('endRank').textContent=!win?'עברי לא הגיע לפגישה הפעם.':helped<CFG.rank[0]?'יום עבודה הגון.':helped<CFG.rank[1]?'הסטודנטים בידיים טובות.':helped<CFG.rank[2]?'עמוד התווך של המחלקה.':'אגדת מחלקת אקדמיה.';
   const rec=helped>best;if(rec){best=helped;try{localStorage.setItem('rakaz-best',String(best))}catch(e){}}
@@ -686,7 +686,7 @@ function update(rdt){
     }
   }
   if(banner&&banner.life>0)banner.life-=rdt;
-  if(mode!=='over'&&!(play&&(hold>0||drain||ending>0))){spawnT-=dt;if(spawnT<=0){const prog=play?P():.05;spawnT=(CFG.spawn0-CFG.spawn1*Math.pow(prog,.85))*(sprint?CFG.sprint:1)*(.8+Math.random()*.4);spawnNext()}}
+  if(mode!=='over'&&!(play&&(hold>0||drain||ending>0))){spawnT-=dt;if(spawnT<=0){const prog=play?P():.05;spawnT=(CFG.spawn0-CFG.spawn1*Math.pow(prog,.7))*(sprint?CFG.sprint:1)*(.8+Math.random()*.4);spawnNext()}}
   for(const k in eff)if(eff[k]>0)eff[k]-=rdt;
   if(coffee>0)coffee-=rdt;if(bot>0)bot-=rdt;if(shake>0)shake-=rdt;
   // תנועה

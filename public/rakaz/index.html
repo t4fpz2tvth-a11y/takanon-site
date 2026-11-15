@@ -31,6 +31,7 @@ html,body{height:100%;margin:0}
 body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:var(--t3);overflow:hidden;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
 #stage{position:relative;height:100%;width:100%;overflow:hidden;touch-action:none}
 .overlay,.sheet{touch-action:pan-y}
+.ownNote{font-size:12.5px;opacity:.8;margin:6px 0 0;text-align:center}
 canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
 button{font-family:inherit}
 :focus-visible{outline:3px solid var(--ink);outline-offset:3px}
@@ -151,6 +152,7 @@ h1{font-family:var(--display);font-weight:700;color:var(--green);font-size:clamp
       </div>
       <button class="btn" id="go" type="button">יוצאים לדרך</button>
       <button class="btn plain snd" type="button" aria-pressed="true">קול: פועל</button>
+      <p class="ownNote" id="ownNote" hidden>המכשיר הזה לא נספר בנתונים.</p>
     </div>
   </div>
 
@@ -650,16 +652,25 @@ function setShare(r){
   const s='עזרתי ל־'+helped+' סטודנטים ב״רכז ליום אחד״ 🐊'+(r?' (מקום '+r.rank+' מתוך '+r.total+')':'')+'\nמי עוקף אותי עד פגישת הרכזים בחמישי?\n'+GAME_URL;
   $('share').href='https://wa.me/?text='+encodeURIComponent(s);
 }
+function getCid(){ // מזהה אקראי שהדפדפן המציא לעצמו. בלי שם ובלי פרטים
+  let cid='';try{cid=localStorage.getItem('rakaz-cid')||''}catch(e){}
+  if(!cid){cid=memCid||(memCid=(window.crypto&&crypto.randomUUID?crypto.randomUUID():String(Math.random()).slice(2)+Date.now()));try{localStorage.setItem('rakaz-cid',cid)}catch(e){}}
+  return cid;
+}
 async function postScore(score){
   if(!LB)return null;
   try{
-    let cid='';try{cid=localStorage.getItem('rakaz-cid')||''}catch(e){}
-    if(!cid){cid=memCid||(memCid=(window.crypto&&crypto.randomUUID?crypto.randomUUID():String(Math.random()).slice(2)+Date.now()));try{localStorage.setItem('rakaz-cid',cid)}catch(e){}}
+    const cid=getCid();
     const r=await fetch(LB,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({cid,score})});
     if(!r.ok)return null;const j=await r.json();return j&&j.rank?j:null;
   }catch(e){return null}
 }
 $('go').addEventListener('click',start);$('again').addEventListener('click',start);
+// כל פתיחה של הדף נספרת ככניסה (באתר בלבד). ‎?me=1 מסמן את הדפדפן הזה כשל יוני, והוא לא נכנס לנתונים; ‎?me=0 מבטל את הסימון
+let own=false,meQ=null;
+try{meQ=new URLSearchParams(location.search).get('me');if(meQ==='1')localStorage.setItem('rakaz-own','1');if(meQ==='0')localStorage.removeItem('rakaz-own');own=localStorage.getItem('rakaz-own')==='1'}catch(e){own=meQ==='1'}
+if(LB){try{fetch(LB,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(Object.assign({cid:getCid(),visit:1},own?{own:true}:meQ==='0'?{own:false}:{}))}).catch(()=>{})}catch(e){}}
+if(own)$('ownNote').hidden=false;
 ['start','end','pause','rotate'].forEach(id=>$(id).addEventListener('pointerdown',e=>e.stopPropagation()));
 
 function update(rdt){

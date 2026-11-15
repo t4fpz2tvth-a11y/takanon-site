@@ -418,6 +418,7 @@ const CFG={
   tray:38,          // חצי רוחב המגש
   catch:6,          // כמה מרכז הבועה יכול לחרוג מהמגש ועדיין להיתפס
   hazard:.24,       // הסיכוי שנפילה היא מכשול
+  healPerRound:1,   // וכמה פעמים בכל הסיבוב. 15.11: בערך זה השחקן האוטומטי החזק מגיע ל־18:00 בחצי מהמשחקים
   healPerStage:1,   // כמה פעמים בשלב כרטיס "הידעת?" סוגר מקרה פתוח
   burst:.65,        // הסיכוי שאחרי נפילה תבוא מיד עוד אחת, בצד השני של המגרש (עולה עם היום)
   burstGap:.42,     // כמה שניות בין שתי הנפילות האלה
@@ -432,7 +433,7 @@ if(DEV&&DEV.cfg)Object.assign(CFG,DEV.cfg);
 const MAXP=CFG.maxOpen, HOURS=[1,2,2,2,2,1]; // שעות על השעון לכל שלב: פתיחה, ארבע כותרות, והשעה האחרונה
 
 let W=0,H=0,dpr=1,FW=0,FX=0,S=1,floorY=0,deskH=0,trayY=0,PW=0,SH=0,SW=0,hudB=90;
-let healed=0,farFrom=null;
+let healed=0,healedRound=0,farFrom=null;
 let mode='idle',paused=false,t=0,helped=0,pile=0,spawnT=0,coffee=0,bot=0,hold=0,camp=0,roundId=0,memCid='',revStage=0,revDone=false,drain=0,ending=0,nGood=0,windDir=1,shake=0,botAnswered=0,botSecs=0,clockNow=0,sprint=false,lastX=0;
 let px=0,vx=0,target=0,facing=0,useKeys=false,items=[],fx=[],pileSpots=[],banner=null,best=0,last=0,soundOn=true;
 let stages=[{th:BASE,quota:8,facts:[3],broadAt:-1}],stageIdx=0,botsDue=[],seenQ=[],learned=[],fresh=[],collected=[],bag={},effKind='';
@@ -620,7 +621,7 @@ function thanks(){const x=stages[stageIdx].th.thx,a=mode==='play'&&x&&Math.rando
 function caught(it,auto){
   it.done=true;const play=mode==='play';
   if(it.type==='q'){
-    if(play){helped+=CFG.factPoints;collect(it.key);fly(it.x,it.y);showGot(it.key);if(healed<CFG.healPerStage&&closeOne()){healed++;pop(px,trayY-34*S,'ומקרה פתוח אחד נסגר',C.green)}}
+    if(play){helped+=CFG.factPoints;collect(it.key);fly(it.x,it.y);showGot(it.key);if(healed<CFG.healPerStage&&healedRound<CFG.healPerRound&&closeOne()){healed++;healedRound++;pop(px,trayY-34*S,'ומקרה פתוח אחד נסגר',C.green)}}
     pop(it.x,it.y,auto?'הבוט אסף, +'+CFG.factPoints:'הידעת? +'+CFG.factPoints,C.ink,true);
     if(!auto&&ac){const n=ac.currentTime;[1047,1319,1568,2093].forEach((f,i)=>tone(f,n+i*.07,.3,'triangle',.07));tone(3136,n+.3,.5,'sine',.03,true)}
     return;
@@ -637,7 +638,7 @@ function start(){
   stages=[mk(BASE,CFG.introCount,[3],-1)].concat(THEMES.slice().sort(()=>Math.random()-.5).slice(0,4).map(th=>mk(th,CFG.stageCount,[3,9,15],12)),[mk(FINAL,CFG.stageCount,[4,11,17],8,true)]);
   roundId++;px=target=FX+FW/2;vx=0;facing=0;useKeys=false;keys.l=keys.r=false;
   mode='play';paused=false;t=0;helped=0;pile=0;spawnT=.9;coffee=0;bot=0;hold=0;drain=0;ending=0;camp=0;revDone=false;revStage=1+(Math.random()*3|0);botsDue=[.42,.74];botAnswered=0;botSecs=0;sprint=false;banner=null;
-  items=[];fx=[];pileSpots=[];farFrom=null;seenQ=[];learned=[];fresh=[];bag={};effKind='';
+  items=[];fx=[];pileSpots=[];farFrom=null;healedRound=0;seenQ=[];learned=[];fresh=[];bag={};effKind='';
   for(const k in eff)eff[k]=0;stageIdx=0;onStage();
   $('start').hidden=true;$('end').hidden=true;$('pause').hidden=true;$('got').classList.remove('show');hud();
   step=0;nextT=0;musicOn=true;last=performance.now();

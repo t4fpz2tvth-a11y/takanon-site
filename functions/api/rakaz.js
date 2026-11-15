@@ -87,13 +87,13 @@ export async function onRequestGet({ request, env }) {
   const mp = await env.DB.prepare('SELECT COUNT(*) AS c, COALESCE(SUM(plays), 0) AS p FROM rakaz_scores WHERE ' + OWN).first();
   // names go only to the head, signed in on this device; any trouble telling who is asking means no names
   let admin = false; try { const w = await who(request, env); admin = !!(w && w.admin); } catch (_) {}
-  const list = await env.DB.prepare('SELECT s.best AS best, s.plays AS plays, n.name AS name FROM rakaz_scores s LEFT JOIN rakaz_names n ON n.cid = s.cid WHERE s.cid NOT IN (SELECT cid FROM rakaz_visits WHERE own = 1) ORDER BY s.best DESC, s.t ASC LIMIT 200').all();
+  const list = await env.DB.prepare('SELECT s.best AS best, s.plays AS plays, s.t AS t, n.name AS name FROM rakaz_scores s LEFT JOIN rakaz_names n ON n.cid = s.cid WHERE s.cid NOT IN (SELECT cid FROM rakaz_visits WHERE own = 1) ORDER BY s.best DESC, s.t ASC LIMIT 200').all();
   // new browsers per day, by the Israeli winter clock (UTC+2)
   const days = await env.DB.prepare('SELECT CAST((first + 7200000) / 86400000 AS INTEGER) AS d, COUNT(*) AS c FROM rakaz_visits WHERE own = 0 GROUP BY d ORDER BY d').all();
   return json({
     visitors: v ? v.c : 0, visits: v ? v.s : 0, players: total ? total.c : 0, plays: total ? total.p : 0,
     names: admin, named: ((list && list.results) || []).filter(r => r.name).length,
-    list: ((list && list.results) || []).map(r => admin ? { best: r.best, plays: r.plays, name: r.name || '' } : { best: r.best, plays: r.plays }),
+    list: ((list && list.results) || []).map(r => admin ? { best: r.best, plays: r.plays, t: r.t, name: r.name || '' } : { best: r.best, plays: r.plays, t: r.t }),   // t: when that browser last finished a round (15.11.2026, Yoni: "תוסיף גם שעה ויום ששיחק")
     days: ((days && days.results) || []).map(r => ({ day: new Date(r.d * 86400000).toISOString().slice(0, 10), n: r.c })),
     mine: { visitors: mv ? mv.c : 0, visits: mv ? mv.s : 0, players: mp ? mp.c : 0, plays: mp ? mp.p : 0 }
   });

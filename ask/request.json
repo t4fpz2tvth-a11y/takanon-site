@@ -1,0 +1,1 @@
+{"models": ["openai/gpt-6.1-sol", "google/gemini-4-argon", "x-ai/grok-4.7"], "prompt": "humor_prompt.md", "tag": "humor1", "run": 1}

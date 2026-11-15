@@ -1,0 +1,28 @@
+name: ask
+# Sends one prompt (ask/<prompt file>) to a few models through the site's own comparison route and commits their answers.
+# Triggered by a change to ask/request.json. Uses the same narrow secret as the benchmarks; nothing else on the site is touched.
+on:
+  push:
+    branches: [main]
+    paths: ['ask/request.json']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: ask
+  cancel-in-progress: false
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - run: node ask/run.mjs
+        env:
+          BENCH_CODE: ${{ secrets.BENCH_TOKEN || secrets.BENCH_CODE }}
+      - if: always()
+        run: |
+          git config user.name "ask-bot" && git config user.email "ask-bot@users.noreply.github.com"
+          git add -A ask
+          git commit -m "שאלה למודלים: תשובות [CI Skip]" || echo "nothing to commit"
+          git pull --rebase origin main && git push

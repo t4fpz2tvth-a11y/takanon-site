@@ -193,9 +193,9 @@ h1{font-family:var(--display);font-weight:700;color:var(--green);font-size:clamp
       <p class="small" id="endLb" hidden></p>
       <p class="small" id="endBot" hidden></p>
       <form class="nameRow" id="nameForm" hidden>
-        <label for="nameIn">השם שלך לרשימת הניקוד (לא חובה)</label>
+        <label for="nameIn">השם שלך לרשימת הניקוד</label>
         <div class="nameLine"><input id="nameIn" type="text" maxlength="24" dir="auto" autocomplete="nickname" enterkeyhint="done"><button class="nameBtn" type="submit">שמירה</button></div>
-        <p class="small" id="nameMsg" aria-live="polite">השם מופיע רק ברשימה של מחלקת אקדמיה.</p>
+        <p class="small" id="nameMsg" aria-live="polite"></p>
       </form>
       <div class="invite">
         <p class="hook" id="hook"></p>
@@ -702,7 +702,7 @@ let own=false,meQ=null;
 try{meQ=new URLSearchParams(location.search).get('me');if(meQ==='1')localStorage.setItem('rakaz-own','1');if(meQ==='0')localStorage.removeItem('rakaz-own');own=localStorage.getItem('rakaz-own')==='1'}catch(e){own=meQ==='1'}
 if(LB){try{fetch(LB,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(Object.assign({cid:getCid(),visit:1},own?{own:true}:meQ==='0'?{own:false}:{}))}).catch(()=>{})}catch(e){}}
 if(own)$('ownNote').hidden=false;
-// שם לרשימת הניקוד: לא חובה, רק באתר, ורק בסוף סיבוב
+// שם לרשימת הניקוד: רק באתר, ורק בסוף סיבוב
 if(LB){
   $('nameForm').hidden=false;try{$('nameIn').value=localStorage.getItem('rakaz-name')||''}catch(e){}
   $('nameForm').addEventListener('submit',async e=>{
@@ -710,7 +710,7 @@ if(LB){
     try{
       const r=await fetch(LB,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({cid:getCid(),name})});
       if(!r.ok)throw 0;const j=await r.json();$('nameIn').value=j.name||'';try{localStorage.setItem('rakaz-name',j.name||'')}catch(_){}
-      msg.textContent=j.name?'השם נשמר. הוא מופיע רק ברשימה של מחלקת אקדמיה.':'השם הוסר מהרשימה.';
+      msg.textContent=j.name?'השם נשמר.':'השם הוסר מהרשימה.';
     }catch(_){msg.textContent='השם לא נשמר. נסו שוב.'}
   });
 }

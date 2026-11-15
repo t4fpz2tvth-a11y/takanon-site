@@ -40,7 +40,7 @@ button{font:inherit;font-weight:700;background:var(--green);color:var(--paper);b
 <h2>דפדפנים חדשים לפי יום</h2>
 <div id="days"></div>
 <p class="note" id="mine"></p>
-<p class="note">בסוף סיבוב אפשר לכתוב שם לרשימה, וזה לא חובה. הרשימה היא לפי דפדפן: לכל דפדפן השיא שלו ומספר הסיבובים. כניסה נספרת פעם בחצי שעה לכל דפדפן. ספירת הכניסות התחילה ב־15.11.2026.</p>
+<p class="note">בסוף סיבוב כותבים שם לרשימה. הרשימה היא לפי דפדפן: לכל דפדפן השיא שלו ומספר הסיבובים. כניסה נספרת פעם בחצי שעה לכל דפדפן. ספירת הכניסות התחילה ב־15.11.2026.</p>
 <p class="note"><a href="/coord/">לבוט הרכזים</a></p>
 <p class="note">כדי שמכשיר שלך לא ייספר, פותחים בו פעם אחת את <a href="/rakaz/?me=1">הקישור הזה</a>. לביטול: <a href="/rakaz/?me=0">הקישור הזה</a>.</p>
 <p><button type="button" id="again">רענון</button></p>
@@ -64,7 +64,7 @@ async function load(){
     $('cards').replaceChildren(...[[d.visitors,'דפדפנים שנכנסו'],[d.visits,'כניסות'],[d.players,'שיחקו סיבוב עד הסוף'],[d.plays,'סיבובים']].map(([n,l])=>{const c=el('div');c.className='card';c.appendChild(el('b',n));c.appendChild(el('span',l));return c}));
     const wn=!!d.names;
     $('list').replaceChildren(table(wn?['מקום','שם','שיא','סיבובים']:['מקום','שיא','סיבובים'],d.list.map((x,i)=>wn?[i+1,x.name||'בלי שם',x.best,x.plays]:[i+1,x.best,x.plays]),'עוד אף אחד לא סיים סיבוב.'));
-    $('namesNote').textContent=wn?'השמות מוצגים רק לך, כי המכשיר הזה מחובר לבוט הרכזים עם הקוד שלך.':(d.named?d.named+' מהשחקנים כתבו שם. ':'')+'השמות מוצגים רק לרמ״ח: נכנסים במכשיר הזה פעם אחת לבוט הרכזים עם הקוד שלך, וחוזרים לכאן.';
+    $('namesNote').textContent=wn?'':(d.named?d.named+' מהשחקנים כתבו שם. ':'')+'כדי לראות שמות, נכנסים במכשיר הזה לבוט הרכזים עם הקוד שלך וחוזרים לכאן.';
     $('days').replaceChildren(table(['יום','דפדפנים חדשים'],d.days.map(x=>[day(x.day),x.n]),'עוד אין כניסות.'));
     const m=d.mine||{};
     $('mine').textContent=m.visitors?'המכשירים שלך, שלא נספרים למעלה: '+m.visitors+' דפדפנים, '+m.visits+' כניסות, '+m.plays+' סיבובים.':'עוד לא סומן מכשיר כשלך.';

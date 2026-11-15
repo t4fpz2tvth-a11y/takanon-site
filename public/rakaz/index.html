@@ -4,6 +4,18 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>רכז ליום אחד</title>
+<meta name="description" content="עברי התנין בדרך לפגישת הרכזים. תופסים את המקרים, בורחים מהמכשולים ומגיעים עד 18:00.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="אגודת הסטודנטים, מחלקת אקדמיה">
+<meta property="og:title" content="רכז ליום אחד">
+<meta property="og:description" content="עברי התנין בדרך לפגישת הרכזים. תופסים את המקרים, בורחים מהמכשולים ומגיעים עד 18:00.">
+<meta property="og:url" content="https://takanon-site.pages.dev/rakaz/">
+<meta property="og:image" content="https://takanon-site.pages.dev/rakaz/og.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="he_IL">
+<meta name="twitter:card" content="summary_large_image">
 <style>
 @font-face{font-family:"Assistant";src:url("/fonts/assistant-var-v1.woff") format("woff");font-weight:400 800;font-display:swap}
 @font-face{font-family:"Karantina";src:url("/fonts/karantina-700-v1.woff") format("woff");font-weight:700;font-display:swap}
@@ -32,6 +44,12 @@ body{background:var(--paper);color:var(--ink);font-family:var(--body);font-size:
 #stage{position:relative;height:100%;width:100%;overflow:hidden;touch-action:none}
 .overlay,.sheet{touch-action:pan-y}
 .ownNote{font-size:12.5px;opacity:.8;margin:6px 0 0;text-align:center}
+.nameRow{margin:10px 0 4px;text-align:start}
+.nameRow label{display:block;font-weight:700;margin-bottom:4px}
+.nameLine{display:flex;gap:8px}
+.nameLine input{flex:1;min-width:0;height:44px;border:2px solid var(--green);border-radius:6px;padding:0 10px;font:inherit;font-size:16px;background:#fff;color:var(--ink)}
+.nameBtn{flex:none;height:44px;padding:0 16px;font:inherit;font-weight:800;background:var(--green);color:var(--cream);border:2px solid var(--green);border-radius:6px;cursor:pointer}
+.nameLine input:focus-visible,.nameBtn:focus-visible{outline:3px solid var(--leaf);outline-offset:2px}
 canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
 button{font-family:inherit}
 :focus-visible{outline:3px solid var(--ink);outline-offset:3px}
@@ -174,6 +192,11 @@ h1{font-family:var(--display);font-weight:700;color:var(--green);font-size:clamp
       <p class="small" id="endBest"></p>
       <p class="small" id="endLb" hidden></p>
       <p class="small" id="endBot" hidden></p>
+      <form class="nameRow" id="nameForm" hidden>
+        <label for="nameIn">השם שלך לרשימת הניקוד (לא חובה)</label>
+        <div class="nameLine"><input id="nameIn" type="text" maxlength="24" dir="auto" autocomplete="nickname" enterkeyhint="done"><button class="nameBtn" type="submit">שמירה</button></div>
+        <p class="small" id="nameMsg" aria-live="polite">השם מופיע רק ברשימה של מחלקת אקדמיה.</p>
+      </form>
       <div class="invite">
         <p class="hook" id="hook"></p>
         <h2>פגישת הרכזים</h2>
@@ -386,9 +409,9 @@ const CFG={
   general:.3,       // איזה חלק מהבועות ומהמכשולים בכל כותרת בא מהמאגר הכללי
   introCount:8,     // כמה בועות חיוביות נופלות לפני המבזק הראשון
   stageCount:20,    // כמה בועות חיוביות נופלות בין מבזק למבזק
-  spawn0:1.35,      // שניות בין נפילות בתחילת היום
-  spawn1:1.0,       // בכמה מתקצר המרווח עד סוף היום
-  fall0:.17,fall1:.3, // מהירות נפילה (חלק מגובה המסך בשנייה): התחלה, ותוספת עד הסוף
+  spawn0:1.25,      // שניות בין נפילות בתחילת היום
+  spawn1:.95,       // בכמה מתקצר המרווח עד סוף היום
+  fall0:.2,fall1:.42, // מהירות נפילה (חלק מגובה המסך בשנייה): התחלה, ותוספת עד הסוף
   sprint:.8,        // מכפיל המרווח בשעה האחרונה
   speed:1.35,       // מהירות עברי (רוחבי מגרש בשנייה)
   tray:38,          // חצי רוחב המגש
@@ -478,7 +501,7 @@ function sched(){
   if(!musicOn||paused||!ac||ac.state!=='running')return;
   if(nextT<ac.currentTime)nextT=ac.currentTime+.05;
   while(nextT<ac.currentTime+.16){
-    const bpm=122+44*P()+(sprint?22:0),e8=60/bpm/2*(eff.slow>0?1.7:1);
+    const bpm=112+96*Math.pow(P(),.8)+(sprint?28:0),e8=60/bpm/2*(eff.slow>0?1.7:1);
     const s=eff.rev>0?(63-step):step,bar=s>>2,pos=s&3,ch=CHD[bar];
     const tr=(eff.slow>0?-5:0)+(eff.dark>0?-12:0)+(bot>0?12:0)+(sprint?2:0);
     if(eff.freeze<=0){
@@ -521,7 +544,7 @@ function P(){ // כמה מהיום עבר, בין 0 ל־1, לפי מה שכבר 
   let h=0;for(let i=0;i<stageIdx;i++)h+=HOURS[i];
   return Math.min(1,(h+HOURS[stageIdx]*Math.min(1,nGood/stages[stageIdx].quota))/10);
 }
-function speed(){const prog=mode==='play'?P():.1;return H*(CFG.fall0+CFG.fall1*Math.pow(prog,.9))*(sprint?1.1:1)} // עולה מהר כבר בשלבים הראשונים
+function speed(){const prog=mode==='play'?P():.1;return H*(CFG.fall0+CFG.fall1*Math.pow(prog,.8))*(sprint?1.1:1)} // עולה מהר כבר בשלבים הראשונים
 function spawn(type,th){
   const it={type,y:-40*S,rot:0,done:false,vy:speed()*(.92+Math.random()*.16)};
   if(type==='req'){const g=th!==BASE&&mode==='play'&&Math.random()<Math.max(CFG.general,Math.min(.6,1-th.req.length/14))?BASE:th; /* כותרת עם מעט מקרים נשענת יותר על המאגר הכללי, כדי שלא יחזרו על עצמם */ it.text=pick(g.h+'r',g.req);it.rot=(Math.random()-.5)*.08}
@@ -547,7 +570,7 @@ function spawnNext(){
   const r=Math.random(),hazNear=items.some(i=>i.type==='haz'&&i.y<H*.34);
   if(!hazNear&&(stageIdx>0||nGood>=3)){
     if(!revDone&&stageIdx>=revStage&&nGood>=5){revDone=true;spawn('haz',REV);return}
-    if(r<CFG.hazard*(stageIdx?.6+.8*P():.6)){spawn('haz',th);return} // גם המכשולים מתרבים עם היום
+    if(r<CFG.hazard*(stageIdx?.7+.9*P():.6)){spawn('haz',th);return} // גם המכשולים מתרבים עם היום
     if(stageIdx>0&&r<CFG.hazard+.04&&coffee<=0&&!items.some(i=>i.type==='coffee')){spawn('coffee',th);return}
   }
   const i=nGood++;
@@ -671,6 +694,18 @@ let own=false,meQ=null;
 try{meQ=new URLSearchParams(location.search).get('me');if(meQ==='1')localStorage.setItem('rakaz-own','1');if(meQ==='0')localStorage.removeItem('rakaz-own');own=localStorage.getItem('rakaz-own')==='1'}catch(e){own=meQ==='1'}
 if(LB){try{fetch(LB,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(Object.assign({cid:getCid(),visit:1},own?{own:true}:meQ==='0'?{own:false}:{}))}).catch(()=>{})}catch(e){}}
 if(own)$('ownNote').hidden=false;
+// שם לרשימת הניקוד: לא חובה, רק באתר, ורק בסוף סיבוב
+if(LB){
+  $('nameForm').hidden=false;try{$('nameIn').value=localStorage.getItem('rakaz-name')||''}catch(e){}
+  $('nameForm').addEventListener('submit',async e=>{
+    e.preventDefault();const name=$('nameIn').value.trim().slice(0,24),msg=$('nameMsg');
+    try{
+      const r=await fetch(LB,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({cid:getCid(),name})});
+      if(!r.ok)throw 0;const j=await r.json();$('nameIn').value=j.name||'';try{localStorage.setItem('rakaz-name',j.name||'')}catch(_){}
+      msg.textContent=j.name?'השם נשמר. הוא מופיע רק ברשימה של מחלקת אקדמיה.':'השם הוסר מהרשימה.';
+    }catch(_){msg.textContent='השם לא נשמר. נסו שוב.'}
+  });
+}
 ['start','end','pause','rotate'].forEach(id=>$(id).addEventListener('pointerdown',e=>e.stopPropagation()));
 
 function update(rdt){
@@ -686,7 +721,7 @@ function update(rdt){
     }
   }
   if(banner&&banner.life>0)banner.life-=rdt;
-  if(mode!=='over'&&!(play&&(hold>0||drain||ending>0))){spawnT-=dt;if(spawnT<=0){const prog=play?P():.05;spawnT=(CFG.spawn0-CFG.spawn1*Math.pow(prog,.7))*(sprint?CFG.sprint:1)*(.8+Math.random()*.4);spawnNext()}}
+  if(mode!=='over'&&!(play&&(hold>0||drain||ending>0))){spawnT-=dt;if(spawnT<=0){const prog=play?P():.05;spawnT=(CFG.spawn0-CFG.spawn1*Math.pow(prog,.65))*(sprint?CFG.sprint:1)*(.8+Math.random()*.4);spawnNext()}}
   for(const k in eff)if(eff[k]>0)eff[k]-=rdt;
   if(coffee>0)coffee-=rdt;if(bot>0)bot-=rdt;if(shake>0)shake-=rdt;
   // תנועה

@@ -417,6 +417,10 @@ const CFG={
   tray:38,          // חצי רוחב המגש
   catch:6,          // כמה מרכז הבועה יכול לחרוג מהמגש ועדיין להיתפס
   hazard:.24,       // הסיכוי שנפילה היא מכשול
+  healPerStage:99,  // כמה פעמים בשלב כרטיס "הידעת?" סוגר מקרה פתוח
+  burst:0,          // הסיכוי שאחרי נפילה תבוא מיד עוד אחת, בצד השני של המגרש (עולה עם היום)
+  burstGap:.42,     // כמה שניות בין שתי הנפילות האלה
+  hazAim:0,         // הסיכוי שמכשול נופל בדיוק לכיוון של עברי
   botSecs:6,coffeeSecs:6,
   factSlow:.6,      // כרטיס מהתקנון יורד במצנח: חלק ממהירות הנפילה הרגילה
   factPoints:3,     // כמה שווה כרטיס מהתקנון
@@ -427,6 +431,7 @@ if(DEV&&DEV.cfg)Object.assign(CFG,DEV.cfg);
 const MAXP=CFG.maxOpen, HOURS=[1,2,2,2,2,1]; // שעות על השעון לכל שלב: פתיחה, ארבע כותרות, והשעה האחרונה
 
 let W=0,H=0,dpr=1,FW=0,FX=0,S=1,floorY=0,deskH=0,trayY=0,PW=0,SH=0,SW=0,hudB=90;
+let healed=0,farFrom=null;
 let mode='idle',paused=false,t=0,helped=0,pile=0,spawnT=0,coffee=0,bot=0,hold=0,camp=0,roundId=0,memCid='',revStage=0,revDone=false,drain=0,ending=0,nGood=0,windDir=1,shake=0,botAnswered=0,botSecs=0,clockNow=0,sprint=false,lastX=0;
 let px=0,vx=0,target=0,facing=0,useKeys=false,items=[],fx=[],pileSpots=[],banner=null,best=0,last=0,soundOn=true;
 let stages=[{th:BASE,quota:8,facts:[3],broadAt:-1}],stageIdx=0,botsDue=[],seenQ=[],learned=[],fresh=[],collected=[],bag={},effKind='';
@@ -555,12 +560,14 @@ function spawn(type,th){
   layout(it);
   // מקום הנפילה: אקראי לכל רוחב המגרש, לא מעל בועה אחרת ולא צמוד לנפילה הקודמת (שלא יהיה נתיב אחד שמספיק לעמוד בו)
   let bx=FX+FW/2,bs=-Infinity;
-  for(let i=0;i<10;i++){
-    const x=FX+it.w/2+6+Math.random()*Math.max(1,FW-it.w-12);let d=1e9;
+  const aim=type==='haz'&&mode==='play'&&Math.random()<CFG.hazAim,far=type!=='haz'&&mode==='play'?farFrom:null;
+  for(let i=0;i<12;i++){
+    const x=aim&&i<2?Math.max(FX+it.w/2+6,Math.min(FX+FW-it.w/2-6,px+(Math.random()-.5)*PW)):FX+it.w/2+6+Math.random()*Math.max(1,FW-it.w-12);let d=1e9;
     for(const o of items)if(o.y<H*.45)d=Math.min(d,Math.abs(o.x-x)-(o.w+it.w)/2);
-    const sc=Math.min(d,30*S)+(Math.abs(x-lastX)>FW*.2?40*S:0)+Math.random()*20*S-(camp>2.5&&Math.abs(x-px)<PW*1.3+it.w/2?200*S:0); // מי שעומד במקום לא מקבל נפילות לידיים
+    const sc=Math.min(d,30*S)+(Math.abs(x-lastX)>FW*.2?40*S:0)+Math.random()*20*S-(camp>2.5&&Math.abs(x-px)<PW*1.3+it.w/2?200*S:0)-(far!==null&&Math.abs(x-far)<FW*.5?300*S:0)+(aim&&Math.abs(x-px)<PW*1.6?150*S:0); // מי שעומד במקום לא מקבל נפילות לידיים; נפילה כפולה באה מהצד השני; מכשול מכוון לעברי
     if(sc>bs){bs=sc;bx=x}
   }
+  if(type!=='haz')farFrom=null;
   it.x=lastX=bx;items.push(it);
 }
 function spawnNext(){
@@ -581,7 +588,7 @@ function headline(text,tag){ // המבזק עולה רק על מסך ריק
   banner={text,tag,life:CFG.headline,bg:C.green,center:true};hold=CFG.headline;spawnT=.3;beep(660,.09,'triangle',.07);
 }
 function onStage(){
-  const st=stages[stageIdx];sprint=!!st.sprint;nGood=0;
+  const st=stages[stageIdx];sprint=!!st.sprint;nGood=0;healed=0;
   $('nowText').textContent=sprint?st.th.h:'בדרך: '+st.th.h;
   if(stageIdx)headline(st.th.h,sprint?'17:00':'מבזק');
 }
@@ -612,7 +619,7 @@ function thanks(){const x=stages[stageIdx].th.thx,a=mode==='play'&&x&&Math.rando
 function caught(it,auto){
   it.done=true;const play=mode==='play';
   if(it.type==='q'){
-    if(play){helped+=CFG.factPoints;collect(it.key);fly(it.x,it.y);showGot(it.key);if(closeOne())pop(px,trayY-34*S,'ומקרה פתוח אחד נסגר',C.green)}
+    if(play){helped+=CFG.factPoints;collect(it.key);fly(it.x,it.y);showGot(it.key);if(healed<CFG.healPerStage&&closeOne()){healed++;pop(px,trayY-34*S,'ומקרה פתוח אחד נסגר',C.green)}}
     pop(it.x,it.y,auto?'הבוט אסף, +'+CFG.factPoints:'הידעת? +'+CFG.factPoints,C.ink,true);
     if(!auto&&ac){const n=ac.currentTime;[1047,1319,1568,2093].forEach((f,i)=>tone(f,n+i*.07,.3,'triangle',.07));tone(3136,n+.3,.5,'sine',.03,true)}
     return;
@@ -629,7 +636,7 @@ function start(){
   stages=[mk(BASE,CFG.introCount,[3],-1)].concat(THEMES.slice().sort(()=>Math.random()-.5).slice(0,4).map(th=>mk(th,CFG.stageCount,[3,9,15],12)),[mk(FINAL,CFG.stageCount,[4,11,17],8,true)]);
   roundId++;px=target=FX+FW/2;vx=0;facing=0;useKeys=false;keys.l=keys.r=false;
   mode='play';paused=false;t=0;helped=0;pile=0;spawnT=.9;coffee=0;bot=0;hold=0;drain=0;ending=0;camp=0;revDone=false;revStage=1+(Math.random()*3|0);botsDue=[.42,.74];botAnswered=0;botSecs=0;sprint=false;banner=null;
-  items=[];fx=[];pileSpots=[];seenQ=[];learned=[];fresh=[];bag={};effKind='';
+  items=[];fx=[];pileSpots=[];farFrom=null;seenQ=[];learned=[];fresh=[];bag={};effKind='';
   for(const k in eff)eff[k]=0;stageIdx=0;onStage();
   $('start').hidden=true;$('end').hidden=true;$('pause').hidden=true;$('got').classList.remove('show');hud();
   step=0;nextT=0;musicOn=true;last=performance.now();
@@ -721,7 +728,7 @@ function update(rdt){
     }
   }
   if(banner&&banner.life>0)banner.life-=rdt;
-  if(mode!=='over'&&!(play&&(hold>0||drain||ending>0))){spawnT-=dt;if(spawnT<=0){const prog=play?P():.05;spawnT=(CFG.spawn0-CFG.spawn1*Math.pow(prog,.65))*(sprint?CFG.sprint:1)*(.8+Math.random()*.4);spawnNext()}}
+  if(mode!=='over'&&!(play&&(hold>0||drain||ending>0))){spawnT-=dt;if(spawnT<=0){const prog=play?P():.05;spawnT=(CFG.spawn0-CFG.spawn1*Math.pow(prog,.65))*(sprint?CFG.sprint:1)*(.8+Math.random()*.4);spawnNext();if(play&&stageIdx>0&&!drain&&Math.random()<CFG.burst*(.4+.6*P())){spawnT=Math.min(spawnT,CFG.burstGap);farFrom=lastX}}}
   for(const k in eff)if(eff[k]>0)eff[k]-=rdt;
   if(coffee>0)coffee-=rdt;if(bot>0)bot-=rdt;if(shake>0)shake-=rdt;
   // תנועה

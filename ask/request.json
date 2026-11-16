@@ -1,1 +1,1 @@
-{"models": ["openai/gpt-6.1-sol", "google/gemini-4-argon", "x-ai/grok-4.7"], "prompt": "review_prompt.md", "tag": "review1", "run": 2}
+{"mode": "enrich", "model": "anthropic/claude-haiku-5.5", "k": 4, "tag": "enrich1", "run": 1}

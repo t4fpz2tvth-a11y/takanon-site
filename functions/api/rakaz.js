@@ -19,7 +19,7 @@
 // GET ?stats=1               -> { visitors, visits, players, plays, list, unlisted, days, mine, names, named }   names: true for the head only;
 //                               unlisted: browsers that finished a round with no name since NAME_FROM, so they are not on the list
 import { json, text, who } from '../_lib.js';
-const MAX_SCORE = 250, MAX_ROWS = 5000, MIN_GAP = 20000, VISIT_GAP = 30 * 60000;
+const MAX_SCORE = 450, MAX_ROWS = 5000, MIN_GAP = 20000, VISIT_GAP = 30 * 60000;
 const NOT_OWN = 'cid NOT IN (SELECT cid FROM rakaz_visits WHERE own = 1)', OWN = 'cid IN (SELECT cid FROM rakaz_visits WHERE own = 1)';
 const NAME_FROM = 1794829260000;   // 16.11.2026, 13:41 in Israel: from here on, only a browser with a name is listed
 const LISTED = '(cid IN (SELECT cid FROM rakaz_names) OR t < ' + NAME_FROM + ')';

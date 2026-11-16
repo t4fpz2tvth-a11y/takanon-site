@@ -18,6 +18,8 @@ async function sweep(env) {
     }
     // 5.11.2026: the public bot's feedback is kept for one year
     await env.DB.prepare("DELETE FROM docs WHERE coll = 'fb' AND t < ?").bind(now - 365 * 864e5).run();
+    // 16.11.2026: the "לא נמצא" list is kept for one year too
+    await env.DB.prepare("DELETE FROM docs WHERE coll = 'miss' AND t < ?").bind(now - 365 * 864e5).run();
   } catch (_) {}
 }
 export async function onRequestPost({ request, env }) {

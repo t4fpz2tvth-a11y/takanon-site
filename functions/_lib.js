@@ -106,5 +106,6 @@ export function allowed(u, path, write, op) {
   if (s[0] === 'dir') return u.admin || !write || (op === 'add' && s.length === 1);
   if (s[0] === 'answers') return u.admin;
   if (s[0] === 'fb') return u.admin;   // 5.11.2026: the public bot's feedback, for the head only
+  if (s[0] === 'miss') return u.admin;   // 16.11.2026: the questions that were not found, for the head only
   return false;
 }

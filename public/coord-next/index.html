@@ -451,7 +451,7 @@
         var cl = inner.querySelector('#tk-close'); if (cl) { cl.style.background = 'transparent'; cl.style.color = 'inherit'; cl.style.minHeight = '44px'; }
         var app2 = document.querySelector('.app'); if (app2) app2.inert = true;
         var done = function () { if (app2) app2.inert = false; document.removeEventListener('keydown', onKey, true); try { opener.focus(); } catch (_) {} };
-        var onKey = function (e) { if (e.key === 'Escape' && d.isConnected && !document.querySelector('[role="alertdialog"]')) { e.preventDefault(); d.remove(); done(); } };
+        var onKey = function (e) { if (e.key === 'Escape' && d.isConnected && !document.querySelector('[role="alertdialog"]')) { e.preventDefault(); if (d._hold) { closeAsk(); return; } d.remove(); done(); } };
         document.addEventListener('keydown', onKey, true);
         var barC = opener && opener.closest && opener.closest('div'); if (barC) { barC.inert = true; var done0 = done; done = function () { barC.inert = false; done0(); }; }
         new MutationObserver(function (m, o) { if (!d.isConnected) { o.disconnect(); done(); } }).observe(document.body, { childList: true });
@@ -468,8 +468,10 @@
         } catch (e) { d.querySelector('#tk-list').textContent = e.message; }
       }
       refresh();
-      d.querySelector('#tk-close').addEventListener('click', function () { d.remove(); });
-      tapOut(d, function () { d.remove(); }, function () { var nb = d.querySelector('#tk-new'); return !!nb && !nb.hidden && /הקוד של/.test(nb.textContent); });   // a new code on screen is shown only once: an outside tap keeps it
+      // 16.11.2026 (Yoni: codes for all the coordinators at once): a list of new codes is shown only once, so closing asks first
+      async function closeAsk() { if (d._hold && !(await askIn('הקודים החדשים מוצגים רק עכשיו. לסגור את החלון?', 'כן, העתקתי אותם', 'חזרה לקודים'))) return; d.remove(); }
+      d.querySelector('#tk-close').addEventListener('click', function () { closeAsk(); });
+      tapOut(d, function () { d.remove(); }, function () { var nb = d.querySelector('#tk-new'); return !!d._hold || (!!nb && !nb.hidden && /הקוד של/.test(nb.textContent)); });   // a new code on screen is shown only once: an outside tap keeps it
       function sayIn(m) { var box = d.querySelector('#tk-new'); box.hidden = false; box.setAttribute('role', 'status'); box.textContent = 'לא הצליח: ' + m; }
       function showCode(j) { var box = d.querySelector('#tk-new'); box.hidden = false;
         if (PV) { box.style.background = 'var(--amber-soft)'; box.style.color = 'var(--amber-ink)'; box.setAttribute('role', 'status'); box.setAttribute('tabindex', '-1'); setTimeout(function () { try { box.focus(); } catch (_) {} }, 0); }
@@ -490,6 +492,67 @@
       d.querySelector('form').addEventListener('submit', async function (e) { e.preventDefault(); var n = d.querySelector('#tk-name').value.trim(); if (!n) return;
         try { showCode(await codes({ op: 'create', name: n }));
           d.querySelector('#tk-name').value = ''; refresh(); } catch (e2) { (PV2 ? sayIn(e2.message) : alert(e2.message)); } });
+      // 16.11.2026 (Yoni: "אתן את שמות הרכזים ותיצור קודים במרוכז"): a list of names, one in a line, gets a code each in one press.
+      // The codes are made by the server one by one (the same 'create'), shown once in a table, copied one by one or all together
+      if (PV) (function () {
+        var dkB = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches, edge = dkB ? '#66718A' : '#9BA5BA';
+        var btn = 'font:inherit;min-height:44px;padding:.4rem 1rem;border-radius:10px;border:1px solid ' + edge + ';background:transparent;color:inherit;cursor:pointer';
+        var det = document.createElement('details'); det.id = 'tk-bulk';
+        det.innerHTML = '<summary style="cursor:pointer;font-weight:600;padding:.6rem 0">כמה רכזים בבת אחת</summary>' +
+          '<form style="display:grid;gap:.5rem"><label for="tk-bulk-names">שמות הרכזים, שם בכל שורה</label>' +
+          '<textarea id="tk-bulk-names" rows="6" dir="rtl" style="font:inherit;padding:.5rem;border:1px solid ' + edge + ';border-radius:8px;resize:vertical;background:' + (dkB ? '#0E131E' : '#fff') + ';color:inherit"></textarea>' +
+          '<button id="tk-bulk-go" style="font:inherit;min-height:44px;padding:.4rem 1rem;border:0;border-radius:10px;background:' + (dkB ? '#9DB2FF' : '#2747B8') + ';color:' + (dkB ? '#0E131E' : '#fff') + ';cursor:pointer;justify-self:start">יצירת קודים לכולם</button></form>';
+        var out = document.createElement('div'); out.id = 'tk-bulk-out'; out.hidden = true; out.setAttribute('role', 'status'); out.setAttribute('tabindex', '-1');
+        out.setAttribute('style', 'background:' + (dkB ? '#2A2313' : '#FBEFD9') + ';color:' + (dkB ? '#F3E3BD' : '#4A3A12') + ';padding:.7rem;border-radius:8px;display:grid;gap:.5rem');
+        var newBox = d.querySelector('#tk-new'); newBox.before(det); newBox.after(out);
+        function copy(t, note) { var say = function (ok) { note.textContent = ok ? 'הועתק' : 'ההעתקה לא הצליחה: סמנו והעתיקו'; };
+          try { navigator.clipboard.writeText(t).then(function () { say(true); }, function () { say(false); }); } catch (_) { say(false); } }
+        function waMsg(code) { return 'הקוד שלך לבוט התקנון של הרכזים: ' + code + '\nכניסה: ' + location.origin + '/coord/'; }
+        function show(made, skipped, failed) {
+          out.hidden = false; out.textContent = '';
+          var p = document.createElement('p'); p.style.margin = '0';
+          p.textContent = made.length ? (made.length === 1 ? 'נוצר קוד אחד.' : 'נוצרו ' + made.length + ' קודים.') + ' הם מוצגים רק עכשיו: העתיקו אותם לפני שסוגרים את החלון.' : 'לא נוצרו קודים.';
+          out.appendChild(p);
+          if (made.length) {
+            var tbl = document.createElement('table'); tbl.setAttribute('style', 'border-collapse:collapse;width:100%');
+            tbl.innerHTML = '<thead><tr><th scope="col" style="text-align:start;padding:.2rem .3rem">שם</th><th scope="col" style="text-align:start;padding:.2rem .3rem">קוד</th><th scope="col"><span style="position:absolute;clip-path:inset(50%);width:1px;height:1px;overflow:hidden">שליחה</span></th></tr></thead><tbody></tbody>';
+            made.forEach(function (j) { var tr = document.createElement('tr'); tr.style.borderTop = '1px solid ' + edge;
+              tr.innerHTML = '<td style="padding:.3rem">' + esc(j.name) + '</td><td style="padding:.3rem"><b style="user-select:all">' + esc(j.code) + '</b></td>' +
+                '<td style="padding:.3rem;white-space:nowrap"><button type="button" class="tk-bulk-copy" aria-label="העתקת הקוד של ' + esc(j.name) + '" style="' + btn + '">העתקה</button> ' +
+                '<a class="tk-bulk-wa" target="_blank" rel="noopener" aria-label="שליחת הקוד של ' + esc(j.name) + ' בוואטסאפ" style="' + btn + ';display:inline-flex;align-items:center;text-decoration:none">ואטסאפ</a></td>';
+              tr.querySelector('.tk-bulk-wa').href = 'https://wa.me/?text=' + encodeURIComponent(waMsg(j.code));
+              tr.querySelector('.tk-bulk-copy').addEventListener('click', function () { copy(j.code, note); });
+              tbl.querySelector('tbody').appendChild(tr); });
+            var wrap = document.createElement('div'); wrap.style.overflowX = 'auto'; wrap.appendChild(tbl); out.appendChild(wrap);
+            var row = document.createElement('div'); row.setAttribute('style', 'display:flex;gap:8px;flex-wrap:wrap;align-items:center');
+            row.innerHTML = '<button type="button" id="tk-bulk-all" style="' + btn + '">העתקת כל הקודים</button><span id="tk-bulk-note" aria-live="polite"></span>';
+            out.appendChild(row); var note = row.querySelector('#tk-bulk-note');
+            row.querySelector('#tk-bulk-all').addEventListener('click', function () { copy(made.map(function (j) { return j.name + ': ' + j.code; }).join('\n'), note); });
+          }
+          if (skipped.length) { var s = document.createElement('p'); s.style.margin = '0'; s.id = 'tk-bulk-skip'; s.textContent = 'כבר יש קוד, ולכן לא נוצר חדש: ' + skipped.join(', ') + '. לקוד אחר לחצו "קוד חדש" ליד השם ברשימה.'; out.appendChild(s); }
+          if (failed.length) { var f = document.createElement('p'); f.style.margin = '0'; f.id = 'tk-bulk-fail'; f.textContent = 'לא הצליח: ' + failed.join(', ') + '. אפשר לנסות שוב רק את השמות האלה.'; out.appendChild(f); }
+          try { out.focus(); } catch (_) {}
+        }
+        det.querySelector('form').addEventListener('submit', async function (e) { e.preventDefault();
+          var ta = det.querySelector('#tk-bulk-names'), go = det.querySelector('#tk-bulk-go'), seen = {}, names = [];
+          ta.value.split(/[\n\r]+/).forEach(function (l) { var n = l.replace(/^[\s\d.)\-•*]+/, '').replace(/\s+/g, ' ').trim().slice(0, 80); if (n && !seen[n]) { seen[n] = 1; names.push(n); } });
+          if (!names.length) { ta.focus(); return; }
+          if (names.length > 40) { out.hidden = false; out.textContent = 'עד 40 שמות בפעם אחת. יש כאן ' + names.length + '.'; return; }
+          if (d._hold && !(await askIn('רשימת הקודים שעל המסך תוחלף ברשימה חדשה. להמשיך?', 'כן, העתקתי אותם', 'ביטול'))) return;
+          go.disabled = true; var label = go.textContent, made = [], skipped = [], failed = [];
+          try {
+            var have = {}; ((await codes({ op: 'list' })).codes || []).forEach(function (c) { have[String(c.name).replace(/\s+/g, ' ').trim()] = 1; });
+            for (var i = 0; i < names.length; i++) {
+              if (have[names[i]]) { skipped.push(names[i]); continue; }
+              go.textContent = 'יוצר קודים… ' + (i + 1) + ' מתוך ' + names.length;
+              try { made.push(await codes({ op: 'create', name: names[i] })); } catch (e1) { failed.push(names[i]); }
+            }
+          } catch (e2) { failed = names.filter(function (n) { return skipped.indexOf(n) < 0 && !made.some(function (j) { return j.name === n; }); }); }
+          go.disabled = false; go.textContent = label;
+          d._hold = made.length > 0; if (made.length) ta.value = failed.join('\n');
+          show(made, skipped, failed); refresh();
+        });
+      })();
     });
   }
 })();

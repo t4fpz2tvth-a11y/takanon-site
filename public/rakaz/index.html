@@ -193,7 +193,7 @@ h1{font-family:var(--display);font-weight:700;color:var(--green);font-size:clamp
       <p class="small" id="endLb" hidden></p>
       <p class="small" id="endBot" hidden></p>
       <form class="nameRow" id="nameForm" hidden>
-        <label for="nameIn">השם שלכם לרשימת הניקוד</label>
+        <label for="nameIn" id="nameLbl">כדי להיכנס לרשימת הניקוד צריך לשמור שם</label>
         <div class="nameLine"><input id="nameIn" type="text" maxlength="24" dir="auto" autocomplete="nickname" enterkeyhint="done"><button class="nameBtn" type="submit">שמירה</button></div>
         <p class="small" id="nameMsg" aria-live="polite"></p>
       </form>
@@ -679,7 +679,15 @@ function finish(win){
   setShare(null);$('endLb').hidden=true;
   $('end').hidden=false;$('end').scrollTop=0;
   setTimeout(()=>{try{$('again').focus({preventScroll:true})}catch(e){}},400);
-  const rid=roundId;postScore(helped).then(r=>{if(!r||mode!=='over'||rid!==roundId)return;$('endLb').textContent='מקום '+r.rank+' מתוך '+r.total+' ברשימה הכללית, לפי השיא.';$('endLb').hidden=false;setShare(r)});
+  lastPlace=null;
+  const rid=roundId;postScore(helped).then(r=>{if(!r||mode!=='over'||rid!==roundId)return;showPlace(r)});
+}
+// המקום ברשימה הכללית. מ־16.11.2026 נכנסים לרשימה רק עם שם שמור: בלי שם מוצג המקום שהשיא היה מקבל, וההזמנה לשמור שם
+let lastPlace=null,nameSaved=false;
+function showPlace(r){
+  lastPlace=r;const named=r.named!==false||nameSaved;
+  $('endLb').textContent=named?'מקום '+r.rank+' מתוך '+r.total+' ברשימה הכללית, לפי השיא.':'השיא שלכם שווה מקום '+r.rank+' מתוך '+r.total+' ברשימה הכללית.';
+  $('endLb').hidden=false;setShare(named?r:null);
 }
 function setShare(r){
   const s='עזרתי ל־'+helped+' סטודנטים ב״רכז ליום אחד״ 🐊'+(r?' (מקום '+r.rank+' מתוך '+r.total+')':'')+'\nמי עוקף אותי עד פגישת הרכזים בחמישי?\n'+GAME_URL;
@@ -707,12 +715,16 @@ if(own)$('ownNote').hidden=false;
 // שם לרשימת הניקוד: רק באתר, ורק בסוף סיבוב
 if(LB){
   $('nameForm').hidden=false;try{$('nameIn').value=localStorage.getItem('rakaz-name')||''}catch(e){}
+  // התווית אומרת מה המצב: למי שכבר שמר שם, זה השם שלו ברשימה; למי שלא, זה התנאי לכניסה אליה
+  const nameLbl=()=>{$('nameLbl').textContent=(nameSaved||$('nameIn').value.trim())?'השם שלכם ברשימת הניקוד':'כדי להיכנס לרשימת הניקוד צריך לשמור שם'};nameLbl();
   $('nameForm').addEventListener('submit',async e=>{
     e.preventDefault();const name=$('nameIn').value.trim().slice(0,24),msg=$('nameMsg');
     try{
       const r=await fetch(LB,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({cid:getCid(),name})});
       if(!r.ok)throw 0;const j=await r.json();$('nameIn').value=j.name||'';try{localStorage.setItem('rakaz-name',j.name||'')}catch(_){}
-      msg.textContent=j.name?'השם נשמר.':'השם הוסר מהרשימה.';
+      nameSaved=!!j.name;nameLbl();msg.textContent=j.name?'השם נשמר.':'השם הוסר, והשיא שלכם ירד מהרשימה.';
+      // השם הוא מה שמכניס את השיא לרשימה, אז המקום מתעדכן מיד
+      if(mode==='over'){if(j.name&&j.rank)showPlace({rank:j.rank,total:j.total,named:true});else if(lastPlace)showPlace(Object.assign({},lastPlace,{named:!!j.name}))}
     }catch(_){msg.textContent='השם לא נשמר. נסו שוב.'}
   });
 }

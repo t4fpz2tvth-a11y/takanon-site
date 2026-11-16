@@ -7,14 +7,34 @@
 // Anyone may send, with no access code. Nothing personal is kept: a random id the browser made up for itself,
 // that browser's best score, how many rounds it played and when the last one was, how many times it opened the page,
 // and the name the player chose to add, if any. No address.
-// POST { cid, score }        -> { rank, total, best }   rank is by the browser's best score, among browsers that are not Yoni's
+// 16.11.2026 (Yoni: "מעכשיו תחייב לשמור בשם כדי להחשב"): a score is on the list only with a name. A round that ended before
+// NAME_FROM stays as it was. A browser that plays after it with no name is still kept and counted as a player (so a name added
+// later brings its best in), but it is not on the list and holds no place. The same day he had the first place taken off:
+// it was moved to rakaz_removed (kept there, not shown anywhere).
+// POST { cid, score }        -> { rank, total, best, named }   rank is by the browser's best score, among the listed browsers that are
+//                                                              not Yoni's; named: false means the place is only what it would be with a name
 // POST { cid, visit: 1, own } -> { ok, own }             one visit per browser per half hour; own: true marks, false unmarks
-// POST { cid, name }           -> { ok, name }           the name for the list; an empty one removes it
+// POST { cid, name }           -> { ok, name, rank?, total? }   the name for the list; an empty one removes it (and takes the browser off the list)
 // GET                        -> { total, plays, top }   how many browsers played, how many rounds, the ten best scores
-// GET ?stats=1               -> { visitors, visits, players, plays, list, days, mine, names, named }   names: true for the head only
+// GET ?stats=1               -> { visitors, visits, players, plays, list, unlisted, days, mine, names, named }   names: true for the head only;
+//                               unlisted: browsers that finished a round with no name since NAME_FROM, so they are not on the list
 import { json, text, who } from '../_lib.js';
 const MAX_SCORE = 250, MAX_ROWS = 5000, MIN_GAP = 20000, VISIT_GAP = 30 * 60000;
 const NOT_OWN = 'cid NOT IN (SELECT cid FROM rakaz_visits WHERE own = 1)', OWN = 'cid IN (SELECT cid FROM rakaz_visits WHERE own = 1)';
+const NAME_FROM = 1794829260000;   // 16.11.2026, 13:41 in Israel: from here on, only a browser with a name is listed
+const LISTED = '(cid IN (SELECT cid FROM rakaz_names) OR t < ' + NAME_FROM + ')';
+// the place of a browser by its best score, among the listed browsers that are not Yoni's. One that is not listed itself
+// (no name, or Yoni's own) gets the place it would hold, as one more
+async function place(env, cid) {
+  const row = await env.DB.prepare('SELECT best, t FROM rakaz_scores WHERE cid = ?').bind(cid).first();
+  if (!row) return null;
+  const nm = await env.DB.prepare('SELECT COUNT(*) AS c FROM rakaz_names WHERE cid = ?').bind(cid).first();
+  const mine = await env.DB.prepare('SELECT own FROM rakaz_visits WHERE cid = ?').bind(cid).first();
+  const named = !!(nm && nm.c), listed = !(mine && mine.own) && (named || row.t < NAME_FROM);
+  const above = await env.DB.prepare('SELECT COUNT(*) AS c FROM rakaz_scores WHERE best > ? AND ' + NOT_OWN + ' AND ' + LISTED).bind(row.best).first();
+  const total = await env.DB.prepare('SELECT COUNT(*) AS c FROM rakaz_scores WHERE ' + NOT_OWN + ' AND ' + LISTED).first();
+  return { rank: (above ? above.c : 0) + 1, total: (total ? total.c : 0) + (listed ? 0 : 1) || 1, best: row.best, named };
+}
 let ready = false;
 async function setup(env) {
   if (ready) return;
@@ -53,7 +73,8 @@ export async function onRequestPost({ request, env }) {
     const known = await env.DB.prepare('SELECT (SELECT COUNT(*) FROM rakaz_scores WHERE cid = ?) + (SELECT COUNT(*) FROM rakaz_visits WHERE cid = ?) AS c').bind(cid, cid).first();
     if (!known || !known.c) return text('bad request', 400);
     await env.DB.prepare('INSERT INTO rakaz_names (cid, name, t) VALUES (?, ?, ?) ON CONFLICT (cid) DO UPDATE SET name = excluded.name, t = excluded.t').bind(cid, name, now).run();
-    return json({ ok: true, name });
+    const p = await place(env, cid);   // the name is what puts the browser's best on the list
+    return json(p ? { ok: true, name, rank: p.rank, total: p.total } : { ok: true, name });
   }
   const score = Math.floor(Number(b && b.score));
   if (!Number.isFinite(score) || score < 0 || score > MAX_SCORE) return text('bad request', 400);
@@ -67,32 +88,29 @@ export async function onRequestPost({ request, env }) {
     if (n && n.c >= MAX_ROWS) return text('the list is full', 503);
     await env.DB.prepare('INSERT INTO rakaz_scores (cid, best, plays, t) VALUES (?, ?, 1, ?)').bind(cid, score, now).run();
   }
-  const best = Math.max(score, row ? row.best : 0);
-  // the place is among the browsers that are not Yoni's; his own browser gets its place as if it were one more
-  const mine = await env.DB.prepare('SELECT own FROM rakaz_visits WHERE cid = ?').bind(cid).first();
-  const above = await env.DB.prepare('SELECT COUNT(*) AS c FROM rakaz_scores WHERE best > ? AND ' + NOT_OWN).bind(best).first();
-  const total = await env.DB.prepare('SELECT COUNT(*) AS c FROM rakaz_scores WHERE ' + NOT_OWN).first();
-  return json({ rank: (above ? above.c : 0) + 1, total: (total ? total.c : 0) + (mine && mine.own ? 1 : 0) || 1, best });
+  return json(await place(env, cid) || { rank: 1, total: 1, best: Math.max(score, row ? row.best : 0), named: false });
 }
 export async function onRequestGet({ request, env }) {
   if (!env.DB) return text('the storage is not connected yet (binding DB)', 503);
   await setup(env);
   const total = await env.DB.prepare('SELECT COUNT(*) AS c, COALESCE(SUM(plays), 0) AS p FROM rakaz_scores WHERE ' + NOT_OWN).first();
   if (!new URL(request.url).searchParams.has('stats')) {
-    const top = await env.DB.prepare('SELECT best FROM rakaz_scores WHERE ' + NOT_OWN + ' ORDER BY best DESC LIMIT 10').all();
-    return json({ total: total ? total.c : 0, plays: total ? total.p : 0, top: ((top && top.results) || []).map(r => r.best) });
+    const listed = await env.DB.prepare('SELECT COUNT(*) AS c FROM rakaz_scores WHERE ' + NOT_OWN + ' AND ' + LISTED).first();
+    const top = await env.DB.prepare('SELECT best FROM rakaz_scores WHERE ' + NOT_OWN + ' AND ' + LISTED + ' ORDER BY best DESC LIMIT 10').all();
+    return json({ total: listed ? listed.c : 0, plays: total ? total.p : 0, top: ((top && top.results) || []).map(r => r.best) });
   }
   const v = await env.DB.prepare('SELECT COUNT(*) AS c, COALESCE(SUM(n), 0) AS s FROM rakaz_visits WHERE own = 0').first();
   const mv = await env.DB.prepare('SELECT COUNT(*) AS c, COALESCE(SUM(n), 0) AS s FROM rakaz_visits WHERE own = 1').first();
   const mp = await env.DB.prepare('SELECT COUNT(*) AS c, COALESCE(SUM(plays), 0) AS p FROM rakaz_scores WHERE ' + OWN).first();
   // names go only to the head, signed in on this device; any trouble telling who is asking means no names
   let admin = false; try { const w = await who(request, env); admin = !!(w && w.admin); } catch (_) {}
-  const list = await env.DB.prepare('SELECT s.best AS best, s.plays AS plays, s.t AS t, n.name AS name FROM rakaz_scores s LEFT JOIN rakaz_names n ON n.cid = s.cid WHERE s.cid NOT IN (SELECT cid FROM rakaz_visits WHERE own = 1) ORDER BY s.best DESC, s.t ASC LIMIT 200').all();
+  const list = await env.DB.prepare('SELECT s.best AS best, s.plays AS plays, s.t AS t, n.name AS name FROM rakaz_scores s LEFT JOIN rakaz_names n ON n.cid = s.cid WHERE s.cid NOT IN (SELECT cid FROM rakaz_visits WHERE own = 1) AND (n.cid IS NOT NULL OR s.t < ' + NAME_FROM + ') ORDER BY s.best DESC, s.t ASC LIMIT 200').all();
+  const unlisted = await env.DB.prepare('SELECT COUNT(*) AS c FROM rakaz_scores WHERE ' + NOT_OWN + ' AND NOT ' + LISTED).first();
   // new browsers per day, by the Israeli winter clock (UTC+2)
   const days = await env.DB.prepare('SELECT CAST((first + 7200000) / 86400000 AS INTEGER) AS d, COUNT(*) AS c FROM rakaz_visits WHERE own = 0 GROUP BY d ORDER BY d').all();
   return json({
     visitors: v ? v.c : 0, visits: v ? v.s : 0, players: total ? total.c : 0, plays: total ? total.p : 0,
-    names: admin, named: ((list && list.results) || []).filter(r => r.name).length,
+    names: admin, named: ((list && list.results) || []).filter(r => r.name).length, unlisted: unlisted ? unlisted.c : 0,
     list: ((list && list.results) || []).map(r => admin ? { best: r.best, plays: r.plays, t: r.t, name: r.name || '' } : { best: r.best, plays: r.plays, t: r.t }),   // t: when that browser last finished a round (15.11.2026, Yoni: "תוסיף גם שעה ויום ששיחק")
     days: ((days && days.results) || []).map(r => ({ day: new Date(r.d * 86400000).toISOString().slice(0, 10), n: r.c })),
     mine: { visitors: mv ? mv.c : 0, visits: mv ? mv.s : 0, players: mp ? mp.c : 0, plays: mp ? mp.p : 0 }

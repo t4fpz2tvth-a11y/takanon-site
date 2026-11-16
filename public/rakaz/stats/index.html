@@ -36,11 +36,12 @@ button{font:inherit;font-weight:700;background:var(--green);color:var(--paper);b
 <div class="cards" id="cards" aria-live="polite"></div>
 <h2>רשימת הניקוד</h2>
 <div id="list"></div>
+<p class="note" id="unlisted"></p>
 <p class="note" id="namesNote"></p>
 <h2>דפדפנים חדשים לפי יום</h2>
 <div id="days"></div>
 <p class="note" id="mine"></p>
-<p class="note">בסוף סיבוב כותבים שם לרשימה. הרשימה היא לפי דפדפן: לכל דפדפן השיא שלו ומספר הסיבובים. כניסה נספרת פעם בחצי שעה לכל דפדפן. ספירת הכניסות התחילה ב־15.11.2026.</p>
+<p class="note">מ־16.11.2026 נכנסים לרשימה רק עם שם, ששומרים בסוף סיבוב. מי שסיים סיבוב בלי לשמור שם נספר במספרים למעלה, אבל לא מופיע ברשימה. סיבובים מלפני כן נשארו בה גם בלי שם. הרשימה היא לפי דפדפן: לכל דפדפן השיא שלו ומספר הסיבובים. כניסה נספרת פעם בחצי שעה לכל דפדפן. ספירת הכניסות התחילה ב־15.11.2026.</p>
 <p class="note"><a href="/coord/">לבוט הרכזים</a></p>
 <p class="note">כדי שהמכשיר שלך לא ייספר, פותחים בו פעם אחת את <a href="/rakaz/?me=1">הקישור הזה</a>. לביטול: <a href="/rakaz/?me=0">הקישור הזה</a>.</p>
 <p><button type="button" id="again">רענון</button></p>
@@ -65,6 +66,7 @@ async function load(){
     $('cards').replaceChildren(...[[d.visitors,'דפדפנים שנכנסו'],[d.visits,'כניסות'],[d.players,'שיחקו סיבוב עד הסוף'],[d.plays,'סיבובים']].map(([n,l])=>{const c=el('div');c.className='card';c.appendChild(el('b',n));c.appendChild(el('span',l));return c}));
     const wn=!!d.names;
     $('list').replaceChildren(table(wn?['מקום','שם','שיא','סיבובים','שיחק לאחרונה']:['מקום','שיא','סיבובים','שיחק לאחרונה'],d.list.map((x,i)=>wn?[i+1,x.name||'בלי שם',x.best,x.plays,x.t?when(x.t):'']:[i+1,x.best,x.plays,x.t?when(x.t):'']),'עוד אף אחד לא סיים סיבוב.'));
+    const u=d.unlisted||0;$('unlisted').textContent=!u?'':u===1?'דפדפן אחד סיים סיבוב בלי לשמור שם, ולכן הוא לא ברשימה.':u+' דפדפנים סיימו סיבוב בלי לשמור שם, ולכן הם לא ברשימה.';
     $('namesNote').textContent=wn?'':(d.named?d.named+' מהשחקנים כתבו שם. ':'')+'כדי לראות שמות, נכנסים במכשיר הזה לבוט הרכזים עם הקוד שלך וחוזרים לכאן.';
     $('days').replaceChildren(table(['יום','דפדפנים חדשים'],d.days.map(x=>[day(x.day),x.n]),'עוד אין כניסות.'));
     const m=d.mine||{};

@@ -472,12 +472,15 @@
       async function closeAsk() { if (d._hold && !(await askIn('הקודים החדשים מוצגים רק עכשיו. לסגור את החלון?', 'כן, העתקתי אותם', 'חזרה לקודים'))) return; d.remove(); }
       d.querySelector('#tk-close').addEventListener('click', function () { closeAsk(); });
       tapOut(d, function () { d.remove(); }, function () { var nb = d.querySelector('#tk-new'); return !!d._hold || (!!nb && !nb.hidden && /הקוד של/.test(nb.textContent)); });   // a new code on screen is shown only once: an outside tap keeps it
+      // 16.11.2026 (Yoni): the message that carries a code to its coordinator: by first name, the code, the address, and that it is personal
+      function pvCodeMsg(name, code) { var first = String(name || '').trim().split(/\s+/)[0] || '';
+        return 'היי' + (first ? ' ' + first : '') + ',\nזה הקוד האישי שלך לבוט התקנון של הרכזים:\n' + code + '\n\nכניסה: ' + location.origin + '/coord/\n\nהקוד אישי, אז לא להעביר אותו הלאה. אפשר להקליד אותו עם רווחים או בלי.'; }
       function sayIn(m) { var box = d.querySelector('#tk-new'); box.hidden = false; box.setAttribute('role', 'status'); box.textContent = 'לא הצליח: ' + m; }
       function showCode(j) { var box = d.querySelector('#tk-new'); box.hidden = false;
         if (PV) { box.style.background = 'var(--amber-soft)'; box.style.color = 'var(--amber-ink)'; box.setAttribute('role', 'status'); box.setAttribute('tabindex', '-1'); setTimeout(function () { try { box.focus(); } catch (_) {} }, 0); }
         box.innerHTML = 'הקוד של ' + esc(j.name) + ': <b style="font-size:1.2rem;user-select:all">' + esc(j.code) + '</b><br>העבירו אותו לרכז/ת. הוא מוצג רק עכשיו. אפשר להקליד אותו עם רווחים או בלי, והמקפים לא חייבים להיות מדויקים.';
-        if (PV2) {   // 5.11.2026 (the UX audit, #38): copied in one tap, or sent in WhatsApp
-          var msg = 'הקוד שלך לבוט התקנון של הרכזים: ' + j.code + '\nכניסה: ' + location.origin + '/coord/';
+        if (PV) {   // 5.11.2026 (the UX audit, #38): copied in one tap, or sent in WhatsApp; 16.11.2026: on the live page too, a personal message
+          var msg = pvCodeMsg(j.name, j.code);
           var row = document.createElement('div'); row.setAttribute('style', 'display:flex;gap:8px;flex-wrap:wrap;margin-top:.5rem');
           row.innerHTML = '<button type="button" id="tk-copy-code" style="font:inherit;min-height:44px;padding:.4rem 1rem;border-radius:10px;border:1px solid var(--field-edge, #8A93A6);background:var(--sheet, #fff);color:inherit;cursor:pointer">העתקת הקוד</button>' +
             '<a id="tk-wa-code" target="_blank" rel="noopener" style="font:inherit;min-height:44px;display:inline-flex;align-items:center;padding:.4rem 1rem;border-radius:10px;border:1px solid var(--field-edge, #8A93A6);color:inherit;text-decoration:none">שליחה בוואטסאפ</a><span id="tk-copy-note" aria-live="polite" style="align-self:center"></span>';
@@ -507,7 +510,7 @@
         var newBox = d.querySelector('#tk-new'); newBox.before(det); newBox.after(out);
         function copy(t, note) { var say = function (ok) { note.textContent = ok ? 'הועתק' : 'ההעתקה לא הצליחה: סמנו והעתיקו'; };
           try { navigator.clipboard.writeText(t).then(function () { say(true); }, function () { say(false); }); } catch (_) { say(false); } }
-        function waMsg(code) { return 'הקוד שלך לבוט התקנון של הרכזים: ' + code + '\nכניסה: ' + location.origin + '/coord/'; }
+        function waMsg(name, code) { return pvCodeMsg(name, code); }
         function show(made, skipped, failed) {
           out.hidden = false; out.textContent = '';
           var p = document.createElement('p'); p.style.margin = '0';
@@ -520,7 +523,7 @@
               tr.innerHTML = '<td style="padding:.3rem">' + esc(j.name) + '</td><td style="padding:.3rem"><b style="user-select:all">' + esc(j.code) + '</b></td>' +
                 '<td style="padding:.3rem;white-space:nowrap"><button type="button" class="tk-bulk-copy" aria-label="העתקת הקוד של ' + esc(j.name) + '" style="' + btn + '">העתקה</button> ' +
                 '<a class="tk-bulk-wa" target="_blank" rel="noopener" aria-label="שליחת הקוד של ' + esc(j.name) + ' בוואטסאפ" style="' + btn + ';display:inline-flex;align-items:center;text-decoration:none">ואטסאפ</a></td>';
-              tr.querySelector('.tk-bulk-wa').href = 'https://wa.me/?text=' + encodeURIComponent(waMsg(j.code));
+              tr.querySelector('.tk-bulk-wa').href = 'https://wa.me/?text=' + encodeURIComponent(waMsg(j.name, j.code));
               tr.querySelector('.tk-bulk-copy').addEventListener('click', function () { copy(j.code, note); });
               tbl.querySelector('tbody').appendChild(tr); });
             var wrap = document.createElement('div'); wrap.style.overflowX = 'auto'; wrap.appendChild(tbl); out.appendChild(wrap);

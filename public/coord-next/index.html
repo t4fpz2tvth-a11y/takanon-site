@@ -635,7 +635,30 @@
       if (t + 1 < (tries || 1)) await new Promise(function (z) { setTimeout(z, 2500); });
     }
   }
-  if (/[?&]inbox=1/.test(location.search)) { try { history.replaceState(null, '', location.pathname); } catch (_) {} inboxTake(6); } else inboxTake(1);
+  // 17.11.2026 13:17 (Yoni: "תחתוך את התיווך"): no personal key. The Shortcut opens this page with a one-time ticket
+  // (?inbox=<ticket>) it got for the recording it sent; the signed-in page claims it and the text goes into the question box
+  var INBOX_ERR = { 'err-quiet': 'לא נשמע דיבור בהקלטה ששותפה.', 'err-long': 'ההקלטה ששותפה ארוכה מדי לתמלול (עד 12 מ״ב).', 'err-many': 'תומללו הרבה הקלטות בשעה האחרונה. נסו שוב מאוחר יותר.', 'err-none': 'לא התקבלה הקלטה. שתפו הודעה קולית אחת.', 'err-app': 'קיצור הדרך לא מעודכן. התקינו אותו מחדש מהכפתור ״הודעות קוליות״.' };
+  var inboxSay = async function (msg) {
+    for (var n = 0; n < 120 && typeof renderAttach !== 'function'; n++) await new Promise(function (z) { setTimeout(z, 500); });
+    try { attachErr = msg; renderAttach(); } catch (_) {}
+  };
+  var tk = /[?&]inbox=([a-z0-9-]{3,40})/.exec(location.search);
+  if (tk) {
+    try { history.replaceState(null, '', location.pathname); } catch (_) {}
+    if (tk[1] === '1') inboxTake(6);
+    else if (/^err-/.test(tk[1])) inboxSay(INBOX_ERR[tk[1]] || 'לא הצלחנו לתמלל את ההקלטה ששותפה. נסו שוב.');
+    else (async function () {
+      try { await meReady; } catch (_) { return; }
+      if (!me) return;
+      var said = '', gone = false;
+      try { var r = await fetch('/api/inbox', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ op: 'claim', id: tk[1] }) }); if (r.ok) { var j = await r.json(); said = String(j.text || '').trim(); gone = !!j.gone; } } catch (_) {}
+      if (!said) { inboxSay(gone ? 'התמלול של ההודעה הזו כבר נלקח או שפג תוקפו (30 דקות). שתפו אותה שוב מוואטסאפ.' : 'לא הצלחנו להביא את התמלול. שתפו את ההודעה שוב.'); return; }
+      for (var n = 0; n < 120 && typeof voiceToBox !== 'function'; n++) await new Promise(function (z) { setTimeout(z, 500); });
+      if (typeof voiceToBox !== 'function') return;
+      voiceToBox(said);
+      inboxSay('ההודעה הקולית תומללה, והטקסט נוסף לתיבת השאלה: כדאי לוודא שמות, מספרים ותאריכים לפני השליחה.');
+    })();
+  } else inboxTake(1);
   document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') inboxTake(2); });
   function voiceSetup(btn) {
     var dk = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches, back = document.activeElement;
@@ -644,34 +667,22 @@
     var bs = 'font:inherit;min-height:44px;padding:.4rem 1rem;border-radius:10px;cursor:pointer;', pri = bs + 'border:0;background:' + (dk ? '#9DB2FF' : '#2747B8') + ';color:' + (dk ? '#0E131E' : '#fff'), sec = bs + 'border:1px solid #8A93A6;background:none;color:inherit';
     d.innerHTML = '<div dir="rtl" style="background:' + (dk ? '#161D2B' : '#fff') + ';color:' + (dk ? '#E6EAF2' : '#141B2D') + ';max-width:460px;width:100%;box-sizing:border-box;padding:1.2rem;border-radius:14px;display:grid;gap:.8rem;box-shadow:0 12px 40px rgba(0,0,0,.25)">' +
       '<h2 id="tk-vo-t" style="margin:0;font-size:1.15rem">הודעות קוליות מוואטסאפ באייפון</h2>' +
-      '<p style="margin:0">אחרי הגדרה חד־פעמית אפשר לשלוח הודעה קולית מוואטסאפ ישר לכאן: בוואטסאפ לוחצים לחיצה ארוכה על ההודעה, ״העברה״, סמל השיתוף, ובוחרים ״לבוט הרכזים״. ההודעה מתומללת ומצורפת לשאלה. ההקלטה עצמה לא נשמרת.</p>' +
-      '<ol style="margin:0;padding-inline-start:1.2rem;display:grid;gap:.3rem"><li>יוצרים כאן מפתח אישי ומעתיקים אותו.</li><li>מתקינים את קיצור הדרך, ומדביקים בו את המפתח כשהוא מבקש.</li></ol>' +
-      '<p id="tk-vo-s" role="status" style="margin:0;color:' + (dk ? '#9BA5BA' : '#566079') + '">בודק…</p>' +
-      '<div id="tk-vo-k" hidden style="display:grid;gap:.4rem"><input id="tk-vo-key" readonly dir="ltr" aria-label="המפתח האישי" style="font:14px ui-monospace,monospace;padding:.5rem;border:1px solid #8A93A6;border-radius:8px;background:none;color:inherit;width:100%;box-sizing:border-box"><span style="font-size:.9rem">המפתח מוצג פעם אחת בלבד. הוא מאפשר רק להכניס תמלול לתיבה שלך, ולא נותן גישה לשום דבר.</span></div>' +
-      '<div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" id="tk-vo-new" style="' + pri + '">יצירת מפתח אישי</button><button type="button" id="tk-vo-copy" hidden style="' + pri + '">העתקת המפתח</button><a id="tk-vo-sc" hidden target="_blank" rel="noopener" style="' + sec + ';display:inline-flex;align-items:center;text-decoration:none">התקנת קיצור הדרך</a><button type="button" id="tk-vo-off" hidden style="' + sec + '">ביטול המפתח</button><button type="button" id="tk-vo-x" style="' + sec + '">סגירה</button></div></div>';
+      '<p style="margin:0">מתקינים פעם אחת קיצור דרך, ומאז אפשר לשלוח הודעה קולית מוואטסאפ ישר לכאן:</p>' +
+      '<ol style="margin:0;padding-inline-start:1.2rem;display:grid;gap:.3rem"><li>בוואטסאפ: לחיצה ארוכה על ההודעה, ואז ״העברה״.</li><li>סמל השיתוף, ואז ״לבוט הרכזים״.</li><li>הבוט נפתח, והתמלול כבר בתיבת השאלה.</li></ol>' +
+      '<p style="margin:0;font-size:.92rem;color:' + (dk ? '#9BA5BA' : '#566079') + '">ההקלטה עצמה לא נשמרת. בפעם הראשונה האייפון יבקש אישור לשלוח לאתר: בוחרים ״Allow״. צריך להיות מחוברים לבוט בספארי.</p>' +
+      '<p id="tk-vo-s" role="status" style="margin:0"></p>' +
+      '<div style="display:flex;gap:8px;flex-wrap:wrap"><a id="tk-vo-sc" hidden target="_blank" rel="noopener" style="' + pri + ';display:inline-flex;align-items:center;text-decoration:none">התקנת קיצור הדרך</a><button type="button" id="tk-vo-x" style="' + sec + '">סגירה</button></div></div>';
     var others = [].filter.call(document.body.children, function (x) { return !x.inert; }); others.forEach(function (x) { x.inert = true; });
     var $d = function (id) { return d.querySelector('#' + id); }, st = $d('tk-vo-s');
     var end = function () { document.removeEventListener('keydown', key, true); others.forEach(function (x) { x.inert = false; }); d.remove(); try { (btn || back).focus(); } catch (_) {} };
     var key = function (e) { if (e.key === 'Escape') { e.preventDefault(); end(); } };
-    var api = async function (op) { var r = await fetch('/api/inbox', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ op: op }) }); if (!r.ok) throw new Error('x'); return r.json(); };
-    var show = function (j) {
-      st.textContent = j.hasKey ? 'יש לך מפתח פעיל. מפתח חדש יחליף אותו, ואז צריך לעדכן גם את קיצור הדרך.' : 'עדיין אין לך מפתח.';
-      $d('tk-vo-new').textContent = j.hasKey ? 'מפתח חדש' : 'יצירת מפתח אישי'; $d('tk-vo-off').hidden = !j.hasKey;
-      if (j.shortcut && /^https:\/\/www\.icloud\.com\/shortcuts\//.test(j.shortcut)) { $d('tk-vo-sc').href = j.shortcut; $d('tk-vo-sc').hidden = false; }
-    };
-    api('state').then(show).catch(function () { st.textContent = 'לא הצלחנו לבדוק את מצב המפתח. נסו שוב.'; });
-    $d('tk-vo-new').addEventListener('click', async function () {
-      try { var j = await api('key'); $d('tk-vo-key').value = j.key; $d('tk-vo-k').hidden = false; $d('tk-vo-copy').hidden = false; $d('tk-vo-off').hidden = false; $d('tk-vo-new').hidden = true; st.textContent = 'המפתח נוצר. העתיקו אותו והדביקו בקיצור הדרך.'; $d('tk-vo-copy').focus(); }
-      catch (_) { st.textContent = 'לא הצלחנו ליצור מפתח. נסו שוב.'; }
-    });
-    $d('tk-vo-copy').addEventListener('click', async function () {
-      var v = $d('tk-vo-key').value;
-      try { await navigator.clipboard.writeText(v); st.textContent = 'המפתח הועתק.'; } catch (_) { $d('tk-vo-key').focus(); $d('tk-vo-key').select(); st.textContent = 'סמנו את המפתח והעתיקו אותו.'; }
-    });
-    $d('tk-vo-off').addEventListener('click', async function () { try { await api('unkey'); $d('tk-vo-k').hidden = true; $d('tk-vo-copy').hidden = true; $d('tk-vo-new').hidden = false; show({ hasKey: false }); st.textContent = 'המפתח בוטל. קיצור הדרך לא יעבוד עד שייווצר מפתח חדש.'; } catch (_) { st.textContent = 'לא הצלחנו לבטל. נסו שוב.'; } });
+    fetch('/api/inbox', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{"op":"state"}' }).then(function (r) { return r.ok ? r.json() : {}; }).then(function (j) {
+      if (j.shortcut && /^https:\/\/www\.icloud\.com\/shortcuts\//.test(j.shortcut)) { $d('tk-vo-sc').href = j.shortcut; $d('tk-vo-sc').hidden = false; $d('tk-vo-sc').focus(); }
+      else st.textContent = 'קיצור הדרך עוד לא פורסם. הוא יופיע כאן בקרוב.';
+    }).catch(function () { st.textContent = 'לא הצלחנו לבדוק. נסו שוב.'; });
     $d('tk-vo-x').addEventListener('click', end);
     document.addEventListener('keydown', key, true);
-    document.body.appendChild(d); $d('tk-vo-new').focus();
+    document.body.appendChild(d); $d('tk-vo-x').focus();
   }
   (async function takeShared() {
     if (!/[?&]shared=1/.test(location.search) || !window.caches) return;

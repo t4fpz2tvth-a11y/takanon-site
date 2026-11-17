@@ -1,0 +1,28 @@
+{
+ "tag": "cftest15",
+ "at": "2026-11-17T13:36:24.724Z",
+ "chat": [],
+ "audio": [],
+ "human": {
+  "status": 200,
+  "body": "{\"sitekey\":\"0x4AAAAAAGE7c5H8f2E5hAzv\",\"ok\":false,\"enforce\":false,\"days\":[{\"day\":\"2026-11-17\",\"pass\":false,\"n\":2}]}"
+ },
+ "shared": {
+  "text": {
+   "text": "היי, לא נתנו לי מועד מיוחד אחרי המילואים. מה עושים?",
+   "kind": "text",
+   "gone": false
+  },
+  "image": {
+   "text": "נועה כהן: שלום, הגשתי ערעור על הציון בסטטיסטיקה לפני שבועיים ועדיין לא קיבלתי תשובה\nהיי נועה, באיזה תאריך בדיוק הגשת?\nנועה כהן: ב-3.11, והמרצה אמר שיחזור אליי עד ה-10.11",
+   "kind": "image",
+   "gone": false
+  },
+  "voice": {
+   "text": "I would like to ask about a second exam date after reserve duty. Thank you very much.",
+   "kind": "voice",
+   "gone": false
+  }
+ },
+ "noCode": 403
+}

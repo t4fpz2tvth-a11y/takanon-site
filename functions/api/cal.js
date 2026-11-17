@@ -26,6 +26,19 @@ export function calendarOf(cases, origin, now) {
   const out = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//takanon//coord-feed//HE', 'CALSCALE:GREGORIAN', 'METHOD:PUBLISH', 'X-WR-CALNAME:בוט הרכזים: מועדים', 'X-WR-TIMEZONE:Asia/Jerusalem', 'REFRESH-INTERVAL;VALUE=DURATION:PT2H', 'X-PUBLISHED-TTL:PT2H'];
   for (const { id, c } of cases) {
     if (!c || c.general || c.status === 'closed') continue;
+    // 17.11.2026 22:05 (Yoni: three days after a case was opened, "גם כאירוע"): a case with no target date, still open and not
+    // updated, gets one event on the day it turns three days old (the same rule as the page's openStale)
+    if (!c.due) {
+      const t0 = new Date(c.t0 || 0).getTime(), t1 = new Date(c.t1 || c.t0 || 0).getTime(), D = 864e5, nowT = now || Date.now();
+      if (!t0 || isNaN(t0) || (c.status && c.status !== 'open') || c.statusT || t1 > t0 + 3 * D || nowT - t0 > 14 * D) continue;
+      const d3 = new Date(t0 + 3 * D), day = new Date(Date.UTC(d3.getUTCFullYear(), d3.getUTCMonth(), d3.getUTCDate()));
+      const o3 = new Date(t0).getUTCDate() + '.' + (new Date(t0).getUTCMonth() + 1), fac3 = c.student && typeof c.student.faculty === 'string' ? c.student.faculty.replace(/[\u0000-\u001f]/g, '').slice(0, 40) : '';
+      const title3 = 'מקרה מ-' + o3 + ' פתוח שלושה ימים בלי עדכון' + (fac3 ? ' (' + fac3 + ')' : '');
+      out.push('BEGIN:VEVENT', 'UID:' + String(id).replace(/[^A-Za-z0-9_-]/g, '').slice(0, 40) + '-3d@takanon-site.pages.dev', 'DTSTAMP:' + stamp, 'DTSTART;VALUE=DATE:' + ymd(day), 'DTEND;VALUE=DATE:' + ymd(new Date(day.getTime() + D)),
+        'SUMMARY:' + esc(title3), 'DESCRIPTION:' + esc('הפרטים בבוט הרכזים, ב"המקרים שלי".\n' + origin + '/coord/?my=1'), 'URL:' + origin + '/coord/?my=1', 'TRANSP:TRANSPARENT',
+        'BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:' + esc(title3), 'TRIGGER:PT9H', 'END:VALARM', 'END:VEVENT');
+      continue;
+    }
     const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(c.due || '')); if (!m) continue;
     const t = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3])); if (isNaN(t) || t.getUTCDate() !== +m[3]) continue;
     const o = (() => { try { const d = new Date(c.t0); return isNaN(d) ? '' : d.getUTCDate() + '.' + (d.getUTCMonth() + 1); } catch (_) { return ''; } })();

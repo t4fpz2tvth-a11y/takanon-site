@@ -1,0 +1,96 @@
+{
+ "tag": "cftest5",
+ "at": "2026-11-17T10:03:42.669Z",
+ "chat": [
+  {
+   "aig": false,
+   "stream": false,
+   "status": 200,
+   "via": "direct",
+   "log": "",
+   "type": "application/json",
+   "body": "\n         \n{\"id\":\"gen-1794909823-PWEu6rhqLnnkM01yhFnu\",\"object\":\"chat.completion\",\"created\":1794909823,\"model\":\"anthropic/claude-haiku-5.5\",\"provider\":\"Claude Platform on AWS\",\"system_fingerprint\":null,\"service_tier\":\"default\",\"choices\":[{\"index\":0,\"logprobs\":null,\"finish_reason\":\"stop\",\"native_finish_reason\":\"end_turn\",\"message\":{\"role\":\"assistant\",\"content\":\"ירושלים\",\"refusal\":null,\"reasoning_details\":[{\"type\":\"reasoning.text\",\"text\":\"The user wants one word for Israel's capital, so the answer is ירושלים. There's a known caveat that Jerusalem's status is internationally contested, but the request was for a single word, so I'll keep to that.\\n\\n\",\"format\":\"anthropic-claude-v1\",\"index\":0,\"signature\":\"CAQSxAcKEAgTGAI4AUIIdGhpbmtpbmcSDP1Ee89SXEcRZxAQRxoMdg97KGZMOzyqwE/KIjDQJbl8c8UikjCISGBd0/W8Dy0YyQISfw47P3HsMelhHWIx9Uu6qUgw90zdSAL7v0Aq4QaQDIbbmuT4X85J4x0W8Yv7MBSjKyi74eotFsCSmfL6x/6VlVPf77",
+   "ms": 3382
+  },
+  {
+   "aig": false,
+   "stream": true,
+   "status": 200,
+   "via": "direct",
+   "log": "",
+   "type": "text/event-stream",
+   "chunks": 15,
+   "firstMs": 1328,
+   "tail": "chunk\",\"created\":1794909826,\"model\":\"anthropic/claude-haiku-5.5\",\"provider\":\"Claude Platform on AWS\",\"service_tier\":\"default\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"\",\"role\":\"assistant\"},\"finish_reason\":\"stop\",\"native_finish_reason\":\"end_turn\"}],\"usage\":{\"prompt_tokens\":32,\"completion_tokens\":93,\"total_tokens\":125,\"cost\":0.0000497,\"is_byok\":false,\"prompt_tokens_details\":{\"cached_tokens\":0,\"cache_write_tokens\":0,\"audio_tokens\":0,\"video_tokens\":0},\"cost_details\":{\"upstream_inference_cost\":0.0000497,\"upstream_inference_prompt_cost\":0.0000032,\"upstream_inference_completions_cost\":0.0000465},\"completion_tokens_details\":{\"reasoning_tokens\":86,\"image_tokens\":0,\"audio_tokens\":0}}}\n\ndata: [DONE]\n\n",
+   "ms": 2091
+  },
+  {
+   "aig": true,
+   "stream": false,
+   "status": 200,
+   "via": "gateway",
+   "log": "",
+   "type": "application/json",
+   "body": "\n         \n{\"id\":\"gen-1794909829-NIvGFj4vERtyKGJbG7SU\",\"object\":\"chat.completion\",\"created\":1794909829,\"model\":\"anthropic/claude-haiku-5.5\",\"provider\":\"Claude Platform on AWS\",\"system_fingerprint\":null,\"service_tier\":\"default\",\"choices\":[{\"index\":0,\"logprobs\":null,\"finish_reason\":\"stop\",\"native_finish_reason\":\"end_turn\",\"message\":{\"role\":\"assistant\",\"content\":\"ירושלים\",\"refusal\":null,\"reasoning_details\":[{\"type\":\"reasoning.text\",\"text\":\"The user wants a one-word answer, in Hebrew, to what Israel's capital is. Jerusalem is what Israel itself declares, though most countries keep their embassies in Tel Aviv, so the answer is contested. I'm weighing whether to give just \\\"ירושלים\\\" or add a short note about that.\\n\\nI'm weighing whether one word is enough here. The answer is contested, since Israel names Jerusalem but most countries keep their embassies in Tel Aviv. I think the one-word answ",
+   "ms": 4438
+  },
+  {
+   "aig": true,
+   "stream": true,
+   "status": 200,
+   "via": "gateway",
+   "log": "",
+   "type": "text/event-stream",
+   "chunks": 20,
+   "firstMs": 1964,
+   "tail": "chunk\",\"created\":1794909833,\"model\":\"anthropic/claude-haiku-5.5\",\"provider\":\"Claude Platform on AWS\",\"service_tier\":\"default\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"\",\"role\":\"assistant\"},\"finish_reason\":\"stop\",\"native_finish_reason\":\"end_turn\"}],\"usage\":{\"prompt_tokens\":32,\"completion_tokens\":102,\"total_tokens\":134,\"cost\":0.0000542,\"is_byok\":false,\"prompt_tokens_details\":{\"cached_tokens\":0,\"cache_write_tokens\":0,\"audio_tokens\":0,\"video_tokens\":0},\"cost_details\":{\"upstream_inference_cost\":0.0000542,\"upstream_inference_prompt_cost\":0.0000032,\"upstream_inference_completions_cost\":0.000051},\"completion_tokens_details\":{\"reasoning_tokens\":95,\"image_tokens\":0,\"audio_tokens\":0}}}\n\ndata: [DONE]\n\n",
+   "ms": 3174
+  },
+  {
+   "aig": true,
+   "stream": false,
+   "status": 200,
+   "via": "gateway",
+   "log": "id=yes id:36,created_at:26,updated_at:19,event_id:36,provider:10,model:26,model_type:0,path:16,duration:4,request_type:9,request_content_type:0,status_code:3,response_content_type:16,success:4,cached:5,tokens_in:2,tokens_out:2,metadata:null,step:1,timings:57,location:23,cost:9,custom_cost:5,feedback:null,score:null,request:0,response:0,prompts:null,guardrails:null,authentication:4,wholesale:5,byok:null,user_agent:null,rejection_reason:null,collect_log_payload:5,usage_metadata:165,dlp_action:null,dlp_profiles:null,request_size:null,request_head:null,request_head_complete:4,response_size:null,response_head:null,response_head_complete:4",
+   "type": "application/json",
+   "body": "\n         \n{\"id\":\"gen-1794909835-7dnYWQ6cKsJVujOFGMRM\",\"object\":\"chat.completion\",\"created\":1794909835,\"model\":\"anthropic/claude-haiku-5.5\",\"provider\":\"Claude Platform on AWS\",\"system_fingerprint\":null,\"service_tier\":\"default\",\"choices\":[{\"index\":0,\"logprobs\":null,\"finish_reason\":\"stop\",\"native_finish_reason\":\"end_turn\",\"message\":{\"role\":\"assistant\",\"content\":\"ירושלים\",\"refusal\":null,\"reasoning_details\":[{\"type\":\"reasoning.text\",\"text\":\"The user wants a one-word answer in Hebrew for Israel's capital. Jerusalem is the city Israel claims as its capital, though that's internationally disputed, so I'll give the one word they asked for, ירושלים.\\n\\n\",\"format\":\"anthropic-claude-v1\",\"index\":0,\"signature\":\"CAQS3AYKEAgTGAI4AUIIdGhpbmtpbmcSDNSYxJor8wggHV3boxoMQQ9MzsnWIHgF0wYHIjDZO8vBoDLChjGPYbAepEjofmn2lkDNmZnl5ZxlHw1Gn2MxdiUe41FVnli5xlTj9Yoq+QXEblclPuuTSfY3v9VJHAI3hd+kTKFTFJzh9wMtF/GkZr8ymmCTGFOF",
+   "ms": 5673
+  },
+  {
+   "aig": true,
+   "stream": true,
+   "status": 200,
+   "via": "gateway",
+   "log": "",
+   "type": "text/event-stream",
+   "chunks": 26,
+   "firstMs": 1150,
+   "tail": "hunk\",\"created\":1794909841,\"model\":\"anthropic/claude-haiku-5.5\",\"provider\":\"Claude Platform on AWS\",\"service_tier\":\"default\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"\",\"role\":\"assistant\"},\"finish_reason\":\"stop\",\"native_finish_reason\":\"end_turn\"}],\"usage\":{\"prompt_tokens\":32,\"completion_tokens\":114,\"total_tokens\":146,\"cost\":0.0000602,\"is_byok\":false,\"prompt_tokens_details\":{\"cached_tokens\":0,\"cache_write_tokens\":0,\"audio_tokens\":0,\"video_tokens\":0},\"cost_details\":{\"upstream_inference_cost\":0.0000602,\"upstream_inference_prompt_cost\":0.0000032,\"upstream_inference_completions_cost\":0.000057},\"completion_tokens_details\":{\"reasoning_tokens\":107,\"image_tokens\":0,\"audio_tokens\":0}}}\n\ndata: [DONE]\n\n",
+   "ms": 2551
+  },
+  {
+   "live": true,
+   "stream": false,
+   "status": 200,
+   "via": "gateway",
+   "len": 818,
+   "tail": "erence_cost\":0.0000066,\"upstream_inference_prompt_cost\":0.0000036,\"upstream_inference_completions_cost\":0.000003},\"completion_tokens_details\":{\"reasoning_tokens\":0,\"image_tokens\":0,\"audio_tokens\":0}}}",
+   "ms": 1609
+  },
+  {
+   "live": true,
+   "stream": true,
+   "status": 200,
+   "via": "gateway",
+   "len": 1730,
+   "tail": "000066,\"upstream_inference_prompt_cost\":0.0000036,\"upstream_inference_completions_cost\":0.000003},\"completion_tokens_details\":{\"reasoning_tokens\":0,\"image_tokens\":0,\"audio_tokens\":0}}}\n\ndata: [DONE]\n\n",
+   "ms": 1637
+  }
+ ],
+ "audio": [],
+ "human": {
+  "status": 200,
+  "body": "{\"sitekey\":\"0x4AAAAAAGE7c5H8f2E5hAzv\",\"ok\":false,\"enforce\":false,\"days\":[{\"day\":\"2026-11-17\",\"pass\":false,\"n\":2}]}"
+ },
+ "noCode": 403
+}

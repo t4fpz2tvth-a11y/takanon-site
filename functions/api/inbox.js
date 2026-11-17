@@ -12,6 +12,8 @@ async function tables(env) {
     env.DB.prepare('CREATE TABLE IF NOT EXISTS inbox_keys (uid TEXT PRIMARY KEY, h TEXT NOT NULL, t INTEGER NOT NULL)'),
     env.DB.prepare('CREATE TABLE IF NOT EXISTS inbox (id INTEGER PRIMARY KEY AUTOINCREMENT, uid TEXT NOT NULL, name TEXT, body TEXT NOT NULL, t INTEGER NOT NULL)'),
     env.DB.prepare('CREATE TABLE IF NOT EXISTS hits (k TEXT NOT NULL, h INTEGER NOT NULL, n INTEGER NOT NULL, PRIMARY KEY (k, h))'),
+    env.DB.prepare('CREATE TABLE IF NOT EXISTS inbox_dbg (uid TEXT PRIMARY KEY, meta TEXT NOT NULL, t INTEGER NOT NULL)'),
+    env.DB.prepare('DELETE FROM inbox_dbg WHERE t < ?').bind(Date.now() - 2 * 3600e3),
     env.DB.prepare('DELETE FROM inbox WHERE t < ?').bind(Date.now() - KEEP)
   ]);
 }
@@ -41,6 +43,16 @@ export async function onRequestPost({ request, env }) {
     try { out = await env.AI.run(MODEL, { audio: b64, task: 'transcribe', vad_filter: true, language: url.searchParams.get('lang') || 'he' }); }
     catch (_) { return text('לא הצלחנו לתמלל את ההקלטה. נסו שוב.', 502); }
     const said = String(out && out.text || '').replace(/\s+/g, ' ').trim();
+    // 17.11.2026 12:55, TEMPORARY (Yoni's first test from his iPhone came out "תודה רבה"): for the head's own key only, what
+    // arrived (size, type, first bytes) and how three settings of the speech model heard it, kept two hours for the diagnosis
+    if (owner.uid === 'admin') try {
+      const meta = { bytes: buf.length, type: request.headers.get('Content-Type') || '', name, magic: [...buf.subarray(0, 40)].map(x => x.toString(16).padStart(2, '0')).join(''), ua: (request.headers.get('User-Agent') || '').slice(0, 80),
+        a: { text: said, info: out && out.transcription_info || null, segs: (out && out.segments || []).length } };
+      for (const [k, opt] of [['novad', { audio: b64, task: 'transcribe', language: 'he' }], ['auto', { audio: b64, task: 'transcribe' }], ['prompt', { audio: b64, task: 'transcribe', language: 'he', initial_prompt: 'הודעה קולית של סטודנט באוניברסיטה העברית בנושא לימודים, בחינות ומועדים.' }]]) {
+        try { const o = await env.AI.run(MODEL, opt); meta[k] = { text: String(o && o.text || '').slice(0, 600), info: o && o.transcription_info || null }; } catch (e) { meta[k] = { error: String(e && e.message || e).slice(0, 200) }; }
+      }
+      await env.DB.prepare('INSERT INTO inbox_dbg (uid, meta, t) VALUES (?, ?, ?) ON CONFLICT (uid) DO UPDATE SET meta = excluded.meta, t = excluded.t').bind(owner.uid, JSON.stringify(meta), Date.now()).run();
+    } catch (_) {}
     if (!said) return text('לא נשמע דיבור בהקלטה.', 422);
     name = String(name || url.searchParams.get('name') || 'הודעה קולית').replace(/[\u0000-\u001f<>]/g, '').slice(0, 120);
     await env.DB.prepare('INSERT INTO inbox (uid, name, body, t) VALUES (?, ?, ?, ?)').bind(owner.uid, name, said.slice(0, 60000), Date.now()).run();
@@ -60,6 +72,7 @@ export async function onRequestPost({ request, env }) {
     return json({ key });
   }
   if (b.op === 'unkey') { await env.DB.batch([env.DB.prepare('DELETE FROM inbox_keys WHERE uid = ?').bind(w.uid), env.DB.prepare('DELETE FROM inbox WHERE uid = ?').bind(w.uid)]); return json({ ok: true }); }
+  if (b.op === 'dbg' && w.admin) { const d = await env.DB.prepare('SELECT meta, t FROM inbox_dbg WHERE uid = ?').bind('admin').first(); return json(d ? { t: d.t, meta: JSON.parse(d.meta) } : {}); }
   if (b.op === 'take') {
     const rs = await env.DB.prepare('SELECT id, name, body, t FROM inbox WHERE uid = ? ORDER BY id LIMIT 10').bind(w.uid).all(), items = rs.results || [];
     if (items.length) await env.DB.prepare('DELETE FROM inbox WHERE uid = ? AND id <= ?').bind(w.uid, items[items.length - 1].id).run();

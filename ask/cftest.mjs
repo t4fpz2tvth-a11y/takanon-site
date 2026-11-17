@@ -53,6 +53,7 @@ if (req.inbox) { out.inbox = {}; try {
   out.inbox.state = (await op('state')).j; out.inbox.unkey = (await op('unkey')).status;
   const after = await fetch(SITE + '/api/inbox', { method: 'POST', headers: { 'X-Inbox-Key': key, 'Content-Type': 'audio/ogg' }, body: fs.readFileSync('ask/audio/s.ogg') }); out.inbox.afterUnkey = after.status;
 } catch (e) { out.inbox.error = String(e && e.message || e).slice(0, 200); } console.log('inbox', JSON.stringify(out.inbox)); }
+if (req.dbg) { try { const r = await fetch(SITE + '/api/inbox', { method: 'POST', headers: Object.assign({ 'Content-Type': 'application/json' }, H), body: '{"op":"dbg"}' }); out.dbg = { status: r.status, j: r.ok ? await r.json() : null }; } catch (e) { out.dbg = { error: String(e).slice(0, 200) }; } }
 try { const r = await fetch(SITE + '/api/human', { headers: H }); out.human = { status: r.status, body: (await r.text()).slice(0, 600) }; } catch (e) { out.human = { error: String(e).slice(0, 200) }; }
 try { const r = await fetch(SITE + '/api/transcribe', { method: 'POST', body: 'x' }); out.noCode = r.status; } catch (_) {}
 fs.writeFileSync('ask/results_' + tag + '.json', JSON.stringify(out, null, 1));

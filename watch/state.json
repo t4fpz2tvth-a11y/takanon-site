@@ -3,127 +3,143 @@
   "hash": "6af217a9089ea750615e3460",
   "len": 184335,
   "kind": "file",
-  "seen": "2026-11-17T13:53:20.308Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
   "since": "2026-11-17T13:51:47.240Z",
   "down": 0
  },
  "https://studentsadmin.huji.ac.il/study": {
-  "hash": "f43b64299eff87df8d782e60",
-  "len": 6811,
+  "hash": "1e00f41b8750295172050876",
+  "len": 5739,
   "kind": "page",
-  "seen": "2026-11-17T13:53:20.308Z",
-  "since": "2026-11-17T13:51:47.240Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
+  "since": "2026-11-17T13:56:40.119Z",
   "down": 0
  },
  "https://new.huji.ac.il/sites/default/files/mainsite/files/mishmaat_talmidim_2021.pdf": {
   "hash": "bd52e95107e04afd88ba12de",
   "len": 768922,
   "kind": "file",
-  "seen": "2026-11-17T13:53:20.308Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
   "since": "2026-11-17T13:51:47.240Z",
   "down": 0
  },
  "https://new.huji.ac.il/update_miluim": {
-  "hash": "1a1f04bd056b7c49f5f3f888",
-  "len": 23657,
+  "hash": "72ef16bde4a2b438af229eb4",
+  "len": 22591,
   "kind": "page",
-  "seen": "2026-11-17T13:53:20.308Z",
-  "since": "2026-11-17T13:51:47.240Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
+  "since": "2026-11-17T13:56:40.119Z",
   "down": 0
  },
  "https://academic-secretary.huji.ac.il/sites/default/files/acs/files/hangashat_homrei_limud.pdf": {
   "hash": "c9b4c99870d2a4b490f7f21b",
   "len": 800170,
   "kind": "file",
-  "seen": "2026-11-17T13:53:20.308Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
   "since": "2026-11-17T13:51:47.240Z",
   "down": 0
  },
  "https://academic-secretary.huji.ac.il/תקנונים": {
-  "hash": "c02bb7956e13454fc65dce9f",
-  "len": 1409,
+  "hash": "4a67400a4c3f92a5a41a7c91",
+  "len": 370,
   "kind": "page",
-  "seen": "2026-11-17T13:53:20.308Z",
-  "since": "2026-11-17T13:51:47.240Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
+  "since": "2026-11-17T13:56:40.119Z",
   "down": 0
  },
  "https://studean.huji.ac.il/נוהל-התאמות-נגישות-בלימודים-בגין-מוגבלות-רפואית": {
-  "hash": "90fa770f7ceff01e2d7f3867",
-  "len": 3845,
+  "hash": "2f15bd4419c6d53292b2148e",
+  "len": 2853,
   "kind": "page",
-  "seen": "2026-11-17T13:53:20.308Z",
-  "since": "2026-11-17T13:51:47.240Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
+  "since": "2026-11-17T13:56:40.119Z",
   "down": 0
  },
  "https://studean.huji.ac.il/פעילות-היחידה-לנגישות-ומוגבלויות": {
-  "hash": "23ec643ea1fecea4182bbcb7",
-  "len": 4174,
+  "hash": "7fae33e912e814bb21d6b268",
+  "len": 3228,
   "kind": "page",
-  "seen": "2026-11-17T13:53:20.308Z",
-  "since": "2026-11-17T13:51:47.240Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
+  "since": "2026-11-17T13:56:40.119Z",
   "down": 0
  },
  "https://studean.huji.ac.il/איך-מגישים-בקשה": {
-  "hash": "ba57f0f2f68e97c9781a1851",
-  "len": 2176,
+  "hash": "082e7cb5a592f9586929aa4e",
+  "len": 1194,
   "kind": "page",
-  "seen": "2026-11-17T13:53:20.308Z",
-  "since": "2026-11-17T13:51:47.240Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
+  "since": "2026-11-17T13:56:40.119Z",
   "down": 0
  },
  "https://studean.huji.ac.il/פניות-וקבילות": {
-  "hash": "c46396646e887cbe10bdfc83",
-  "len": 4442,
+  "hash": "bce462847d246b14713aa6cc",
+  "len": 3811,
   "kind": "page",
-  "seen": "2026-11-17T13:53:20.308Z",
-  "since": "2026-11-17T13:51:47.240Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
+  "since": "2026-11-17T13:56:40.119Z",
   "down": 0
  },
  "https://hatrada.huji.ac.il/sites/default/files/hatrada/files/tqnvn_lmnyt_htrdh_mynyt_-_mrts_2025.pdf": {
   "hash": "4c431baeea8a050e612eeeb9",
   "len": 436128,
   "kind": "file",
-  "seen": "2026-11-17T13:53:20.308Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
   "since": "2026-11-17T13:51:47.240Z",
   "down": 0
  },
  "https://studean.huji.ac.il/קריטריונים-להענקת-מלגות": {
-  "hash": "62f833206efe87b854b2c111",
-  "len": 3092,
+  "hash": "aa916ba70cd5b28b4959b651",
+  "len": 2420,
   "kind": "page",
-  "seen": "2026-11-17T13:53:20.308Z",
-  "since": "2026-11-17T13:51:47.240Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
+  "since": "2026-11-17T13:56:40.119Z",
   "down": 0
  },
  "https://studean.huji.ac.il/מרכז-למידה-לעיוור": {
-  "hash": "304b28899be10216b8060dd5",
-  "len": 3945,
+  "hash": "42c4264292cac19c6af1a97e",
+  "len": 3013,
   "kind": "page",
-  "seen": "2026-11-17T13:53:20.308Z",
-  "since": "2026-11-17T13:51:47.240Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
+  "since": "2026-11-17T13:56:40.119Z",
   "down": 0
  },
  "https://studean.huji.ac.il/נגישות-ומוגבלויות": {
-  "hash": "be72684790a2ff5345484dbe",
-  "len": 1827,
+  "hash": "348a7f2b2489d2afacb9e67e",
+  "len": 841,
   "kind": "page",
-  "seen": "2026-11-17T13:53:20.308Z",
-  "since": "2026-11-17T13:51:47.240Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
+  "since": "2026-11-17T13:56:40.119Z",
   "down": 0
  },
  "https://studean.huji.ac.il/LDD": {
-  "hash": "f68e92f4eda5534d8578c435",
-  "len": 2464,
+  "hash": "0e35be51d351e9f34b2630c0",
+  "len": 1572,
   "kind": "page",
-  "seen": "2026-11-17T13:53:20.308Z",
-  "since": "2026-11-17T13:51:47.240Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
+  "since": "2026-11-17T13:56:40.119Z",
   "down": 0
  },
  "https://academic-secretary.huji.ac.il/sites/default/files/acs/files/committee_harvot_barzel.pdf": {
   "hash": "9f7b13608890186574bdec2b",
   "len": 240305,
   "kind": "file",
-  "seen": "2026-11-17T13:53:20.308Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
   "since": "2026-11-17T13:51:47.240Z",
   "down": 0
  },
@@ -131,7 +147,8 @@
   "hash": "5cbffb6e280b3a9bd061a907",
   "len": 109923,
   "kind": "file",
-  "seen": "2026-11-17T13:53:20.308Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
   "since": "2026-11-17T13:51:47.240Z",
   "down": 0
  },
@@ -139,55 +156,62 @@
   "hash": "0f286d3e62a5705d39793cf0",
   "len": 631875,
   "kind": "file",
-  "seen": "2026-11-17T13:53:20.308Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
   "since": "2026-11-17T13:51:47.240Z",
   "down": 0
  },
  "https://academic-secretary.huji.ac.il/שלבי-בירור-תלונה": {
-  "hash": "25a7201f31d7609c618fb9fe",
-  "len": 3128,
+  "hash": "a4895b8a9f19c5979babcb98",
+  "len": 2071,
   "kind": "page",
-  "seen": "2026-11-17T13:53:20.308Z",
-  "since": "2026-11-17T13:51:47.240Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
+  "since": "2026-11-17T13:56:40.119Z",
   "down": 0
  },
  "https://dorms.huji.ac.il/media/uglonlbz/תקנון-מעודכן-עברית-כולל-נספח-משמעת-מעודכן-כולל-גיל-עדכון.pdf": {
   "hash": "3918cd17855892e4cad3a4fe",
   "len": 329132,
   "kind": "file",
-  "seen": "2026-11-17T13:53:20.308Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
   "since": "2026-11-17T13:51:47.240Z",
   "down": 0
  },
  "https://studean.huji.ac.il/%D7%A9%D7%90%D7%98%D7%9C%D7%99%D7%9D": {
-  "hash": "fb23b72a7725a4d941007d7c",
-  "len": 2961,
+  "hash": "6f96977ef048f6ccb0a4b753",
+  "len": 2322,
   "kind": "page",
-  "seen": "2026-11-17T13:53:20.308Z",
-  "since": "2026-11-17T13:51:47.240Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
+  "since": "2026-11-17T13:56:40.119Z",
   "down": 0
  },
  "https://academic-secretary.huji.ac.il/sites/default/files/acs/files/seder_limudim_tashpaz.pdf": {
   "hash": "3bb7e7309e51459e21a797fd",
   "len": 257831,
   "kind": "file",
-  "seen": "2026-11-17T13:53:20.308Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
   "since": "2026-11-17T13:51:47.240Z",
   "down": 0
  },
  "https://academic-secretary.huji.ac.il/%D7%9C%D7%95%D7%97-%D7%A9%D7%A0%D7%94-%D7%90%D7%A7%D7%93%D7%9E%D7%99": {
-  "hash": "144a803507fe24c66fa8d95c",
-  "len": 16598,
+  "hash": "6fde5923b78ce9b55ccf66e1",
+  "len": 15541,
   "kind": "page",
-  "seen": "2026-11-17T13:53:20.308Z",
-  "since": "2026-11-17T13:51:47.240Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
+  "since": "2026-11-17T13:56:40.119Z",
   "down": 0
  },
  "https://dorms.huji.ac.il/media/wybnw3sc/תקנון-מעודכן-ערבית-כולל-נספח-משמעת-כולל-עדכון-נושא-גיל-17626.pdf": {
   "hash": "2c9825a65f759533aa400cff",
   "len": 961472,
   "kind": "file",
-  "seen": "2026-11-17T13:53:20.308Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
   "since": "2026-11-17T13:51:47.240Z",
   "down": 0
  },
@@ -195,23 +219,26 @@
   "hash": "27bb46425a8724e89063214d",
   "len": 1579454,
   "kind": "file",
-  "seen": "2026-11-17T13:53:20.308Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
   "since": "2026-11-17T13:51:47.240Z",
   "down": 0
  },
  "https://new.huji.ac.il/%D7%94%D7%A7%D7%9E%D7%A4%D7%95%D7%A1%D7%99%D7%9D-%D7%A9%D7%9C%D7%A0%D7%95": {
-  "hash": "42714f278223f8833f1f63f6",
-  "len": 6675,
+  "hash": "6915a7b177d45de999b202e7",
+  "len": 5231,
   "kind": "page",
-  "seen": "2026-11-17T13:53:20.308Z",
-  "since": "2026-11-17T13:51:47.240Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
+  "since": "2026-11-17T13:56:40.119Z",
   "down": 0
  },
  "https://new.huji.ac.il/sites/default/files/mainsite/files/ysvr_knyst_bly_khyym_lshtkhy_hqmpvsym_shl_hvnybrsyth_hbryt.pdf": {
   "hash": "2642db9a588273f1fc726449",
   "len": 55923,
   "kind": "file",
-  "seen": "2026-11-17T13:53:20.308Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
   "since": "2026-11-17T13:51:47.240Z",
   "down": 0
  },
@@ -219,7 +246,8 @@
   "hash": "889a62cd72867aa2ea889e48",
   "len": 91901,
   "kind": "file",
-  "seen": "2026-11-17T13:53:20.308Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
   "since": "2026-11-17T13:51:47.240Z",
   "down": 0
  },
@@ -227,278 +255,310 @@
   "hash": "c8abb6b1240d7d022eb5e159",
   "len": 187976,
   "kind": "file",
-  "seen": "2026-11-17T13:53:20.308Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
   "since": "2026-11-17T13:51:47.240Z",
   "down": 0
  },
  "https://study.agri.huji.ac.il/miluim-harvot-barzel/select-year": {
-  "hash": "ee11c42eabb05a1dce116c37",
-  "len": 1116,
+  "hash": "c3f408f5c8c169fa7662bb94",
+  "len": 267,
   "kind": "page",
-  "seen": "2026-11-17T13:53:20.308Z",
-  "since": "2026-11-17T13:51:47.240Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
+  "since": "2026-11-17T13:56:40.119Z",
   "down": 0
  },
  "https://study.agri.huji.ac.il/support": {
-  "hash": "54ba74542c70812c04b4186e",
-  "len": 3061,
+  "hash": "2cc4e5d9e67243eba08260ca",
+  "len": 2218,
   "kind": "page",
-  "seen": "2026-11-17T13:53:20.308Z",
-  "since": "2026-11-17T13:51:47.240Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
+  "since": "2026-11-17T13:56:40.119Z",
   "down": 0
  },
  "https://study.agri.huji.ac.il/agri-study/inter-institutional-courses": {
-  "hash": "56d948620260f1379d6510b6",
-  "len": 5045,
+  "hash": "155a80320cce34ad970d2765",
+  "len": 4197,
   "kind": "page",
-  "seen": "2026-11-17T13:53:20.308Z",
-  "since": "2026-11-17T13:51:47.240Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
+  "since": "2026-11-17T13:56:40.119Z",
   "down": 0
  },
  "https://study.agri.huji.ac.il/agri-study/learning-disabilities": {
-  "hash": "5df4389db55d4072a008d938",
-  "len": 6748,
+  "hash": "21697088c2471a68b65c566a",
+  "len": 5862,
   "kind": "page",
-  "seen": "2026-11-17T13:53:20.308Z",
-  "since": "2026-11-17T13:51:47.240Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
+  "since": "2026-11-17T13:56:40.119Z",
   "down": 0
  },
  "https://study.agri.huji.ac.il/agri-study/veterinary-studies": {
-  "hash": "37aa2e09cfe48609400a9790",
-  "len": 3088,
+  "hash": "4c081bf760d52dc6fc3c037c",
+  "len": 2193,
   "kind": "page",
-  "seen": "2026-11-17T13:53:20.308Z",
-  "since": "2026-11-17T13:51:47.240Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
+  "since": "2026-11-17T13:56:40.119Z",
   "down": 0
  },
  "https://study.agri.huji.ac.il/studying-procedures/additional-procedures/1.4-tuition-fees": {
-  "hash": "108feb83aebd22c4fa526194",
-  "len": 1907,
+  "hash": "cead6c4d7e05aef4da373b95",
+  "len": 518,
   "kind": "page",
-  "seen": "2026-11-17T13:53:20.308Z",
-  "since": "2026-11-17T13:51:47.240Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
+  "since": "2026-11-17T13:56:40.119Z",
   "down": 0
  },
  "https://study.agri.huji.ac.il/master-info/registration-regulations": {
-  "hash": "b1735761e25925b804137123",
-  "len": 1963,
+  "hash": "bbde6079e9637f99a4abdb40",
+  "len": 937,
   "kind": "page",
-  "seen": "2026-11-17T13:51:47.240Z",
-  "since": "2026-11-17T13:51:47.240Z",
-  "down": 1,
-  "why": "ECONNRESET",
-  "tried": "2026-11-17T13:53:20.308Z"
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
+  "since": "2026-11-17T13:56:40.119Z",
+  "down": 0
  },
  "https://study.agri.huji.ac.il/miluim-harvot-barzel/studies": {
-  "hash": "1fca27a7aec0348dddcf1b74",
-  "len": 1934,
+  "hash": "5ae930ab83737deb94e697e8",
+  "len": 1019,
   "kind": "page",
-  "seen": "2026-11-17T13:53:20.308Z",
-  "since": "2026-11-17T13:51:47.240Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
+  "since": "2026-11-17T13:56:40.119Z",
   "down": 0
  },
  "https://dormsreg.huji.ac.il/מידע-כללי/": {
-  "down": 2,
+  "down": 3,
   "why": "UND_ERR_CONNECT_TIMEOUT",
-  "tried": "2026-11-17T13:53:20.308Z"
+  "tried": "2026-11-17T13:56:40.119Z"
  },
  "https://bschool.huji.ac.il/Accelerated-study-track": {
-  "hash": "722f2e3b6ab085498543fb61",
-  "len": 8198,
+  "hash": "db44baeeae772a6592402978",
+  "len": 6059,
   "kind": "page",
-  "seen": "2026-11-17T13:53:20.308Z",
-  "since": "2026-11-17T13:51:47.240Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
+  "since": "2026-11-17T13:56:40.119Z",
   "down": 0
  },
  "https://bschool.huji.ac.il/Accelerated-study-track-all": {
-  "hash": "8ba1dbf1e83f325292f4a294",
-  "len": 6251,
+  "hash": "b10a9fdddd56d1127bb65a89",
+  "len": 4393,
   "kind": "page",
-  "seen": "2026-11-17T13:53:20.308Z",
-  "since": "2026-11-17T13:51:47.240Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
+  "since": "2026-11-17T13:56:40.119Z",
   "down": 0
  },
  "https://bschool.huji.ac.il/%D7%9E%D7%99%D7%9C%D7%95%D7%90%D7%99%D7%9D-%D7%97%D7%A8%D7%91%D7%95%D7%AA-%D7%91%D7%A8%D7%96%D7%9C": {
-  "hash": "b431af67cdab6fda8abcdd1f",
-  "len": 2323,
+  "hash": "533c916fcd59d50a1ff251a9",
+  "len": 1235,
   "kind": "page",
-  "seen": "2026-11-17T13:53:20.308Z",
-  "since": "2026-11-17T13:51:47.240Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
+  "since": "2026-11-17T13:56:40.119Z",
   "down": 0
  },
  "https://bschool.huji.ac.il/%D7%9E%D7%AA%D7%95%D7%95%D7%94-%D7%9E%D7%99%D7%95%D7%97%D7%93": {
-  "hash": "a9e70e14c115e151a9fe4813",
-  "len": 3177,
+  "hash": "0c181657d52a2c1f6c7c12b0",
+  "len": 2089,
   "kind": "page",
-  "seen": "2026-11-17T13:53:20.308Z",
-  "since": "2026-11-17T13:51:47.240Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
+  "since": "2026-11-17T13:56:40.119Z",
   "down": 0
  },
  "https://bschool.huji.ac.il/phd": {
-  "hash": "575c761f78be13966be8526a",
-  "len": 9608,
+  "hash": "b4b5d52571c1fa4403abcfa9",
+  "len": 8061,
   "kind": "page",
-  "seen": "2026-11-17T13:53:20.308Z",
-  "since": "2026-11-17T13:51:47.240Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
+  "since": "2026-11-17T13:56:40.119Z",
   "down": 0
  },
  "https://dental.huji.ac.il/%D7%9E%D7%99%D7%9C%D7%95%D7%90%D7%99%D7%9D-%D7%97%D7%A8%D7%91%D7%95%D7%AA-%D7%91%D7%A8%D7%96%D7%9C": {
-  "hash": "4a81e0669034251864c13002",
-  "len": 2506,
+  "hash": "94dfcd9073b84daa6a0f0e13",
+  "len": 1559,
   "kind": "page",
-  "seen": "2026-11-17T13:53:20.308Z",
-  "since": "2026-11-17T13:51:47.240Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
+  "since": "2026-11-17T13:56:40.119Z",
   "down": 0
  },
  "https://dental.huji.ac.il/%D7%A0%D7%95%D7%94%D7%9C%D7%99-%D7%94%D7%95%D7%A8%D7%90%D7%94-%D7%95%D7%9C%D7%99%D7%9E%D7%95%D7%93%D7%99%D7%9D": {
-  "hash": "a01fe2c5ae26ef2c3b2d3272",
-  "len": 2829,
+  "hash": "34db95d422abd2c39656e4a4",
+  "len": 1709,
   "kind": "page",
-  "seen": "2026-11-17T13:53:20.308Z",
-  "since": "2026-11-17T13:51:47.240Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
+  "since": "2026-11-17T13:56:40.119Z",
   "down": 0
  },
  "https://dental.huji.ac.il/סיוע-הדדי": {
-  "hash": "5ae7d31ef80d3bb0bb209717",
-  "len": 3166,
+  "hash": "8f51f974ead8dd9b3dd16980",
+  "len": 2228,
   "kind": "page",
-  "seen": "2026-11-17T13:53:20.308Z",
-  "since": "2026-11-17T13:51:47.240Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
+  "since": "2026-11-17T13:56:40.119Z",
   "down": 0
  },
  "https://dental.huji.ac.il/sites/default/files/dentist.he/files/tqnvn_rpvt_shynyym_mvdkn_3.8.22_.pdf": {
   "hash": "5ce1341827f73d022166f1c3",
   "len": 226864,
   "kind": "file",
-  "seen": "2026-11-17T13:53:20.308Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
   "since": "2026-11-17T13:51:47.240Z",
   "down": 0
  },
  "https://dental.huji.ac.il/%D7%92%D7%95%D7%A8%D7%9E%D7%99-%D7%AA%D7%9E%D7%99%D7%9B%D7%94-%D7%9C%D7%A1%D7%98%D7%95%D7%93%D7%A0%D7%98%D7%99%D7%AA-%D7%A9%D7%9C-%D7%94%D7%A4%D7%A7%D7%95%D7%9C%D7%98%D7%94-%D7%9C%D7%A8%D7%A4%D7%95%D7%90%D7%AA-%D7%A9%D7%99%D7%A0%D7%99%D7%99%D7%9D": {
-  "hash": "1f8a290faf58d5898f1e1b8a",
-  "len": 3157,
+  "hash": "45df7826f23802181387716a",
+  "len": 2181,
   "kind": "page",
-  "seen": "2026-11-17T13:53:20.308Z",
-  "since": "2026-11-17T13:51:47.240Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
+  "since": "2026-11-17T13:56:40.119Z",
   "down": 0
  },
  "https://dental.huji.ac.il/sites/default/files/dentist.he/files/tqnvn_vhnkhyvt_lktybt_htsh_vbvdt_gmr_-_ynvr_2026.pdf": {
   "hash": "0cac2731a1f32356aa2577a5",
   "len": 366518,
   "kind": "file",
-  "seen": "2026-11-17T13:53:20.308Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
   "since": "2026-11-17T13:51:47.240Z",
   "down": 0
  },
  "https://education.huji.ac.il/studies": {
-  "hash": "e045ecb63dc03cb3979409dc",
-  "len": 1295,
+  "hash": "8403095e87f4c0c453883f5a",
+  "len": 297,
   "kind": "page",
-  "seen": "2026-11-17T13:53:20.308Z",
-  "since": "2026-11-17T13:51:47.240Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
+  "since": "2026-11-17T13:56:40.119Z",
   "down": 0
  },
  "https://education.huji.ac.il/studies_teacher_training_about_program": {
-  "hash": "f659d800c8c3cd7a8c3b7f47",
-  "len": 6572,
+  "hash": "28bb5916c67910ce5424620d",
+  "len": 5227,
   "kind": "page",
-  "seen": "2026-11-17T13:53:20.308Z",
-  "since": "2026-11-17T13:51:47.240Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
+  "since": "2026-11-17T13:56:40.119Z",
   "down": 0
  },
  "https://education.huji.ac.il/students_BA1": {
-  "hash": "45f77b3590284fa01d119056",
-  "len": 3835,
+  "hash": "e0d5a68756f5d0e33a737471",
+  "len": 2586,
   "kind": "page",
-  "seen": "2026-11-17T13:53:20.308Z",
-  "since": "2026-11-17T13:51:47.240Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
+  "since": "2026-11-17T13:56:40.119Z",
   "down": 0
  },
  "https://hum.huji.ac.il/תואר-ראשון": {
-  "hash": "97e2876acd78cf77b9d3e0f4",
-  "len": 14314,
+  "hash": "660d643009e412f56316719f",
+  "len": 12924,
   "kind": "page",
-  "seen": "2026-11-17T13:53:20.308Z",
-  "since": "2026-11-17T13:51:47.240Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
+  "since": "2026-11-17T13:56:40.119Z",
   "down": 0
  },
  "https://hum.huji.ac.il/תואר-שני": {
-  "hash": "ab51daef914bd45cf52aa020",
-  "len": 16058,
+  "hash": "9ef1cef18b20ce684a156d6f",
+  "len": 14670,
   "kind": "page",
-  "seen": "2026-11-17T13:53:20.308Z",
-  "since": "2026-11-17T13:51:47.240Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
+  "since": "2026-11-17T13:56:40.119Z",
   "down": 0
  },
  "https://hum.huji.ac.il/חידוש-לימודים": {
-  "hash": "67661296ae3816ffce4d8b51",
-  "len": 2529,
+  "hash": "36319523d8b99031c75964c5",
+  "len": 1283,
   "kind": "page",
-  "seen": "2026-11-17T13:53:20.308Z",
-  "since": "2026-11-17T13:51:47.240Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
+  "since": "2026-11-17T13:56:40.119Z",
   "down": 0
  },
  "https://law.huji.ac.il/%D7%94%D7%9E%D7%96%D7%9B%D7%99%D7%A8%D7%95%D7%AA-%D7%9C%D7%A2%D7%A0%D7%99%D7%99%D7%A0%D7%99-%D7%AA%D7%9C%D7%9E%D7%99%D7%93%D7%99%D7%9D": {
-  "hash": "38adbbb4e5ca5ee661c0e610",
-  "len": 3365,
+  "hash": "0df161c2b6383de4a8618d51",
+  "len": 1660,
   "kind": "page",
-  "seen": "2026-11-17T13:53:20.308Z",
-  "since": "2026-11-17T13:51:47.240Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
+  "since": "2026-11-17T13:56:40.119Z",
   "down": 0
  },
  "https://hum.huji.ac.il/sites/default/files/hum/files/mktb_lstvdntym-mdy_hrvkh-tshph.pdf": {
   "hash": "0ecb1d5bd3beec432536065c",
   "len": 247621,
   "kind": "file",
-  "seen": "2026-11-17T13:53:20.308Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
   "since": "2026-11-17T13:51:47.240Z",
   "down": 0
  },
  "https://law.huji.ac.il/%D7%9E%D7%99%D7%9C%D7%95%D7%90%D7%99%D7%9D-%D7%97%D7%A8%D7%91%D7%95%D7%AA-%D7%91%D7%A8%D7%96%D7%9C": {
-  "hash": "7881b0432317f046dcd59178",
-  "len": 2325,
+  "hash": "19085d951a995b53c3a8cfcb",
+  "len": 698,
   "kind": "page",
-  "seen": "2026-11-17T13:53:20.308Z",
-  "since": "2026-11-17T13:51:47.240Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
+  "since": "2026-11-17T13:56:40.119Z",
   "down": 0
  },
  "http://law.huji.ac.il/book/%D7%AA%D7%95%D7%90%D7%A8-%D7%A8%D7%90%D7%A9%D7%95%D7%9F-%D7%91%D7%9E%D7%A9%D7%A4%D7%98%D7%99%D7%9D": {
-  "hash": "7541fcc8f8bbce561abf2620",
-  "len": 5299,
+  "hash": "31b9108f2f7cf8d8cc5412bc",
+  "len": 3604,
   "kind": "page",
-  "seen": "2026-11-17T13:53:20.308Z",
-  "since": "2026-11-17T13:51:47.240Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
+  "since": "2026-11-17T13:56:40.119Z",
   "down": 0
  },
  "https://law.huji.ac.il/התאמות-על-רקע-לקויות-למידה/": {
-  "hash": "024649cdd05ee1aca796dbc8",
-  "len": 2166,
+  "hash": "37506971cfd04a3efebb8ac8",
+  "len": 515,
   "kind": "page",
-  "seen": "2026-11-17T13:53:20.308Z",
-  "since": "2026-11-17T13:51:47.240Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
+  "since": "2026-11-17T13:56:40.119Z",
   "down": 0
  },
  "https://law.huji.ac.il/book/לימודי-מוסמך-במשפטים": {
-  "hash": "a8abce9df2a764c5a5fc0472",
-  "len": 14425,
+  "hash": "1383b11c4388b5651d20d890",
+  "len": 12559,
   "kind": "page",
-  "seen": "2026-11-17T13:53:20.308Z",
-  "since": "2026-11-17T13:51:47.240Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
+  "since": "2026-11-17T13:56:40.119Z",
   "down": 0
  },
  "https://law.huji.ac.il/book/לימודי-מוסמך-בקרימינולוגיה": {
-  "hash": "309d8786d73b4b0bfdc85d11",
-  "len": 15997,
+  "hash": "4c812d4359fc259616e7d4bd",
+  "len": 14125,
   "kind": "page",
-  "seen": "2026-11-17T13:53:20.308Z",
-  "since": "2026-11-17T13:51:47.240Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
+  "since": "2026-11-17T13:56:40.119Z",
   "down": 0
  },
  "https://law.huji.ac.il/sites/default/files/law/files/law_graduate_regulations_-_june_2024.pdf": {
   "hash": "fa19cb27495c0d05b8d2e178",
   "len": 485138,
   "kind": "file",
-  "seen": "2026-11-17T13:53:20.308Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
   "since": "2026-11-17T13:51:47.240Z",
   "down": 0
  },
@@ -506,48 +566,54 @@
   "hash": "296c1d0c8ce27a3a63ad301b",
   "len": 583997,
   "kind": "file",
-  "seen": "2026-11-17T13:53:20.308Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
   "since": "2026-11-17T13:51:47.240Z",
   "down": 0
  },
  "https://law.huji.ac.il/book/לימודי-התואר-השלישי-בקרימינולוגיה-דוקטור-לפילוסופיה": {
-  "hash": "4a64ac697fedb3930c959522",
-  "len": 7570,
+  "hash": "28d8e81aa0f63f8ac712ef9c",
+  "len": 5671,
   "kind": "page",
-  "seen": "2026-11-17T13:53:20.308Z",
-  "since": "2026-11-17T13:51:47.240Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
+  "since": "2026-11-17T13:56:40.119Z",
   "down": 0
  },
  "https://law.huji.ac.il/book/llm-program-regulations": {
-  "hash": "f6594f2e4dc98e472a8d2a81",
-  "len": 19155,
+  "hash": "743abd5a010950fbc90fbcb3",
+  "len": 17286,
   "kind": "page",
-  "seen": "2026-11-17T13:53:20.308Z",
-  "since": "2026-11-17T13:51:47.240Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
+  "since": "2026-11-17T13:56:40.119Z",
   "down": 0
  },
  "https://law.huji.ac.il/sites/default/files/law/files/takanondoc2021.docx": {
   "hash": "a1eabd3c168aad345e82e9db",
   "len": 35653,
   "kind": "file",
-  "seen": "2026-11-17T13:53:20.308Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
   "since": "2026-11-17T13:51:47.240Z",
   "down": 0
  },
  "https://criminology.huji.ac.il/תואר-מוסמך": {
-  "hash": "ca9661e360e26476f57610ee",
-  "len": 2485,
+  "hash": "e2f36a09fa1283897ea9a1dc",
+  "len": 1687,
   "kind": "page",
-  "seen": "2026-11-17T13:53:20.308Z",
-  "since": "2026-11-17T13:51:47.240Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
+  "since": "2026-11-17T13:56:40.119Z",
   "down": 0
  },
  "https://heshinadvancedstudies.huji.ac.il/נוהל-קבלה": {
-  "hash": "ea188c92c571c9252cafe95b",
-  "len": 2280,
+  "hash": "f4e7cf8b45e1ab386fb6026c",
+  "len": 1626,
   "kind": "page",
-  "seen": "2026-11-17T13:53:20.308Z",
-  "since": "2026-11-17T13:51:47.240Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
+  "since": "2026-11-17T13:56:40.119Z",
   "down": 0
  },
  "https://medicine.ada.huji.ac.il/he/Pages/reserveService.aspx": {
@@ -556,7 +622,9 @@
   "kind": "page",
   "seen": "2026-11-17T13:53:20.308Z",
   "since": "2026-11-17T13:51:47.240Z",
-  "down": 0
+  "down": 1,
+  "why": "an almost empty page (0 characters): perhaps a block or a sign-in",
+  "tried": "2026-11-17T13:56:40.119Z"
  },
  "https://medicine.ada.huji.ac.il/he/regulations/regulationsMedicine/Pages/MDClinical.aspx": {
   "hash": "7ab06d77d0f8ad3b583b2f77",
@@ -564,7 +632,9 @@
   "kind": "page",
   "seen": "2026-11-17T13:53:20.308Z",
   "since": "2026-11-17T13:51:47.240Z",
-  "down": 0
+  "down": 1,
+  "why": "an almost empty page (0 characters): perhaps a block or a sign-in",
+  "tried": "2026-11-17T13:56:40.119Z"
  },
  "https://medicine.ada.huji.ac.il/he/regulations/regulationsMedicine/Pages/staj.aspx": {
   "hash": "5310b87fe0a5084d06869816",
@@ -572,7 +642,9 @@
   "kind": "page",
   "seen": "2026-11-17T13:53:20.308Z",
   "since": "2026-11-17T13:51:47.240Z",
-  "down": 0
+  "down": 1,
+  "why": "an almost empty page (0 characters): perhaps a block or a sign-in",
+  "tried": "2026-11-17T13:56:40.119Z"
  },
  "https://medicine.ada.huji.ac.il/he/regulations/regulationsMedicine/Pages/md.aspx": {
   "hash": "039187a1ed873d990a2fcb83",
@@ -580,7 +652,9 @@
   "kind": "page",
   "seen": "2026-11-17T13:53:20.308Z",
   "since": "2026-11-17T13:51:47.240Z",
-  "down": 0
+  "down": 1,
+  "why": "an almost empty page (0 characters): perhaps a block or a sign-in",
+  "tried": "2026-11-17T13:56:40.119Z"
  },
  "https://medicine.ada.huji.ac.il/he/regulations/regulationsMedicine/Pages/nationalFinalExams.aspx": {
   "hash": "1abd4db50ce505d1aaf994cb",
@@ -588,7 +662,9 @@
   "kind": "page",
   "seen": "2026-11-17T13:53:20.308Z",
   "since": "2026-11-17T13:51:47.240Z",
-  "down": 0
+  "down": 1,
+  "why": "an almost empty page (0 characters): perhaps a block or a sign-in",
+  "tried": "2026-11-17T13:56:40.119Z"
  },
  "https://medicine.ada.huji.ac.il/he/regulations/regulationsMedicine/Pages/thesisMD.aspx": {
   "hash": "3942c5e4809722a69baece36",
@@ -596,7 +672,9 @@
   "kind": "page",
   "seen": "2026-11-17T13:53:20.308Z",
   "since": "2026-11-17T13:51:47.240Z",
-  "down": 0
+  "down": 1,
+  "why": "an almost empty page (0 characters): perhaps a block or a sign-in",
+  "tried": "2026-11-17T13:56:40.119Z"
  },
  "https://medicine.ada.huji.ac.il/he/regulations/regulationsMedicine/Pages/completingReserveService.aspx": {
   "hash": "1a12204626a5c6993ba66cfb",
@@ -604,7 +682,9 @@
   "kind": "page",
   "seen": "2026-11-17T13:53:20.308Z",
   "since": "2026-11-17T13:51:47.240Z",
-  "down": 0
+  "down": 1,
+  "why": "an almost empty page (0 characters): perhaps a block or a sign-in",
+  "tried": "2026-11-17T13:56:40.119Z"
  },
  "https://medicine.ada.huji.ac.il/he/regulations/regulationsMedicine/Pages/completing.aspx": {
   "hash": "cd37cee724482eee5df0f6b5",
@@ -612,7 +692,9 @@
   "kind": "page",
   "seen": "2026-11-17T13:53:20.308Z",
   "since": "2026-11-17T13:51:47.240Z",
-  "down": 0
+  "down": 1,
+  "why": "an almost empty page (0 characters): perhaps a block or a sign-in",
+  "tried": "2026-11-17T13:56:40.119Z"
  },
  "https://medicine.ada.huji.ac.il/he/education/curriculumMedicine/Pages/Convention.aspx": {
   "hash": "91ebfd9dd8d9d9e5039ff042",
@@ -620,7 +702,9 @@
   "kind": "page",
   "seen": "2026-11-17T13:53:20.308Z",
   "since": "2026-11-17T13:51:47.240Z",
-  "down": 0
+  "down": 1,
+  "why": "an almost empty page (0 characters): perhaps a block or a sign-in",
+  "tried": "2026-11-17T13:56:40.119Z"
  },
  "https://medicine.ada.huji.ac.il/he/regulations/regulationsNursing/Pages/graduated.aspx": {
   "hash": "f9e2df0eb54b3e242ccfe9ed",
@@ -628,7 +712,9 @@
   "kind": "page",
   "seen": "2026-11-17T13:53:20.308Z",
   "since": "2026-11-17T13:53:20.308Z",
-  "down": 0
+  "down": 1,
+  "why": "an almost empty page (0 characters): perhaps a block or a sign-in",
+  "tried": "2026-11-17T13:56:40.119Z"
  },
  "https://medicine.ada.huji.ac.il/he/regulations/regulationsMedicine/Pages/exams.aspx": {
   "hash": "584013e8b805a83caf17d877",
@@ -636,7 +722,9 @@
   "kind": "page",
   "seen": "2026-11-17T13:53:20.308Z",
   "since": "2026-11-17T13:51:47.240Z",
-  "down": 0
+  "down": 1,
+  "why": "an almost empty page (0 characters): perhaps a block or a sign-in",
+  "tried": "2026-11-17T13:56:40.119Z"
  },
  "https://medicine.ada.huji.ac.il/he/regulations/regulationsNursing/Pages/scholarships.aspx": {
   "hash": "11e91af81027aa37ac0614e5",
@@ -644,7 +732,9 @@
   "kind": "page",
   "seen": "2026-11-17T13:53:20.308Z",
   "since": "2026-11-17T13:51:47.240Z",
-  "down": 0
+  "down": 1,
+  "why": "an almost empty page (0 characters): perhaps a block or a sign-in",
+  "tried": "2026-11-17T13:56:40.119Z"
  },
  "https://medicine.ada.huji.ac.il/he/regulations/regulationsOccupationalTherapy/Pages/clinicalTraining.aspx": {
   "hash": "33ae581b64d2b979aceacf7b",
@@ -652,7 +742,9 @@
   "kind": "page",
   "seen": "2026-11-17T13:53:20.308Z",
   "since": "2026-11-17T13:51:47.240Z",
-  "down": 0
+  "down": 1,
+  "why": "an almost empty page (0 characters): perhaps a block or a sign-in",
+  "tried": "2026-11-17T13:56:40.119Z"
  },
  "https://medicine.ada.huji.ac.il/he/regulations/regulationsOccupationalTherapy/Pages/graduated.aspx": {
   "hash": "2bd267d07306831d0697798d",
@@ -660,7 +752,9 @@
   "kind": "page",
   "seen": "2026-11-17T13:53:20.308Z",
   "since": "2026-11-17T13:51:47.240Z",
-  "down": 0
+  "down": 1,
+  "why": "an almost empty page (0 characters): perhaps a block or a sign-in",
+  "tried": "2026-11-17T13:56:40.119Z"
  },
  "https://medicine.ada.huji.ac.il/he/regulations/regulationsOccupationalTherapy/Pages/scholarships.aspx": {
   "hash": "446370adcc58e9b17da0bc7a",
@@ -668,7 +762,9 @@
   "kind": "page",
   "seen": "2026-11-17T13:53:20.308Z",
   "since": "2026-11-17T13:51:47.240Z",
-  "down": 0
+  "down": 1,
+  "why": "an almost empty page (0 characters): perhaps a block or a sign-in",
+  "tried": "2026-11-17T13:56:40.119Z"
  },
  "https://schoolofpharmacy.huji.ac.il/excellence-program-protocol": {
   "hash": "0dcd57a96d791143d2db810f",
@@ -676,7 +772,9 @@
   "kind": "page",
   "seen": "2026-11-17T13:53:20.308Z",
   "since": "2026-11-17T13:51:47.240Z",
-  "down": 0
+  "down": 1,
+  "why": "an almost empty page (16 characters): perhaps a block or a sign-in",
+  "tried": "2026-11-17T13:56:40.119Z"
  },
  "https://schoolofpharmacy.huji.ac.il/m-sc-protocol": {
   "hash": "78fe4a937664c41a15032667",
@@ -684,7 +782,9 @@
   "kind": "page",
   "seen": "2026-11-17T13:53:20.308Z",
   "since": "2026-11-17T13:51:47.240Z",
-  "down": 0
+  "down": 1,
+  "why": "an almost empty page (16 characters): perhaps a block or a sign-in",
+  "tried": "2026-11-17T13:56:40.119Z"
  },
  "https://schoolofpharmacy.huji.ac.il/professional-internship-protocol": {
   "hash": "9357240dea0b0b039170c317",
@@ -692,7 +792,9 @@
   "kind": "page",
   "seen": "2026-11-17T13:53:20.308Z",
   "since": "2026-11-17T13:51:47.240Z",
-  "down": 0
+  "down": 1,
+  "why": "an almost empty page (16 characters): perhaps a block or a sign-in",
+  "tried": "2026-11-17T13:56:40.119Z"
  },
  "https://schoolofpharmacy.huji.ac.il/pharmd-protocol": {
   "hash": "b45b83a7686d227f84a49b57",
@@ -700,7 +802,9 @@
   "kind": "page",
   "seen": "2026-11-17T13:53:20.308Z",
   "since": "2026-11-17T13:51:47.240Z",
-  "down": 0
+  "down": 1,
+  "why": "an almost empty page (16 characters): perhaps a block or a sign-in",
+  "tried": "2026-11-17T13:56:40.119Z"
  },
  "https://medicine.ada.huji.ac.il/he/regulations/regulationsPublicHealth/Pages/postgraduate.aspx": {
   "hash": "b087fdfd2b4f25f248c8b17c",
@@ -708,7 +812,9 @@
   "kind": "page",
   "seen": "2026-11-17T13:53:20.308Z",
   "since": "2026-11-17T13:51:47.240Z",
-  "down": 0
+  "down": 1,
+  "why": "an almost empty page (0 characters): perhaps a block or a sign-in",
+  "tried": "2026-11-17T13:56:40.119Z"
  },
  "https://medicine.ada.huji.ac.il/he/regulations/regulationsPublicHealth/Pages/supplementalThesis.aspx": {
   "hash": "10a1f33c76fff75f6a4bfc9e",
@@ -716,7 +822,9 @@
   "kind": "page",
   "seen": "2026-11-17T13:53:20.308Z",
   "since": "2026-11-17T13:51:47.240Z",
-  "down": 0
+  "down": 1,
+  "why": "an almost empty page (0 characters): perhaps a block or a sign-in",
+  "tried": "2026-11-17T13:56:40.119Z"
  },
  "https://medicine.ada.huji.ac.il/he/regulations/regulationsPublicHealth/Pages/scholarships.aspx": {
   "hash": "03e80efb1e1869787cf9ea40",
@@ -724,7 +832,9 @@
   "kind": "page",
   "seen": "2026-11-17T13:53:20.308Z",
   "since": "2026-11-17T13:51:47.240Z",
-  "down": 0
+  "down": 1,
+  "why": "an almost empty page (0 characters): perhaps a block or a sign-in",
+  "tried": "2026-11-17T13:56:40.119Z"
  },
  "https://medicine.ada.huji.ac.il/he/regulations/regulationsPublicHealth/Pages/thesis.aspx": {
   "hash": "72500b592eae2bcdf5f00431",
@@ -732,7 +842,9 @@
   "kind": "page",
   "seen": "2026-11-17T13:53:20.308Z",
   "since": "2026-11-17T13:51:47.240Z",
-  "down": 0
+  "down": 1,
+  "why": "an almost empty page (0 characters): perhaps a block or a sign-in",
+  "tried": "2026-11-17T13:56:40.119Z"
  },
  "https://medicine.ada.huji.ac.il/he/regulations/regulationsPublicHealth/Pages/combinedStudyMDMPH.aspx": {
   "hash": "ebfe9fa3e338e823b9a62b05",
@@ -740,7 +852,9 @@
   "kind": "page",
   "seen": "2026-11-17T13:53:20.308Z",
   "since": "2026-11-17T13:51:47.240Z",
-  "down": 0
+  "down": 1,
+  "why": "an almost empty page (0 characters): perhaps a block or a sign-in",
+  "tried": "2026-11-17T13:56:40.119Z"
  },
  "https://medicine.ada.huji.ac.il/he/regulations/regulationsPublicHealth/Pages/finalExam.aspx": {
   "hash": "257748f43e13392a0f3d1530",
@@ -748,7 +862,9 @@
   "kind": "page",
   "seen": "2026-11-17T13:53:20.308Z",
   "since": "2026-11-17T13:51:47.240Z",
-  "down": 0
+  "down": 1,
+  "why": "an almost empty page (0 characters): perhaps a block or a sign-in",
+  "tried": "2026-11-17T13:56:40.119Z"
  },
  "https://medicine.ada.huji.ac.il/he/regulations/regulationsBioMed/Pages/graduated.aspx": {
   "hash": "998e5f5e1366f93a9b93bd90",
@@ -756,7 +872,9 @@
   "kind": "page",
   "seen": "2026-11-17T13:53:20.308Z",
   "since": "2026-11-17T13:51:47.240Z",
-  "down": 0
+  "down": 1,
+  "why": "an almost empty page (0 characters): perhaps a block or a sign-in",
+  "tried": "2026-11-17T13:56:40.119Z"
  },
  "https://medicine.ada.huji.ac.il/he/regulations/regulationsBioMed/Pages/postgraduate.aspx": {
   "hash": "3ec40d22f8c8b088a95bae23",
@@ -764,7 +882,9 @@
   "kind": "page",
   "seen": "2026-11-17T13:53:20.308Z",
   "since": "2026-11-17T13:51:47.240Z",
-  "down": 0
+  "down": 1,
+  "why": "an almost empty page (0 characters): perhaps a block or a sign-in",
+  "tried": "2026-11-17T13:56:40.119Z"
  },
  "https://medicine.ada.huji.ac.il/he/regulations/regulationsBioMed/Pages/finalExam.aspx": {
   "hash": "63e7315257edfe22b686f385",
@@ -772,7 +892,9 @@
   "kind": "page",
   "seen": "2026-11-17T13:53:20.308Z",
   "since": "2026-11-17T13:51:47.240Z",
-  "down": 0
+  "down": 1,
+  "why": "an almost empty page (0 characters): perhaps a block or a sign-in",
+  "tried": "2026-11-17T13:56:40.119Z"
  },
  "https://medicine.ada.huji.ac.il/he/regulations/regulationsBioMed/Pages/directTrackExam.aspx": {
   "hash": "67f4f835f5a976aa3d2ec19d",
@@ -780,7 +902,9 @@
   "kind": "page",
   "seen": "2026-11-17T13:53:20.308Z",
   "since": "2026-11-17T13:51:47.240Z",
-  "down": 0
+  "down": 1,
+  "why": "an almost empty page (0 characters): perhaps a block or a sign-in",
+  "tried": "2026-11-17T13:56:40.119Z"
  },
  "https://medicine.ada.huji.ac.il/he/regulations/regulationsBioMed/Pages/examination.aspx": {
   "hash": "10ea7fd1be0635dbb9db6e25",
@@ -788,7 +912,9 @@
   "kind": "page",
   "seen": "2026-11-17T13:53:20.308Z",
   "since": "2026-11-17T13:51:47.240Z",
-  "down": 0
+  "down": 1,
+  "why": "an almost empty page (0 characters): perhaps a block or a sign-in",
+  "tried": "2026-11-17T13:56:40.119Z"
  },
  "https://medicine.ada.huji.ac.il/he/regulations/regulationsBioMed/Pages/scholarships.aspx": {
   "hash": "0b7a3b03dc9b32b7f846c0ee",
@@ -796,7 +922,9 @@
   "kind": "page",
   "seen": "2026-11-17T13:53:20.308Z",
   "since": "2026-11-17T13:51:47.240Z",
-  "down": 0
+  "down": 1,
+  "why": "an almost empty page (0 characters): perhaps a block or a sign-in",
+  "tried": "2026-11-17T13:56:40.119Z"
  },
  "https://medicine.ada.huji.ac.il/he/regulations/regulationsBioMed/Pages/scholarshipsMDPhD.aspx": {
   "hash": "6e180eb6c010fc70725cc96b",
@@ -804,7 +932,9 @@
   "kind": "page",
   "seen": "2026-11-17T13:53:20.308Z",
   "since": "2026-11-17T13:51:47.240Z",
-  "down": 0
+  "down": 1,
+  "why": "an almost empty page (0 characters): perhaps a block or a sign-in",
+  "tried": "2026-11-17T13:56:40.119Z"
  },
  "https://medicine.ada.huji.ac.il/he/regulations/regulationsBioMed/Pages/supervising.aspx": {
   "hash": "2f58942932a06a11011dd25f",
@@ -812,7 +942,9 @@
   "kind": "page",
   "seen": "2026-11-17T13:53:20.308Z",
   "since": "2026-11-17T13:51:47.240Z",
-  "down": 0
+  "down": 1,
+  "why": "an almost empty page (0 characters): perhaps a block or a sign-in",
+  "tried": "2026-11-17T13:56:40.119Z"
  },
  "https://medicine.ada.huji.ac.il/he/regulations/regulationsBioMed/Pages/MDMSc.aspx": {
   "hash": "c5c4988b8a69961786f656f2",
@@ -820,7 +952,9 @@
   "kind": "page",
   "seen": "2026-11-17T13:53:20.308Z",
   "since": "2026-11-17T13:51:47.240Z",
-  "down": 0
+  "down": 1,
+  "why": "an almost empty page (0 characters): perhaps a block or a sign-in",
+  "tried": "2026-11-17T13:56:40.119Z"
  },
  "https://medicine.ada.huji.ac.il/he/education/curriculumMedicine/Pages/MDPHDMarom.aspx": {
   "hash": "0e9ba31fb41a8c9fe26bbf36",
@@ -828,14 +962,17 @@
   "kind": "page",
   "seen": "2026-11-17T13:53:20.308Z",
   "since": "2026-11-17T13:51:47.240Z",
-  "down": 0
+  "down": 1,
+  "why": "an almost empty page (0 characters): perhaps a block or a sign-in",
+  "tried": "2026-11-17T13:56:40.119Z"
  },
  "https://pharmacyschool.huji.ac.il/%D7%A0%D7%A1%D7%A4%D7%97%D7%99%D7%9D-%D7%9C%D7%AA%D7%A7%D7%A0%D7%95%D7%9F-%D7%91%D7%99%D7%94%D7%A1": {
-  "hash": "c012a7c2ca99afe4ac37205e",
-  "len": 9519,
+  "hash": "666e99b4c9a40a7b611ae352",
+  "len": 9121,
   "kind": "page",
-  "seen": "2026-11-17T13:53:20.308Z",
-  "since": "2026-11-17T13:51:47.240Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
+  "since": "2026-11-17T13:56:40.119Z",
   "down": 0
  },
  "https://medicine.ada.huji.ac.il/he/regulations/regulationsMedicine/Pages/scholarshipsMDPhD.aspx": {
@@ -844,7 +981,9 @@
   "kind": "page",
   "seen": "2026-11-17T13:53:20.308Z",
   "since": "2026-11-17T13:51:47.240Z",
-  "down": 0
+  "down": 1,
+  "why": "an almost empty page (0 characters): perhaps a block or a sign-in",
+  "tried": "2026-11-17T13:56:40.119Z"
  },
  "https://medicine.ada.huji.ac.il/he/Pages/medStudentsSupport.aspx": {
   "hash": "3cdb0c8c21f8746de90d4abc",
@@ -852,7 +991,9 @@
   "kind": "page",
   "seen": "2026-11-17T13:53:20.308Z",
   "since": "2026-11-17T13:51:47.240Z",
-  "down": 0
+  "down": 1,
+  "why": "an almost empty page (0 characters): perhaps a block or a sign-in",
+  "tried": "2026-11-17T13:56:40.119Z"
  },
  "https://schoolofpharmacy.huji.ac.il/b-sc-protocol": {
   "hash": "e842fa563845836f403070ed",
@@ -860,13 +1001,16 @@
   "kind": "page",
   "seen": "2026-11-17T13:53:20.308Z",
   "since": "2026-11-17T13:51:47.240Z",
-  "down": 0
+  "down": 1,
+  "why": "an almost empty page (16 characters): perhaps a block or a sign-in",
+  "tried": "2026-11-17T13:56:40.119Z"
  },
  "https://openscholar.huji.ac.il/sites/default/files/pharmacyschoolheb/files/hnkhyvt_lktybt_htst_mkhqr_syvm_shnh_tvr_mvsmk.docx": {
   "hash": "2f5557893d161ed57740a6b2",
   "len": 13797,
   "kind": "file",
-  "seen": "2026-11-17T13:53:20.308Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
   "since": "2026-11-17T13:51:47.240Z",
   "down": 0
  },
@@ -874,31 +1018,35 @@
   "hash": "d3ce024e13af2def19afe821",
   "len": 63488,
   "kind": "file",
-  "seen": "2026-11-17T13:53:20.308Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
   "since": "2026-11-17T13:51:47.240Z",
   "down": 0
  },
  "https://research-students.huji.ac.il/%D7%94%D7%A4%D7%A1%D7%A7%D7%AA-%D7%9C%D7%99%D7%9E%D7%95%D7%93%D7%99%D7%9D-%D7%95%D7%97%D7%99%D7%93%D7%95%D7%A9%D7%9D": {
-  "hash": "9df854e04a3b9bb6876c4b84",
-  "len": 2074,
+  "hash": "c6c98b0b26da5c2fc1ebabd5",
+  "len": 701,
   "kind": "page",
-  "seen": "2026-11-17T13:53:20.308Z",
-  "since": "2026-11-17T13:51:47.240Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
+  "since": "2026-11-17T13:56:40.119Z",
   "down": 0
  },
  "https://research-students.huji.ac.il/%D7%9E%D7%94%D7%9C%D7%9A-%D7%94%D7%9C%D7%99%D7%9E%D7%95%D7%93%D7%99%D7%9D": {
-  "hash": "f14b2d7b524ac5c197eb9059",
-  "len": 17154,
+  "hash": "2576dcc57de1ad1ed25deadb",
+  "len": 15827,
   "kind": "page",
-  "seen": "2026-11-17T13:53:20.308Z",
-  "since": "2026-11-17T13:51:47.240Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
+  "since": "2026-11-17T13:56:40.119Z",
   "down": 0
  },
  "https://academic-secretary.huji.ac.il/sites/default/files/acs/files/talmidei_mehkar_2023.pdf": {
   "hash": "862b27e389df81bd830130cf",
   "len": 271939,
   "kind": "file",
-  "seen": "2026-11-17T13:53:20.308Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
   "since": "2026-11-17T13:51:47.240Z",
   "down": 0
  },
@@ -906,23 +1054,26 @@
   "hash": "e040a8a263e54a3ad0225f93",
   "len": 374924,
   "kind": "file",
-  "seen": "2026-11-17T13:53:20.308Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
   "since": "2026-11-17T13:51:47.240Z",
   "down": 0
  },
  "https://science.huji.ac.il/תקנות-ובטיחות": {
-  "hash": "579113707719c47b4e3b5683",
-  "len": 4166,
+  "hash": "692631efd41fb1a7f9aa2063",
+  "len": 2536,
   "kind": "page",
-  "seen": "2026-11-17T13:53:20.308Z",
-  "since": "2026-11-17T13:51:47.240Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
+  "since": "2026-11-17T13:56:40.119Z",
   "down": 0
  },
  "https://academic-secretary.huji.ac.il/sites/default/files/acs/files/mihya.pdf": {
   "hash": "a778f75c217ad4a3d4a1d925",
   "len": 570017,
   "kind": "file",
-  "seen": "2026-11-17T13:53:20.308Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
   "since": "2026-11-17T13:51:47.240Z",
   "down": 0
  },
@@ -930,7 +1081,8 @@
   "hash": "1ab2eb3904e2f2e3f6ec96e7",
   "len": 242957,
   "kind": "file",
-  "seen": "2026-11-17T13:53:20.308Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
   "since": "2026-11-17T13:51:47.240Z",
   "down": 0
  },
@@ -938,87 +1090,98 @@
   "hash": "a149d45412cb2086ce4edbc2",
   "len": 33720,
   "kind": "file",
-  "seen": "2026-11-17T13:53:20.308Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
   "since": "2026-11-17T13:51:47.240Z",
   "down": 0
  },
  "https://science.huji.ac.il/תקנון-פקולטאי": {
-  "hash": "0dbb8a23e6e2d5f5624d83f7",
-  "len": 8953,
+  "hash": "97b7dd4b7b801b237fad8f4d",
+  "len": 7323,
   "kind": "page",
-  "seen": "2026-11-17T13:53:20.308Z",
-  "since": "2026-11-17T13:51:47.240Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
+  "since": "2026-11-17T13:56:40.119Z",
   "down": 0
  },
  "https://science.huji.ac.il/קבלה-הרשמה-ומידע-נוסף": {
-  "hash": "d24ec018b5207e65d0007bae",
-  "len": 24729,
+  "hash": "3c6a4a5be453518ee711cab0",
+  "len": 23259,
   "kind": "page",
-  "seen": "2026-11-17T13:53:20.308Z",
-  "since": "2026-11-17T13:51:47.240Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
+  "since": "2026-11-17T13:56:40.119Z",
   "down": 0
  },
  "https://social.huji.ac.il/%D7%9E%D7%99%D7%9C%D7%95%D7%90%D7%99%D7%9D-%D7%97%D7%A8%D7%91%D7%95%D7%AA-%D7%91%D7%A8%D7%96%D7%9C": {
-  "hash": "4cf11e04ca1b083e202264e8",
-  "len": 1529,
+  "hash": "43849dc20b1da39dc4eeca07",
+  "len": 812,
   "kind": "page",
-  "seen": "2026-11-17T13:53:20.308Z",
-  "since": "2026-11-17T13:51:47.240Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
+  "since": "2026-11-17T13:56:40.119Z",
   "down": 0
  },
  "https://social.huji.ac.il/%D7%99%D7%95%D7%A2%D7%A6%D7%99%D7%9D": {
-  "hash": "5ee7647838e546e4ea10834c",
-  "len": 1286,
+  "hash": "727723691eaf7d6aa93e6711",
+  "len": 593,
   "kind": "page",
-  "seen": "2026-11-17T13:53:20.308Z",
-  "since": "2026-11-17T13:51:47.240Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
+  "since": "2026-11-17T13:56:40.119Z",
   "down": 0
  },
  "https://social.huji.ac.il/book/מידע-לסטודנט": {
-  "hash": "1dbeed536737c9719547ec1e",
-  "len": 3343,
+  "hash": "f743af4bf2d005891a54f5ec",
+  "len": 2625,
   "kind": "page",
-  "seen": "2026-11-17T13:53:20.308Z",
-  "since": "2026-11-17T13:51:47.240Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
+  "since": "2026-11-17T13:56:40.119Z",
   "down": 0
  },
  "https://sw.huji.ac.il/נוהל-הגשת-ערעור-על-ציון": {
-  "hash": "db87d2eed2927bacc9312172",
-  "len": 3236,
+  "hash": "1b47d672c54168ef1a5d3a9d",
+  "len": 946,
   "kind": "page",
-  "seen": "2026-11-17T13:53:20.308Z",
-  "since": "2026-11-17T13:51:47.240Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
+  "since": "2026-11-17T13:56:40.119Z",
   "down": 0
  },
  "https://sw.huji.ac.il/הליך-ברור-אתי": {
-  "hash": "0f8fb169a81896186f82bc1b",
-  "len": 4068,
+  "hash": "7a474563324c23adefeafc7b",
+  "len": 1798,
   "kind": "page",
-  "seen": "2026-11-17T13:53:20.308Z",
-  "since": "2026-11-17T13:51:47.240Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
+  "since": "2026-11-17T13:56:40.119Z",
   "down": 0
  },
  "https://social.huji.ac.il/sites/default/files/socialfacolty/files/tqnvn_mlgvt.pdf": {
   "hash": "1145e6eb94aeca07a61e5dea",
   "len": 570103,
   "kind": "file",
-  "seen": "2026-11-17T13:53:20.308Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
   "since": "2026-11-17T13:51:47.240Z",
   "down": 0
  },
  "https://sw.huji.ac.il/הגשת-בקשות-למועדים-מיוחדים": {
-  "hash": "a299289a7552070fd9e9d24a",
-  "len": 4594,
+  "hash": "4afd9e7485c0452c7677239b",
+  "len": 2298,
   "kind": "page",
-  "seen": "2026-11-17T13:53:20.308Z",
-  "since": "2026-11-17T13:51:47.240Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
+  "since": "2026-11-17T13:56:40.119Z",
   "down": 0
  },
  "https://sw.huji.ac.il/sites/default/files/s-w/files/tqnvn_nhlym_lmlgvt_lstvdntym_ltvr_shny_vdvqtvrt.pdf": {
   "hash": "137f72ded285b3ae31d9ed95",
   "len": 95826,
   "kind": "file",
-  "seen": "2026-11-17T13:53:20.308Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
   "since": "2026-11-17T13:51:47.240Z",
   "down": 0
  },
@@ -1026,7 +1189,8 @@
   "hash": "39479fd07a0f6a7beeea1a48",
   "len": 235035,
   "kind": "file",
-  "seen": "2026-11-17T13:53:20.308Z",
+  "norm": 2,
+  "seen": "2026-11-17T13:56:40.119Z",
   "since": "2026-11-17T13:51:47.240Z",
   "down": 0
  },
@@ -1036,6 +1200,8 @@
   "kind": "page",
   "seen": "2026-11-17T13:53:20.308Z",
   "since": "2026-11-17T13:51:47.240Z",
-  "down": 0
+  "down": 1,
+  "why": "an almost empty page (144 characters): perhaps a block or a sign-in",
+  "tried": "2026-11-17T13:56:40.119Z"
  }
 }

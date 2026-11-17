@@ -1,9 +1,9 @@
 {
- "t": "2026-11-17T13:53:20.308Z",
+ "t": "2026-11-17T13:56:40.119Z",
  "looked": 130,
- "first": 0,
- "changed": 1,
- "lost": 1,
- "unreachable": 2,
+ "first": 90,
+ "changed": 0,
+ "lost": 0,
+ "unreachable": 40,
  "sources": 130
 }

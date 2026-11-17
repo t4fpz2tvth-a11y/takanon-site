@@ -479,6 +479,7 @@ window.addEventListener('resize',resize);
 // 17.11.2026 (יוני: "החצים לא עובדים בדפדפן במחשב"): עכבר שנח מעל המגרש שלח אירועי תזוזה, וכל אחד מהם החזיר את השליטה לעכבר ומשך את
 // עברי בחזרה אליו. מעכשיו, אחרי לחיצה על מקש, העכבר חוזר לשלוט רק בלחיצה או בתזוזה מכוונת (24 פיקסלים ומעלה). מגע לא השתנה
 let mLast=null,mAnchor=null; // איפה העכבר עכשיו, ואיפה הוא היה כשהמקלדת לקחה את השליטה
+let tapT=0,tapDir=0;         // כל הקשה על חץ מזיזה לפחות 0.12 שנייה, גם אם המקש שוחרר מיד
 function setTarget(e,press){
   if(useKeys&&!press&&e.pointerType==='mouse'){
     if(keys.l||keys.r)return;                                          // מקש לחוץ: העכבר לא מזיז
@@ -496,7 +497,7 @@ function key(e,down){
   if(k==='ArrowLeft'||k==='a'||k==='A'||k==='ש')keys.l=down;
   else if(k==='ArrowRight'||k==='d'||k==='D'||k==='ג')keys.r=down;
   else hit=false;
-  if(hit&&mode==='play'&&!paused){if(!useKeys)mAnchor=mLast;useKeys=true;e.preventDefault()}
+  if(hit&&mode==='play'&&!paused){if(!useKeys)mAnchor=mLast;useKeys=true;if(down&&!e.repeat){tapT=.12;tapDir=keys.r&&!keys.l?1:keys.l&&!keys.r?-1:k==='ArrowRight'||k==='d'||k==='D'||k==='ג'?1:-1}e.preventDefault()}
 }
 window.addEventListener('keydown',e=>key(e,true));
 window.addEventListener('keyup',e=>key(e,false));
@@ -672,7 +673,7 @@ function start(){
   const order=THEMES.slice().sort(()=>Math.random()-.5); // ארבע כותרות עד 18:00, והבאות בתור בזמן הפגישה
   stages=[mk(BASE,CFG.introCount,[3],-1)].concat(order.slice(0,4).map(th=>mk(th,CFG.stageCount,[3,9,15],12)),[mk(FINAL,CFG.stageCount,[4,11,17],8,true)],order.slice(4,4+CFG.otStages).map(th=>Object.assign(mk(th,CFG.stageCount,[3,9,15],12),{ot:true})));
   arrived=false;$('dest').textContent='גבעת רם, 18:00';streak=0;goldAt=-1;bonusPts=0;
-  roundId++;px=target=FX+FW/2;vx=0;facing=0;useKeys=false;keys.l=keys.r=false;
+  roundId++;px=target=FX+FW/2;vx=0;facing=0;useKeys=false;keys.l=keys.r=false;tapT=0;
   mode='play';paused=false;t=0;helped=0;pile=0;spawnT=.9;coffee=0;bot=0;hold=0;drain=0;ending=0;camp=0;revDone=false;revStage=1+(Math.random()*3|0);botsDue=[.42,.74];botAnswered=0;botSecs=0;sprint=false;banner=null;
   items=[];fx=[];pileSpots=[];farFrom=null;healedRound=0;seenQ=[];learned=[];fresh=[];bag={};effKind='';
   for(const k in eff)eff[k]=0;stageIdx=0;onStage();
@@ -786,7 +787,8 @@ function update(rdt){
   // תנועה
   if(mode==='idle'){let n=null;for(const it of items)if(!it.done&&it.type!=='haz'&&(!n||it.y>n.y))n=it;if(n)target=n.x;useKeys=false}
   if(mode!=='over'){
-    let dir=(keys.r?1:0)-(keys.l?1:0),tx=useKeys?(dir?px+dir*FW:px):target;
+    let dir=(keys.r?1:0)-(keys.l?1:0);if(tapT>0){tapT-=rdt;if(!dir&&useKeys)dir=tapDir}
+    let tx=useKeys?(dir?px+dir*FW:px):target;
     if(eff.rev>0)tx=useKeys?(dir?px-dir*FW:px):FX+FW-(target-FX);
     const lo=FX+PW,hi=FX+FW-PW,old=px;
     if(eff.freeze>0){vx=0}

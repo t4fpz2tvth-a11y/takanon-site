@@ -396,7 +396,7 @@
     var bar = document.createElement('div');
     // audit 3.11.2026: a bar at the top of the page, not floating over the question box while scrolling
     bar.setAttribute('style', 'display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px;padding:6px 12px 0;font:14px system-ui,Arial,sans-serif');
-    bar.innerHTML = (me.admin ? '<button type="button" id="tk-admin">קודי גישה לרכזים</button><button type="button" id="tk-sheet">טבלת המעקב</button>' + (PV ? '<button type="button" id="tk-fb">משובים</button><button type="button" id="tk-miss">לא נמצא</button>' : '') : '') + '<button type="button" id="tk-out">יציאה (' + (me.name || '').replace(/[<>&]/g, '').replace(/"/g, '״') + ')</button>';
+    bar.innerHTML = (me.admin ? '<button type="button" id="tk-admin">קודי גישה לרכזים</button><button type="button" id="tk-sheet">טבלת המעקב</button>' + (PV ? '<button type="button" id="tk-fb">משובים</button><button type="button" id="tk-miss">לא נמצא</button><button type="button" id="tk-vadmin">חיבורי הודעות קוליות</button>' : '') : '') + '<button type="button" id="tk-out">יציאה (' + (me.name || '').replace(/[<>&]/g, '').replace(/"/g, '״') + ')</button>';
     bar.querySelectorAll('button').forEach(function (b) { b.setAttribute('style', 'font:inherit;min-height:40px;padding:6px 12px;border-radius:8px;border:1px solid #9BA5BA;background:rgba(255,255,255,.9);color:#141B2D;cursor:pointer'); });
     // 5.11.2026 (review, preview): signing out is a quiet link, not the page's most visible button; the colours follow the theme
     if (PV) { var dk = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches;
@@ -410,7 +410,7 @@
     // 6.11.2026 (the external audit, all four models: three rows of controls above the box on a phone): the head's three tools
     // sit behind one "ניהול" button; a new feedback still shows on it; signing out stays a quiet link
     if (PV4 && me.admin) {
-      var tools = ['#tk-admin', '#tk-sheet', '#tk-fb', '#tk-miss'].map(function (q) { return bar.querySelector(q); }).filter(Boolean);
+      var tools = ['#tk-admin', '#tk-sheet', '#tk-fb', '#tk-miss', '#tk-vadmin'].map(function (q) { return bar.querySelector(q); }).filter(Boolean);
       var mg = document.createElement('button'); mg.type = 'button'; mg.id = 'tk-mgmt'; mg.setAttribute('aria-expanded', 'false'); mg.setAttribute('aria-controls', 'tk-menu'); mg.textContent = 'ניהול';
       mg.setAttribute('style', tools[0].getAttribute('style'));
       var menu = document.createElement('div'); menu.id = 'tk-menu'; menu.hidden = true; menu.setAttribute('role', 'group'); menu.setAttribute('aria-label', 'כלי ניהול');
@@ -428,14 +428,20 @@
     if (h1) { var row = document.createElement('div'); row.className = 'pv-title-row'; h1.parentNode.insertBefore(row, h1); row.appendChild(h1); bar.style.padding = '0'; bar.style.marginInlineStart = 'auto'; row.appendChild(bar); }
     else document.body.prepend(bar);
     // 17.11.2026 (Yoni: "כן"): on an iPhone, the road from WhatsApp is an Apple Shortcut with a personal inbox key (/api/inbox)
+    // 17.11.2026 14:00 (Yoni: "אני לא רוצה שבאייפון יהיה כפתור קבוע... שייעלם אחרי שחיברו"): shown only until this coordinator's
+    // first voice message arrived (the server knows, so it holds on every device); the head can reset it and it comes back
     if (!BENCH && (/iPhone|iPad|iPod/.test(navigator.userAgent) || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1) || /[?&]voice=1/.test(location.search))) {
-      var vb = document.createElement('button'); vb.type = 'button'; vb.id = 'tk-voice'; vb.textContent = 'הודעות קוליות';
-      vb.setAttribute('style', bar.querySelector('#tk-out').getAttribute('style'));
-      bar.insertBefore(vb, bar.querySelector('#tk-out'));
-      vb.addEventListener('click', function () { voiceSetup(vb); });
+      fetch('/api/inbox', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{"op":"state"}' }).then(function (r) { return r.ok ? r.json() : null; }).then(function (j) {
+        if (!j || j.done || document.getElementById('tk-voice')) return;
+        var vb = document.createElement('button'); vb.type = 'button'; vb.id = 'tk-voice'; vb.textContent = 'הודעות קוליות';
+        vb.setAttribute('style', bar.querySelector('#tk-out').getAttribute('style'));
+        bar.insertBefore(vb, bar.querySelector('#tk-out'));
+        vb.addEventListener('click', function () { voiceSetup(vb); });
+      }).catch(function () {});
     }
     bar.querySelector('#tk-out').addEventListener('click', async function () { if (await askIn('לצאת מהמכשיר הזה? בכניסה הבאה יידרש הקוד שוב.', 'יציאה', 'ביטול')) { try { localStorage.removeItem(KEY); } catch (_) {} code = ''; fetch('/api/db', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{"op":"logout"}' }).catch(function () {}).then(function () { location.reload(); }); } });
     if (!me.admin) return;
+    var vaB = bar.querySelector('#tk-vadmin'); if (vaB) vaB.addEventListener('click', function () { voiceAdmin(vaB); });
     var msB = bar.querySelector('#tk-miss');
     if (msB) { msB.addEventListener('click', function () { missTab(msB); });
       (async function () { try { var r = await call('/api/db', { op: 'list', path: 'miss', limit: 2000 }); var n = ((await r.json()).docs || []).length; if (n) msB.textContent = 'לא נמצא (' + n + ')'; } catch (_) {} })(); }
@@ -656,10 +662,53 @@
       for (var n = 0; n < 120 && typeof voiceToBox !== 'function'; n++) await new Promise(function (z) { setTimeout(z, 500); });
       if (typeof voiceToBox !== 'function') return;
       voiceToBox(said);
+      try { var vb0 = document.getElementById('tk-voice'); if (vb0) vb0.remove(); } catch (_) {}   // connected: the setup button is no longer needed
       inboxSay('ההודעה הקולית תומללה, והטקסט נוסף לתיבת השאלה: כדאי לוודא שמות, מספרים ותאריכים לפני השליחה.');
     })();
   } else inboxTake(1);
   document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') inboxTake(2); });
+  // 17.11.2026 14:00 (Yoni: "לוח שליטה שבו אוכל לאפס גישה אם צריך ואז הכפתור יחזור"): the head's panel of the voice road
+  function voiceAdmin(btn) {
+    var dk = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches;
+    var esc = function (x) { return String(x == null ? '' : x).replace(/[<>&"]/g, function (c) { return { '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;' }[c]; }); };
+    var line = 'var(--field-edge, #8A93A6)', soft = dk ? '#9BA5BA' : '#566079', bs = 'font:inherit;min-height:44px;padding:0 1rem;border-radius:10px;border:1px solid ' + line + ';background:transparent;color:inherit;cursor:pointer';
+    var d = document.createElement('div'); d.setAttribute('role', 'dialog'); d.setAttribute('aria-modal', 'true'); d.setAttribute('aria-labelledby', 'tk-va-t');
+    d.setAttribute('style', 'position:fixed;inset:0;z-index:100;background:rgba(14,19,30,.6);display:grid;place-items:center;padding:16px;font:15px/1.6 inherit');
+    d.innerHTML = '<div dir="rtl" style="background:' + (dk ? '#161D2B' : '#fff') + ';color:' + (dk ? '#E6EAF2' : '#141B2D') + ';max-width:560px;width:100%;box-sizing:border-box;padding:1.2rem;border-radius:14px;display:grid;gap:.7rem;max-height:90vh;overflow:auto">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><h2 id="tk-va-t" style="font-size:1.15rem;margin:0">חיבורי הודעות קוליות (אייפון)</h2><button type="button" id="tk-va-close" style="' + bs + '">סגירה</button></div>' +
+      '<p style="margin:0;color:' + soft + ';font-size:.9rem">רכז/ת נחשבים מחוברים אחרי שהגיעה מהם הודעה קולית ראשונה דרך קיצור הדרך. מאותו רגע הכפתור ״הודעות קוליות״ נעלם אצלם. ״איפוס״ מחזיר את הכפתור, למשל אחרי החלפת טלפון.</p>' +
+      '<p id="tk-va-say" role="status" style="margin:0;min-height:1.4em"></p><ul id="tk-va-list" style="list-style:none;margin:0;padding:0;display:grid;gap:6px"><li>טוען…</li></ul>' +
+      '<div><button type="button" id="tk-va-all" style="' + bs + '">איפוס לכולם</button></div></div>';
+    var app = document.querySelector('.app'), bar = btn.closest('div'); if (app) app.inert = true; if (bar) bar.inert = true;
+    var $d = function (id) { return d.querySelector('#' + id); }, say = $d('tk-va-say');
+    var api = async function (o) { var r = await fetch('/api/inbox', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(o) }); if (!r.ok) throw new Error('x'); return r.json(); };
+    var dt = function (t) { var x = new Date(t); return x.getDate() + '.' + (x.getMonth() + 1) + '.' + x.getFullYear(); };
+    var load = async function () {
+      try {
+        var j = await api({ op: 'voice-list' }), rows = j.rows || [], on = rows.filter(function (r) { return r.t; }).length;
+        $d('tk-va-list').innerHTML = rows.map(function (r) {
+          return '<li style="display:flex;justify-content:space-between;align-items:center;gap:8px;border:1px solid ' + line + ';border-radius:10px;padding:.5rem .7rem"><span><strong>' + esc(r.name) + '</strong><br><span style="color:' + soft + ';font-size:.9rem">' +
+            (r.t ? 'מחובר/ת מאז ' + dt(r.t) + ' · ' + r.n + (r.n === 1 ? ' הודעה' : ' הודעות') + ' · אחרונה ' + dt(r.last) : 'עוד לא חובר/ה') + '</span></span>' +
+            (r.t ? '<button type="button" class="tk-va-reset" data-uid="' + esc(r.uid) + '" data-name="' + esc(r.name) + '" style="' + bs + '">איפוס</button>' : '') + '</li>';
+        }).join('') || '<li>אין רכזים ברשימה.</li>';
+        say.textContent = on + ' מתוך ' + rows.length + ' מחוברים · היום תומללו ' + (j.today || 0) + ' הודעות מאייפונים.';
+        $d('tk-va-all').hidden = !on;
+      } catch (_) { say.textContent = 'לא הצלחנו לטעון את הרשימה. נסו שוב.'; }
+    };
+    var end = function () { document.removeEventListener('keydown', key, true); if (app) app.inert = false; if (bar) bar.inert = false; d.remove(); try { btn.focus(); } catch (_) {} };
+    var key = function (e) { if (e.key === 'Escape') { e.preventDefault(); end(); } };
+    d.addEventListener('click', async function (e) {
+      var b = e.target.closest('.tk-va-reset');
+      if (b) { try { await api({ op: 'voice-reset', uid: b.dataset.uid }); await load(); say.textContent = 'אופס: הכפתור ״הודעות קוליות״ יחזור אצל ' + b.dataset.name + ' בכניסה הבאה לבוט מהאייפון.'; } catch (_) { say.textContent = 'האיפוס לא הצליח. נסו שוב.'; } }
+    });
+    $d('tk-va-all').addEventListener('click', async function () {
+      if (!(await askIn('לאפס את החיבור לכל הרכזים? הכפתור ״הודעות קוליות״ יחזור אצל כולם, עד ההודעה הקולית הבאה שלהם.', 'איפוס לכולם', 'ביטול'))) return;
+      try { await api({ op: 'voice-reset', uid: '*' }); await load(); say.textContent = 'אופס לכולם.'; } catch (_) { say.textContent = 'האיפוס לא הצליח. נסו שוב.'; }
+    });
+    $d('tk-va-close').addEventListener('click', end);
+    document.addEventListener('keydown', key, true);
+    document.body.appendChild(d); $d('tk-va-close').focus(); load();
+  }
   function voiceSetup(btn) {
     var dk = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches, back = document.activeElement;
     var d = document.createElement('div'); d.setAttribute('role', 'dialog'); d.setAttribute('aria-modal', 'true'); d.setAttribute('aria-labelledby', 'tk-vo-t');

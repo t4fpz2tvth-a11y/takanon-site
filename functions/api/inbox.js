@@ -15,6 +15,7 @@ async function tables(env) {
     env.DB.prepare('CREATE TABLE IF NOT EXISTS inbox_keys (uid TEXT PRIMARY KEY, h TEXT NOT NULL, t INTEGER NOT NULL)'),
     env.DB.prepare('CREATE TABLE IF NOT EXISTS inbox (id INTEGER PRIMARY KEY AUTOINCREMENT, uid TEXT NOT NULL, name TEXT, body TEXT NOT NULL, t INTEGER NOT NULL)'),
     env.DB.prepare('CREATE TABLE IF NOT EXISTS hits (k TEXT NOT NULL, h INTEGER NOT NULL, n INTEGER NOT NULL, PRIMARY KEY (k, h))'),
+    env.DB.prepare('CREATE TABLE IF NOT EXISTS inbox_done (uid TEXT PRIMARY KEY, t INTEGER NOT NULL, last INTEGER NOT NULL, n INTEGER NOT NULL)'),
     env.DB.prepare('CREATE TABLE IF NOT EXISTS inbox_t (id TEXT PRIMARY KEY, body TEXT NOT NULL, t INTEGER NOT NULL)'),
     env.DB.prepare('DELETE FROM inbox_t WHERE t < ?').bind(Date.now() - KEEP),
     env.DB.prepare('DROP TABLE IF EXISTS inbox_dbg'),   // the model comparison of 17.11.2026 is over
@@ -74,7 +75,7 @@ export async function onRequestPost({ request, env }) {
   const w = await who(request, env);
   if (!w || w.notify) return text('for signed-in coordinators only', 403);
   let b = {}; try { b = await request.json(); } catch (_) {}
-  if (b.op === 'state') { const k = await env.DB.prepare('SELECT t FROM inbox_keys WHERE uid = ?').bind(w.uid).first(); return json({ hasKey: !!k, shortcut: String(env.SHORTCUT_URL || SHORTCUT || '') }); }
+  if (b.op === 'state') { const k = await env.DB.prepare('SELECT t FROM inbox_done WHERE uid = ?').bind(w.uid).first(); return json({ done: !!k, shortcut: String(env.SHORTCUT_URL || SHORTCUT || '') }); }
   if (b.op === 'key') {   // a new key replaces the old one; shown once, kept only as a hash
     const a = new Uint8Array(20); crypto.getRandomValues(a);
     const key = [...a].map(x => x.toString(16).padStart(2, '0')).join('');
@@ -82,10 +83,24 @@ export async function onRequestPost({ request, env }) {
     return json({ key });
   }
   if (b.op === 'unkey') { await env.DB.batch([env.DB.prepare('DELETE FROM inbox_keys WHERE uid = ?').bind(w.uid), env.DB.prepare('DELETE FROM inbox WHERE uid = ?').bind(w.uid)]); return json({ ok: true }); }
+  // the head's panel: who is connected (a first voice message arrived), since when, how many; and a reset
+  if (b.op === 'voice-list' && w.admin) {
+    const done = (await env.DB.prepare('SELECT uid, t, last, n FROM inbox_done').all()).results || [], by = Object.fromEntries(done.map(x => [x.uid, x]));
+    let codes = []; try { codes = (await env.DB.prepare('SELECT uid, name FROM codes ORDER BY created').all()).results || []; } catch (_) {}
+    const day = await env.DB.prepare("SELECT n FROM hits WHERE k = 'ia:all' AND h = ?").bind(Math.floor(Date.now() / 864e5) + 10000000).first();
+    return json({ today: day ? day.n : 0, rows: [{ uid: 'admin', name: 'רמ"ח (אני)' }].concat(codes).map(c => Object.assign({ uid: c.uid, name: c.name }, by[c.uid] ? { t: by[c.uid].t, last: by[c.uid].last, n: by[c.uid].n } : {})) });
+  }
+  if (b.op === 'voice-reset' && w.admin) {
+    if (b.uid === '*') await env.DB.prepare('DELETE FROM inbox_done').run(); else await env.DB.prepare('DELETE FROM inbox_done WHERE uid = ?').bind(String(b.uid || '')).run();
+    return json({ ok: true });
+  }
   if (b.op === 'claim') {   // a ticket the Shortcut got: taken once
     const id = String(b.id || '');
     if (!/^[a-f0-9]{32}$/.test(id)) return json({ text: '' });
     const r = await env.DB.prepare('DELETE FROM inbox_t WHERE id = ? RETURNING body').bind(id).first();
+    // 17.11.2026 14:00 (Yoni: the iPhone button goes away once the coordinator is connected): a first transcript that
+    // arrived means the Shortcut is installed and works; the head can reset it (voice-reset), and the button comes back
+    if (r) await env.DB.prepare('INSERT INTO inbox_done (uid, t, last, n) VALUES (?, ?, ?, 1) ON CONFLICT (uid) DO UPDATE SET last = excluded.last, n = n + 1').bind(w.uid, Date.now(), Date.now()).run();
     return json({ text: r ? r.body : '', gone: !r });
   }
   if (b.op === 'take') {

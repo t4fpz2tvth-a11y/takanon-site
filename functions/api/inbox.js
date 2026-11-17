@@ -8,7 +8,7 @@
 import { json, text, who, sha } from '../_lib.js';
 import { transcribe } from '../_voice.js';
 // the iCloud link of the Apple Shortcut "לבוט הרכזים" (not a secret); the setting SHORTCUT_URL overrides it
-const SHORTCUT = '';
+const SHORTCUT = 'https://www.icloud.com/shortcuts/b4651da468e84c5dbf6cf4616e6576e6';   // 17.11.2026 13:49, from Yoni
 const MAX = 12 * 1048576, KEEP = 30 * 60e3, KEY = /^[a-f0-9]{40}$/;
 async function tables(env) {
   await env.DB.batch([

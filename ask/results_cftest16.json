@@ -1,0 +1,51 @@
+{
+ "tag": "cftest16",
+ "at": "2026-11-17T14:10:28.822Z",
+ "chat": [],
+ "audio": [],
+ "human": {
+  "status": 200,
+  "body": "{\"sitekey\":\"0x4AAAAAAGE7c5H8f2E5hAzv\",\"ok\":false,\"enforce\":false,\"days\":[{\"day\":\"2026-11-17\",\"pass\":false,\"n\":2}]}"
+ },
+ "panels": {
+  "watch": {
+   "status": 200,
+   "last": {
+    "t": "2026-11-17T14:05:02.291Z",
+    "looked": 130,
+    "first": 1,
+    "changed": 0,
+    "lost": 0,
+    "unreachable": 1,
+    "sources": 130
+   },
+   "changes": [
+    "changed עמוד התקנונים של האוניברסיטה (רשימה)",
+    "changed מילואים, מתווה מילואים",
+    "changed הקמפוסים"
+   ],
+   "unreachable": 1,
+   "sources": 130
+  },
+  "stat": {
+   "status": 200,
+   "month": "2026-11",
+   "rows": []
+  },
+  "statNoSignIn": 403,
+  "watchNoSignIn": 403,
+  "ics": {
+   "status": 200,
+   "type": "text/calendar; charset=utf-8",
+   "lines": 26,
+   "summary": "SUMMARY:מועד אחרון במקרה מ-3.11 (בוט הרכזים)"
+  },
+  "voice": {
+   "status": 200,
+   "rows": 20,
+   "connected": 1,
+   "today": 5
+  }
+ },
+ "noCode": 403
+}

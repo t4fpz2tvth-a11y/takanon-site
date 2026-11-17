@@ -128,17 +128,29 @@ export async function onRequestPost({ request, env }) {
   // (status, streaming); the live bots go straight to OpenRouter as before. The prompt and the answer are never kept in
   // the gateway's log (cf-aig-collect-log-payload: false): only the count, the model, the cost and the time. Any failure
   // of the gateway itself (not the model's own answer) falls back to the straight call, and X-Via says which way it went
-  let r = null, via = 'direct';
+  let r = null, via = 'direct', logNote = '';
   const aig = test ? url.searchParams.get('aig') : '';
   if (aig && env.AI && typeof env.AI.gateway === 'function') {
     try {
       // through the binding (already identified to the gateway; a plain call to the gateway's address is refused, 401)
-      const g = await env.AI.gateway(env.AIG_ID || 'default').run({ provider: 'openrouter', endpoint: 'chat/completions',
+      const gw = env.AI.gateway(env.AIG_ID || 'default');
+      const g = await gw.run({ provider: 'openrouter', endpoint: 'chat/completions',
         headers: { 'authorization': orHeaders.Authorization, 'content-type': 'application/json', 'HTTP-Referer': url.origin, 'X-Title': 'Ma Omer HaTakanon', 'cf-aig-collect-log-payload': 'false' }, query: JSON.parse(orBody) });
-      if ([401, 403, 404, 500, 502, 503, 504].includes(g.status)) via = 'direct (the gateway answered ' + g.status + ': ' + (await g.text()).replace(/\s+/g, ' ').slice(0, 160) + ')';
-      else { r = g; via = 'gateway'; }
+      // only the gateway's own failure falls back (not signed, not found, its own error); the model's errors, and the
+      // gateway's limits (429), pass as they are, so a spending limit set there is never bypassed
+      let own = g.status === 401 || g.status === 404, txt = null;
+      if (!own && g.status >= 500) { txt = await g.text(); own = /AiGatewayError/.test(txt); }
+      if (own) via = 'direct (the gateway answered ' + g.status + ': ' + (txt === null ? await g.text() : txt).replace(/\s+/g, ' ').slice(0, 160) + ')';
+      else { r = txt === null ? g : new Response(txt, { status: g.status, headers: g.headers }); via = 'gateway'; }
+      // the comparison may ask what the gateway kept of this call (?aig=log): the names of the log's fields and the size of each
+      if (r && aig === 'log' && !body.stream) {
+        const id = g.headers.get('cf-aig-log-id') || gw.aiGatewayLogId || '';
+        const keep = await r.text(); r = new Response(keep, { status: g.status, headers: g.headers });
+        logNote = 'id=' + (id ? 'yes' : 'no');
+        if (id) for (const wait of [2500, 5000]) { await new Promise(z => setTimeout(z, wait)); try { const L = await gw.getLog(id); logNote += ' ' + Object.keys(L || {}).map(k => k + ':' + (L[k] == null ? 'null' : String(typeof L[k] === 'object' ? JSON.stringify(L[k]) : L[k]).length)).join(','); break; } catch (e) { logNote += ' err:' + String(e && e.message || e).slice(0, 80); } }
+      }
     } catch (e) { via = 'direct (the gateway failed: ' + String(e && e.message || e).replace(/\s+/g, ' ').slice(0, 120) + ')'; }
   }
   if (!r) r = await orCall();
-  return new Response(r.body, { status: r.status, headers: { 'Content-Type': r.headers.get('Content-Type') || 'application/json', 'Cache-Control': 'no-store', 'X-Via': via.replace(/[^\x20-\x7e]/g, '?') } });
+  return new Response(r.body, { status: r.status, headers: { 'Content-Type': r.headers.get('Content-Type') || 'application/json', 'Cache-Control': 'no-store', 'X-Via': via.replace(/[^\x20-\x7e]/g, '?'), 'X-Aig-Log': logNote.replace(/[^\x20-\x7e]/g, '?').slice(0, 1500) } });
 }

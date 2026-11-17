@@ -10,18 +10,18 @@ const req = JSON.parse(fs.readFileSync('ask/request.json', 'utf8'));
 const tag = String(req.tag || 'cftest').replace(/[^A-Za-z0-9_-]/g, '');
 const SITE = 'https://takanon-site.pages.dev', H = { 'X-Code': encodeURIComponent(CODE) };
 const out = { tag, at: new Date().toISOString(), chat: [], audio: [], human: null };
-for (const aig of ['', '1']) for (const stream of [false, true]) {
+for (const aig of ['', '1', 'log']) for (const stream of [false, true]) {
   const t0 = Date.now(), row = { aig: !!aig, stream };
   try {
-    const r = await fetch(SITE + '/api/chat?test=1' + (aig ? '&aig=1' : ''), { method: 'POST', headers: Object.assign({ 'Content-Type': 'application/json' }, H),
+    const r = await fetch(SITE + '/api/chat?test=1' + (aig ? '&aig=' + aig : ''), { method: 'POST', headers: Object.assign({ 'Content-Type': 'application/json' }, H),
       body: JSON.stringify({ input: 'ענו במילה אחת בלבד: מה בירת ישראל?', tier: 'default', stream, model: 'anthropic/claude-haiku-5.5' }) });
-    row.status = r.status; row.via = r.headers.get('X-Via'); row.type = r.headers.get('Content-Type');
+    row.status = r.status; row.via = r.headers.get('X-Via'); row.log = r.headers.get('X-Aig-Log'); row.type = r.headers.get('Content-Type');
     if (stream) { let n = 0, first = 0, txt = ''; const rd = r.body.getReader(), dec = new TextDecoder(); for (;;) { const x = await rd.read(); if (x.done) break; if (!n) first = Date.now() - t0; n++; txt += dec.decode(x.value, { stream: true }); } row.chunks = n; row.firstMs = first; row.tail = txt.slice(-700); }
     else row.body = (await r.text()).slice(0, 900);
   } catch (e) { row.error = String(e && e.message || e).slice(0, 200); }
   row.ms = Date.now() - t0; out.chat.push(row); console.log('chat', JSON.stringify(row).slice(0, 300));
 }
-for (const f of fs.readdirSync('ask/audio').sort()) for (const lang of f.startsWith('s.') ? ['auto', 'he'] : ['he']) {
+for (const f of req.audio === false ? [] : fs.readdirSync('ask/audio').sort()) for (const lang of f.startsWith('s.') ? ['auto', 'he'] : ['he']) {
   const t0 = Date.now(), row = { file: f, lang, bytes: fs.statSync('ask/audio/' + f).size };
   try {
     const r = await fetch(SITE + '/api/transcribe?lang=' + lang, { method: 'POST', headers: Object.assign({ 'Content-Type': 'application/octet-stream' }, H), body: fs.readFileSync('ask/audio/' + f) });

@@ -1,0 +1,149 @@
+{
+ "tag": "cftest2",
+ "at": "2026-11-17T09:24:27.049Z",
+ "chat": [
+  {
+   "aig": false,
+   "stream": false,
+   "status": 200,
+   "via": "direct",
+   "type": "application/json",
+   "body": "\n         \n{\"id\":\"gen-1794907468-iMJ1sw9Gfas5Wu1jUiBA\",\"object\":\"chat.completion\",\"created\":1794907468,\"model\":\"anthropic/claude-haiku-5.5\",\"provider\":\"Claude Platform on AWS\",\"system_fingerprint\":null,\"service_tier\":\"default\",\"choices\":[{\"index\":0,\"logprobs\":null,\"finish_reason\":\"stop\",\"native_finish_reason\":\"end_turn\",\"message\":{\"role\":\"assistant\",\"content\":\"ירושלים\",\"refusal\":null,\"reasoning_details\":[{\"type\":\"reasoning.text\",\"text\":\"I'm reading the question, which asks for the capital of Israel in one word. The answer is Jerusalem, though its status is contested internationally and many countries keep their embassies in Tel Aviv. Since they asked for a single word, I'll just give ירושלים without adding any nuance.\\n\\n\",\"format\":\"anthropic-claude-v1\",\"index\":0,\"signature\":\"CAQSzAcKEAgTGAI4AUIIdGhpbmtpbmcSDAT6UuE5C2xpf74/pxoM1Bie/Iso4QRrb1C+IjBMbXeH/GExcB+vfdQfiq3UvhXUIERPj8R84jG1HSy6P",
+   "ms": 3129
+  },
+  {
+   "aig": false,
+   "stream": true,
+   "status": 200,
+   "via": "direct",
+   "type": "text/event-stream",
+   "chunks": 20,
+   "firstMs": 1018,
+   "tail": "unk\",\"created\":1794907470,\"model\":\"anthropic/claude-haiku-5.5\",\"provider\":\"Claude Platform on AWS\",\"service_tier\":\"default\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"\",\"role\":\"assistant\"},\"finish_reason\":\"stop\",\"native_finish_reason\":\"end_turn\"}],\"usage\":{\"prompt_tokens\":32,\"completion_tokens\":111,\"total_tokens\":143,\"cost\":0.0000587,\"is_byok\":false,\"prompt_tokens_details\":{\"cached_tokens\":0,\"cache_write_tokens\":0,\"audio_tokens\":0,\"video_tokens\":0},\"cost_details\":{\"upstream_inference_cost\":0.0000587,\"upstream_inference_prompt_cost\":0.0000032,\"upstream_inference_completions_cost\":0.0000555},\"completion_tokens_details\":{\"reasoning_tokens\":104,\"image_tokens\":0,\"audio_tokens\":0}}}\n\ndata: [DONE]\n\n",
+   "ms": 2028
+  },
+  {
+   "aig": true,
+   "stream": false,
+   "status": 200,
+   "via": "gateway",
+   "type": "application/json",
+   "body": "\n         \n{\"id\":\"gen-1794907475-bHP65Rmkc0v2n4YZfDbJ\",\"object\":\"chat.completion\",\"created\":1794907475,\"model\":\"anthropic/claude-haiku-5.5\",\"provider\":\"Claude Platform on AWS\",\"system_fingerprint\":null,\"service_tier\":\"default\",\"choices\":[{\"index\":0,\"logprobs\":null,\"finish_reason\":\"stop\",\"native_finish_reason\":\"end_turn\",\"message\":{\"role\":\"assistant\",\"content\":\"ירושלים\",\"refusal\":null}}],\"usage\":{\"prompt_tokens\":32,\"completion_tokens\":7,\"total_tokens\":39,\"cost\":0.0000067,\"is_byok\":false,\"prompt_tokens_details\":{\"cached_tokens\":0,\"cache_write_tokens\":0,\"audio_tokens\":0,\"video_tokens\":0},\"cost_details\":{\"upstream_inference_cost\":0.0000067,\"upstream_inference_prompt_cost\":0.0000032,\"upstream_inference_completions_cost\":0.0000035},\"completion_tokens_details\":{\"reasoning_tokens\":0,\"image_tokens\":0,\"audio_tokens\":0}}}",
+   "ms": 4082
+  },
+  {
+   "aig": true,
+   "stream": true,
+   "status": 200,
+   "via": "gateway",
+   "type": "text/event-stream",
+   "chunks": 31,
+   "firstMs": 1352,
+   "tail": "unk\",\"created\":1794907477,\"model\":\"anthropic/claude-haiku-5.5\",\"provider\":\"Claude Platform on AWS\",\"service_tier\":\"default\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"\",\"role\":\"assistant\"},\"finish_reason\":\"stop\",\"native_finish_reason\":\"end_turn\"}],\"usage\":{\"prompt_tokens\":32,\"completion_tokens\":107,\"total_tokens\":139,\"cost\":0.0000567,\"is_byok\":false,\"prompt_tokens_details\":{\"cached_tokens\":0,\"cache_write_tokens\":0,\"audio_tokens\":0,\"video_tokens\":0},\"cost_details\":{\"upstream_inference_cost\":0.0000567,\"upstream_inference_prompt_cost\":0.0000032,\"upstream_inference_completions_cost\":0.0000535},\"completion_tokens_details\":{\"reasoning_tokens\":100,\"image_tokens\":0,\"audio_tokens\":0}}}\n\ndata: [DONE]\n\n",
+   "ms": 2610
+  }
+ ],
+ "audio": [
+  {
+   "file": "s.m4a",
+   "lang": "auto",
+   "bytes": 22974,
+   "status": 200,
+   "body": "{\"text\":\"I would like to ask about a second exam date after reserve duty, thank you very much.\",\"seconds\":5.376,\"language\":\"en\"}",
+   "ms": 1660
+  },
+  {
+   "file": "s.m4a",
+   "lang": "he",
+   "bytes": 22974,
+   "status": 200,
+   "body": "{\"text\":\"I would like to ask about a second exam date after reserve duty, thank you very much.\",\"seconds\":5.376,\"language\":\"he\"}",
+   "ms": 1180
+  },
+  {
+   "file": "s.mp3",
+   "lang": "auto",
+   "bytes": 21825,
+   "status": 200,
+   "body": "{\"text\":\"I would like to ask about a second exam date after reserve duty, thank you very much.\",\"seconds\":5.315,\"language\":\"en\"}",
+   "ms": 4075
+  },
+  {
+   "file": "s.mp3",
+   "lang": "he",
+   "bytes": 21825,
+   "status": 200,
+   "body": "{\"text\":\"I would like to ask about a second exam date after reserve duty, thank you very much.\",\"seconds\":5.315,\"language\":\"he\"}",
+   "ms": 1141
+  },
+  {
+   "file": "s.ogg",
+   "lang": "auto",
+   "bytes": 11082,
+   "status": 200,
+   "body": "{\"text\":\"I would like to ask about a second exam date after reserve duty, thank you very much.\",\"seconds\":5.315,\"language\":\"en\"}",
+   "ms": 3433
+  },
+  {
+   "file": "s.ogg",
+   "lang": "he",
+   "bytes": 11082,
+   "status": 200,
+   "body": "{\"text\":\"I would like to ask about a second exam date after reserve duty, thank you very much.\",\"seconds\":5.315,\"language\":\"he\"}",
+   "ms": 3055
+  },
+  {
+   "file": "s.opus",
+   "lang": "auto",
+   "bytes": 11082,
+   "status": 200,
+   "body": "{\"text\":\"I would like to ask about a second exam date after reserve duty, thank you very much.\",\"seconds\":5.315,\"language\":\"en\"}",
+   "ms": 3023
+  },
+  {
+   "file": "s.opus",
+   "lang": "he",
+   "bytes": 11082,
+   "status": 200,
+   "body": "{\"text\":\"I would like to ask about a second exam date after reserve duty, thank you very much.\",\"seconds\":5.315,\"language\":\"he\"}",
+   "ms": 1961
+  },
+  {
+   "file": "s.wav",
+   "lang": "auto",
+   "bytes": 170158,
+   "status": 200,
+   "body": "{\"text\":\"I would like to ask about a second exam date after reserve duty, thank you very much.\",\"seconds\":5.315,\"language\":\"en\"}",
+   "ms": 2096
+  },
+  {
+   "file": "s.wav",
+   "lang": "he",
+   "bytes": 170158,
+   "status": 200,
+   "body": "{\"text\":\"I would like to ask about a second exam date after reserve duty, thank you very much.\",\"seconds\":5.315,\"language\":\"he\"}",
+   "ms": 1712
+  },
+  {
+   "file": "s.webm",
+   "lang": "auto",
+   "bytes": 12686,
+   "status": 200,
+   "body": "{\"text\":\"I would like to ask about a second exam date after reserve duty, thank you very much.\",\"seconds\":5.315,\"language\":\"en\"}",
+   "ms": 2258
+  },
+  {
+   "file": "s.webm",
+   "lang": "he",
+   "bytes": 12686,
+   "status": 200,
+   "body": "{\"text\":\"I would like to ask about a second exam date after reserve duty, thank you very much.\",\"seconds\":5.315,\"language\":\"he\"}",
+   "ms": 1733
+  }
+ ],
+ "human": {
+  "status": 200,
+  "body": "{\"sitekey\":\"\",\"ok\":true,\"enforce\":false,\"days\":[]}"
+ },
+ "noCode": 403
+}

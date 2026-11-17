@@ -1,0 +1,61 @@
+{
+ "tag": "cftest8",
+ "at": "2026-11-17T11:05:19.640Z",
+ "chat": [],
+ "audio": [],
+ "human": {
+  "status": 200,
+  "body": "{\"sitekey\":\"0x4AAAAAAGE7c5H8f2E5hAzv\",\"ok\":false,\"enforce\":false,\"days\":[{\"day\":\"2026-11-17\",\"pass\":false,\"n\":2}]}"
+ },
+ "dbg": {
+  "status": 200,
+  "j": {
+   "t": 1794913458202,
+   "meta": {
+    "bytes": 87018,
+    "type": "audio/x-m4a",
+    "name": "",
+    "magic": "0000001c667479704d344120000000004d3441206d70343269736f6d000005af6d6f6f760000006c",
+    "ua": "BackgroundShortcutRunner/5203.0.1 CFNetwork/3896.300.31 Darwin/27.3.0",
+    "a": {
+     "text": "תחת, שתיים, שלוש, ארבע, ניקה.",
+     "info": {
+      "language": "he",
+      "language_probability": 1,
+      "duration": 3.2413125,
+      "duration_after_vad": 3.0653125
+     },
+     "segs": 1
+    },
+    "novad": {
+     "text": "חת, שתיים, שלוש, ארבע, ניכה",
+     "info": {
+      "language": "he",
+      "language_probability": 1,
+      "duration": 3.2413125,
+      "duration_after_vad": 3.2413125
+     }
+    },
+    "auto": {
+     "text": "1, 2, 3, 4, 5",
+     "info": {
+      "language": "en",
+      "language_probability": 0.70654296875,
+      "duration": 3.2413125,
+      "duration_after_vad": 3.2413125
+     }
+    },
+    "prompt": {
+     "text": "משחת, שתיים, שלוש, ארבע, ניקה.",
+     "info": {
+      "language": "he",
+      "language_probability": 1,
+      "duration": 3.2413125,
+      "duration_after_vad": 3.2413125
+     }
+    }
+   }
+  }
+ },
+ "noCode": 403
+}

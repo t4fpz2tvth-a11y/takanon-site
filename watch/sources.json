@@ -1,0 +1,1182 @@
+[
+ {
+  "url": "https://studentsadmin.huji.ac.il/study",
+  "names": [
+   "נהלי הוראה ולימודים",
+   "החלטות ועדת נה\"ל בשנת תשפ\"ו (פרוטוקולים 26.11.2025, 13.01.2026, 24.03.2026, 27.05.2026)",
+   "הבהרות בכתב של מינהל הסטודנטים"
+  ],
+  "docs": [
+   "core:nahal",
+   "core:nahal_decisions_5786",
+   "core:admin_clarifications"
+  ]
+ },
+ {
+  "url": "https://new.huji.ac.il/sites/default/files/mainsite/files/mishmaat_talmidim_2021.pdf",
+  "names": [
+   "תקנון משמעת תלמידים"
+  ],
+  "docs": [
+   "core:mishmaat"
+  ]
+ },
+ {
+  "url": "https://academic-secretary.huji.ac.il/sites/default/files/acs/files/kvilot_0.pdf",
+  "names": [
+   "נציב קבילות סטודנטים"
+  ],
+  "docs": [
+   "core:kvilot"
+  ]
+ },
+ {
+  "url": "https://new.huji.ac.il/update_miluim",
+  "names": [
+   "מתווה המילואים ודיקנט הסטודנטים",
+   "מתווה ההקלות וההתאמות למשרתי ומשרתות המילואים תשפ\"ו: ההתאמות עצמן (מתוך אותו עמוד)"
+  ],
+  "docs": [
+   "core:miluim",
+   "core:miluim_outline"
+  ]
+ },
+ {
+  "url": "https://hatrada.huji.ac.il/sites/default/files/hatrada/files/tqnvn_lmnyt_htrdh_mynyt_-_mrts_2025.pdf",
+  "names": [
+   "תקנון למניעת הטרדה מינית"
+  ],
+  "docs": [
+   "core:harassment"
+  ]
+ },
+ {
+  "url": "https://academic-secretary.huji.ac.il/sites/default/files/acs/files/hangashat_homrei_limud.pdf",
+  "names": [
+   "נוהל הנגשת חומרי למידה לסטודנטים"
+  ],
+  "docs": [
+   "core:access"
+  ]
+ },
+ {
+  "url": "https://academic-secretary.huji.ac.il/תקנונים",
+  "names": [
+   "נהלים כלל-אוניברסיטאיים נוספים",
+   "עמוד לוח השנה האקדמית מהארכיון (כמה שנים יחד)"
+  ],
+  "docs": [
+   "core:univ",
+   "core:calendar_old"
+  ]
+ },
+ {
+  "url": "https://studean.huji.ac.il/נוהל-התאמות-נגישות-בלימודים-בגין-מוגבלות-רפואית",
+  "names": [
+   "נוהל התאמות נגישות בלימודים בגין מוגבלות רפואית"
+  ],
+  "docs": [
+   "core:negishut_nohal"
+  ]
+ },
+ {
+  "url": "https://studean.huji.ac.il/פעילות-היחידה-לנגישות-ומוגבלויות",
+  "names": [
+   "היחידה לנגישות ומוגבלויות: אילו מענים מציעה היחידה"
+  ],
+  "docs": [
+   "core:negishut_services"
+  ]
+ },
+ {
+  "url": "https://studean.huji.ac.il/איך-מגישים-בקשה",
+  "names": [
+   "איך מגישים בקשה לקבלת סיוע מיחידת הנגישות"
+  ],
+  "docs": [
+   "core:negishut_apply"
+  ]
+ },
+ {
+  "url": "https://studean.huji.ac.il/מרכז-למידה-לעיוור",
+  "names": [
+   "מרכז הלמידה לעיוור"
+  ],
+  "docs": [
+   "core:ivver"
+  ]
+ },
+ {
+  "url": "https://studean.huji.ac.il/פניות-וקבילות",
+  "names": [
+   "פניות וקבילות: ועדת הערעורים לשכר לימוד, נציב הקבילות ותלונות (דיקנט הסטודנטים)"
+  ],
+  "docs": [
+   "core:deans_complaints"
+  ]
+ },
+ {
+  "url": "https://studean.huji.ac.il/קריטריונים-להענקת-מלגות",
+  "names": [
+   "מלגות סיוע: קריטריונים ותנאים; מעורבות תמורת מלגה (דיקנט הסטודנטים)"
+  ],
+  "docs": [
+   "core:deans_aid"
+  ]
+ },
+ {
+  "url": "https://studean.huji.ac.il/LDD",
+  "names": [
+   "היחידה ללקויות למידה וקשיי קשב (דיקנט הסטודנטים)"
+  ],
+  "docs": [
+   "core:deans_ld"
+  ]
+ },
+ {
+  "url": "https://studean.huji.ac.il/נגישות-ומוגבלויות",
+  "names": [
+   "נגישות ומוגבלויות: עמוד היחידה (דיקנט הסטודנטים)"
+  ],
+  "docs": [
+   "core:deans_access"
+  ]
+ },
+ {
+  "url": "https://academic-secretary.huji.ac.il/sites/default/files/acs/files/nohal_bdikat_migbala.pdf",
+  "names": [
+   "נוהל בדיקת קיום מגבלה אצל סטודנטים"
+  ],
+  "docs": [
+   "core:migbala"
+  ]
+ },
+ {
+  "url": "https://academic-secretary.huji.ac.il/sites/default/files/acs/files/committee_harvot_barzel.pdf",
+  "names": [
+   "נוהל עבודה: ועדת משמעת מיוחדת לתקופת מלחמת חרבות ברזל"
+  ],
+  "docs": [
+   "core:mishmaat_war"
+  ]
+ },
+ {
+  "url": "https://academic-secretary.huji.ac.il/שלבי-בירור-תלונה",
+  "names": [
+   "שלבי בירור תלונה (פירוט לסעיף 23 בתקנון המשמעת)"
+  ],
+  "docs": [
+   "core:mishmaat_steps"
+  ]
+ },
+ {
+  "url": "https://overseas.huji.ac.il/wp-content/uploads/2022/01/תקנון-עברית.pdf",
+  "names": [
+   "תנאים להמשך הלימודים במכינה לתלמידים מחו\"ל / מכינה מזרח ירושלים"
+  ],
+  "docs": [
+   "core:mechina"
+  ]
+ },
+ {
+  "url": "https://dorms.huji.ac.il/media/uglonlbz/תקנון-מעודכן-עברית-כולל-נספח-משמעת-מעודכן-כולל-גיל-עדכון.pdf",
+  "names": [
+   "תקנון מעונות הסטודנטים (דיקן הסטודנטים, הנהלת המעונות)"
+  ],
+  "docs": [
+   "core:dorms_takanon"
+  ]
+ },
+ {
+  "url": "https://dorms.huji.ac.il/media/wybnw3sc/תקנון-מעודכן-ערבית-כולל-נספח-משמעת-כולל-עדכון-נושא-גיל-17626.pdf",
+  "names": [
+   "תקנון מעונות הסטודנטים (דיקן הסטודנטים, הנהלת המעונות) (ערבית)"
+  ],
+  "docs": [
+   "core:dorms_takanon"
+  ]
+ },
+ {
+  "url": "https://dormsreg.huji.ac.il/מידע-כללי/",
+  "names": [
+   "כתב הרשאה והתחייבות (הסכם המגורים במעונות), שנת הלימודים תשפ\"ז"
+  ],
+  "docs": [
+   "core:dorms_agreement"
+  ]
+ },
+ {
+  "url": "https://studentsadmin.huji.ac.il/sites/default/files/minhalt/files/nahal2020-2021.pdf",
+  "names": [
+   "נהלי הוראה ולימודים, נוסח 2020-2021 (תשפ\"א): סעיף 6.5"
+  ],
+  "docs": [
+   "core:nahal65_old"
+  ]
+ },
+ {
+  "url": "https://studean.huji.ac.il/%D7%A9%D7%90%D7%98%D7%9C%D7%99%D7%9D",
+  "names": [
+   "שאטלים של האוניברסיטה (דיקנט הסטודנטים, רווחת הסטודנטים)"
+  ],
+  "docs": [
+   "core:shuttles"
+  ]
+ },
+ {
+  "url": "https://academic-secretary.huji.ac.il/sites/default/files/acs/files/seder_limudim_tashpaz.pdf",
+  "names": [
+   "סדרי הלימודים והבחינות בימי חג וצום, שנת הלימודים תשפ\"ז"
+  ],
+  "docs": [
+   "core:holidays_5787"
+  ]
+ },
+ {
+  "url": "https://academic-secretary.huji.ac.il/%D7%9C%D7%95%D7%97-%D7%A9%D7%A0%D7%94-%D7%90%D7%A7%D7%93%D7%9E%D7%99",
+  "names": [
+   "לוח השנה האקדמית תשפ\"ז",
+   "לוח השנה האקדמית תשפ\"ח"
+  ],
+  "docs": [
+   "core:calendar_5787",
+   "core:calendar_5788"
+  ]
+ },
+ {
+  "url": "https://new.huji.ac.il/%D7%94%D7%A7%D7%9E%D7%A4%D7%95%D7%A1%D7%99%D7%9D-%D7%A9%D7%9C%D7%A0%D7%95",
+  "names": [
+   "הקמפוסים של האוניברסיטה העברית (אתר האוניברסיטה)"
+  ],
+  "docs": [
+   "core:campuses"
+  ]
+ },
+ {
+  "url": "https://new.huji.ac.il/sites/default/files/mainsite/files/ysvr_knyst_bly_khyym_lshtkhy_hqmpvsym_shl_hvnybrsyth_hbryt.pdf",
+  "names": [
+   "איסור כניסת בעלי חיים לשטחי הקמפוסים של האוניברסיטה העברית"
+  ],
+  "docs": [
+   "core:campus_animals"
+  ]
+ },
+ {
+  "url": "https://new.huji.ac.il/sites/default/files/mainsite/files/mnyt_hyshvn_bmqvmvt_tsybvryym_vhkhshyph_lyshvn.pdf",
+  "names": [
+   "מניעת העישון במקומות ציבוריים והחשיפה לעישון (האוניברסיטה העברית)"
+  ],
+  "docs": [
+   "core:campus_smoking"
+  ]
+ },
+ {
+  "url": "https://new.huji.ac.il/sites/default/files/mainsite/files/vulnerable_populations_heb.pdf",
+  "names": [
+   "מדיניות האוניברסיטה בנושא אוכלוסיות פגיעות"
+  ],
+  "docs": [
+   "core:vulnerable"
+  ]
+ },
+ {
+  "url": "https://study.agri.huji.ac.il/agri-study/learning-disabilities",
+  "names": [
+   "היחידה לאבחון ותמיכה בסטודנטים לקויי למידה"
+  ],
+  "docs": [
+   "agri:agri385"
+  ]
+ },
+ {
+  "url": "https://study.agri.huji.ac.il/agri-study/inter-institutional-courses",
+  "names": [
+   "קורסים בינאוניברסיטאיים"
+  ],
+  "docs": [
+   "agri:agri384"
+  ]
+ },
+ {
+  "url": "https://study.agri.huji.ac.il/miluim-harvot-barzel/select-year",
+  "names": [
+   "מילואים - מתווים ויועצים"
+  ],
+  "docs": [
+   "agri:agri366"
+  ]
+ },
+ {
+  "url": "https://study.agri.huji.ac.il/support",
+  "names": [
+   "מערך תמיכה לסטודנט"
+  ],
+  "docs": [
+   "agri:agri365"
+  ]
+ },
+ {
+  "url": "https://study.agri.huji.ac.il/agri-study/veterinary-studies",
+  "names": [
+   "לימודי וטרינריה"
+  ],
+  "docs": [
+   "agri:agri381"
+  ]
+ },
+ {
+  "url": "https://study.agri.huji.ac.il/studying-procedures/additional-procedures/1.4-tuition-fees",
+  "names": [
+   "נהלים נוספים מחייבים בפקולטה לחקלאות (תוספות לנה\"ל)"
+  ],
+  "docs": [
+   "agri:agri763"
+  ]
+ },
+ {
+  "url": "https://study.agri.huji.ac.il/master-info/registration-regulations",
+  "names": [
+   "חקלאות: סדרי הרשמה ונהלי מסלולי המוסמך"
+  ],
+  "docs": [
+   "agri:agri1097"
+  ]
+ },
+ {
+  "url": "https://study.agri.huji.ac.il/miluim-harvot-barzel/studies",
+  "names": [
+   "חקלאות: מילואים (לימודים, התאמות, תכנית לימודים מינימלית)"
+  ],
+  "docs": [
+   "agri:agri1092"
+  ]
+ },
+ {
+  "url": "https://bschool.huji.ac.il/Accelerated-study-track",
+  "names": [
+   "מסלול אלפא – מסלול מואץ לתלמידי מנהל עסקים וחשבונאות"
+  ],
+  "docs": [
+   "bschool:bschool84"
+  ]
+ },
+ {
+  "url": "https://bschool.huji.ac.il/Accelerated-study-track-all",
+  "names": [
+   "מסלול מואץ לתלמידי תואר ראשון מכל הפקולטות"
+  ],
+  "docs": [
+   "bschool:bschool76"
+  ]
+ },
+ {
+  "url": "https://bschool.huji.ac.il/%D7%9E%D7%99%D7%9C%D7%95%D7%90%D7%99%D7%9D-%D7%97%D7%A8%D7%91%D7%95%D7%AA-%D7%91%D7%A8%D7%96%D7%9C",
+  "names": [
+   "מילואים חרבות ברזל"
+  ],
+  "docs": [
+   "bschool:bschool80"
+  ]
+ },
+ {
+  "url": "https://bschool.huji.ac.il/%D7%9E%D7%AA%D7%95%D7%95%D7%94-%D7%9E%D7%99%D7%95%D7%97%D7%93",
+  "names": [
+   "מתווה מיוחד"
+  ],
+  "docs": [
+   "bschool:bschool83"
+  ]
+ },
+ {
+  "url": "https://bschool.huji.ac.il/phd",
+  "names": [
+   "תואר שלישי (PhD)"
+  ],
+  "docs": [
+   "bschool:bschool7"
+  ]
+ },
+ {
+  "url": "https://dental.huji.ac.il/%D7%A0%D7%95%D7%94%D7%9C%D7%99-%D7%94%D7%95%D7%A8%D7%90%D7%94-%D7%95%D7%9C%D7%99%D7%9E%D7%95%D7%93%D7%99%D7%9D",
+  "names": [
+   "נוהלי הוראה ולימודים"
+  ],
+  "docs": [
+   "dental:dental102"
+  ]
+ },
+ {
+  "url": "https://dental.huji.ac.il/%D7%9E%D7%99%D7%9C%D7%95%D7%90%D7%99%D7%9D-%D7%97%D7%A8%D7%91%D7%95%D7%AA-%D7%91%D7%A8%D7%96%D7%9C",
+  "names": [
+   "מילואים חרבות ברזל"
+  ],
+  "docs": [
+   "dental:dental95"
+  ]
+ },
+ {
+  "url": "https://dental.huji.ac.il/%D7%92%D7%95%D7%A8%D7%9E%D7%99-%D7%AA%D7%9E%D7%99%D7%9B%D7%94-%D7%9C%D7%A1%D7%98%D7%95%D7%93%D7%A0%D7%98%D7%99%D7%AA-%D7%A9%D7%9C-%D7%94%D7%A4%D7%A7%D7%95%D7%9C%D7%98%D7%94-%D7%9C%D7%A8%D7%A4%D7%95%D7%90%D7%AA-%D7%A9%D7%99%D7%A0%D7%99%D7%99%D7%9D",
+  "names": [
+   "גורמי תמיכה לסטודנט/ית של הפקולטה לרפואת שיניים"
+  ],
+  "docs": [
+   "dental:dental420"
+  ]
+ },
+ {
+  "url": "https://dental.huji.ac.il/sites/default/files/dentist.he/files/tqnvn_rpvt_shynyym_mvdkn_3.8.22_.pdf",
+  "names": [
+   "תקנון לימודים ייעודי לרפואת שיניים (3.8.2022)"
+  ],
+  "docs": [
+   "dental:dental9"
+  ]
+ },
+ {
+  "url": "https://dental.huji.ac.il/sites/default/files/dentist.he/files/tqnvn_vhnkhyvt_lktybt_htsh_vbvdt_gmr_-_ynvr_2026.pdf",
+  "names": [
+   "תקנון והנחיות לכתיבת הצעה ועבודת גמר  - ינואר 2026"
+  ],
+  "docs": [
+   "dental:dental424"
+  ]
+ },
+ {
+  "url": "https://dental.huji.ac.il/סיוע-הדדי",
+  "names": [
+   "סיוע הדדי (הפקולטה לרפואת שיניים)"
+  ],
+  "docs": [
+   "dental:dental998"
+  ]
+ },
+ {
+  "url": "https://education.huji.ac.il/studies",
+  "names": [
+   "בית הספר לחינוך: לימודים, מזכירות תלמידים, מעמד מיוחד ואישורים"
+  ],
+  "docs": [
+   "edu:edu1144"
+  ]
+ },
+ {
+  "url": "https://education.huji.ac.il/studies_teacher_training_about_program",
+  "names": [
+   "בית הספר לחינוך: תעודת הוראה (מבנה הלימודים ומסלולים)"
+  ],
+  "docs": [
+   "edu:edu1273"
+  ]
+ },
+ {
+  "url": "https://education.huji.ac.il/students_BA1",
+  "names": [
+   "בית הספר לחינוך: תוכניות לתואר ומלגות"
+  ],
+  "docs": [
+   "edu:edu1109"
+  ]
+ },
+ {
+  "url": "https://hum.huji.ac.il/תואר-ראשון",
+  "names": [
+   "לימודים לתואר ראשון (בוגר) בפקולטה למדעי הרוח"
+  ],
+  "docs": [
+   "hum:hum1134"
+  ]
+ },
+ {
+  "url": "https://hum.huji.ac.il/תואר-שני",
+  "names": [
+   "לימודים לתואר שני (מוסמך) בפקולטה למדעי הרוח"
+  ],
+  "docs": [
+   "hum:hum1135"
+  ]
+ },
+ {
+  "url": "https://hum.huji.ac.il/חידוש-לימודים",
+  "names": [
+   "מדעי הרוח: חידוש לימודים, לימודים בין-מוסדיים, מלגות"
+  ],
+  "docs": [
+   "hum:hum1138"
+  ]
+ },
+ {
+  "url": "https://hum.huji.ac.il/sites/default/files/hum/files/mktb_lstvdntym-mdy_hrvkh-tshph.pdf",
+  "names": [
+   "מדעי הרוח: מכתב לסטודנטים על התאמות למשרתי מילואים (תשפ\"ה)"
+  ],
+  "docs": [
+   "hum:hum1246"
+  ]
+ },
+ {
+  "url": "http://law.huji.ac.il/book/%D7%AA%D7%95%D7%90%D7%A8-%D7%A8%D7%90%D7%A9%D7%95%D7%9F-%D7%91%D7%9E%D7%A9%D7%A4%D7%98%D7%99%D7%9D",
+  "names": [
+   "תואר בוגר במשפטים"
+  ],
+  "docs": [
+   "law:law443"
+  ]
+ },
+ {
+  "url": "https://law.huji.ac.il/%D7%9E%D7%99%D7%9C%D7%95%D7%90%D7%99%D7%9D-%D7%97%D7%A8%D7%91%D7%95%D7%AA-%D7%91%D7%A8%D7%96%D7%9C",
+  "names": [
+   "מילואים חרבות ברזל"
+  ],
+  "docs": [
+   "law:law117"
+  ]
+ },
+ {
+  "url": "https://law.huji.ac.il/%D7%94%D7%9E%D7%96%D7%9B%D7%99%D7%A8%D7%95%D7%AA-%D7%9C%D7%A2%D7%A0%D7%99%D7%99%D7%A0%D7%99-%D7%AA%D7%9C%D7%9E%D7%99%D7%93%D7%99%D7%9D",
+  "names": [
+   "המזכירות לענייני תלמידים"
+  ],
+  "docs": [
+   "law:law125"
+  ]
+ },
+ {
+  "url": "https://law.huji.ac.il/sites/default/files/law/files/law_graduate_regulations_-_june_2024.pdf",
+  "names": [
+   "תקנון הלימודים של הפקולטה למשפטים"
+  ],
+  "docs": [
+   "law:law849"
+  ]
+ },
+ {
+  "url": "https://law.huji.ac.il/התאמות-על-רקע-לקויות-למידה/",
+  "names": [
+   "התאמות על רקע לקויות למידה (הפקולטה למשפטים)"
+  ],
+  "docs": [
+   "law:law851"
+  ]
+ },
+ {
+  "url": "https://law.huji.ac.il/sites/default/files/law/files/takanon2026.pdf",
+  "names": [
+   "תקנון הפקולטה למשפטים (נוסח מאי 2026)"
+  ],
+  "docs": [
+   "law:law900"
+  ]
+ },
+ {
+  "url": "https://law.huji.ac.il/book/לימודי-מוסמך-במשפטים",
+  "names": [
+   "לימודי מוסמך במשפטים"
+  ],
+  "docs": [
+   "law:law901"
+  ]
+ },
+ {
+  "url": "https://law.huji.ac.il/book/לימודי-מוסמך-בקרימינולוגיה",
+  "names": [
+   "לימודי מוסמך בקרימינולוגיה"
+  ],
+  "docs": [
+   "law:law904"
+  ]
+ },
+ {
+  "url": "https://law.huji.ac.il/book/לימודי-התואר-השלישי-בקרימינולוגיה-דוקטור-לפילוסופיה",
+  "names": [
+   "לימודי התואר השלישי בקרימינולוגיה (דוקטור לפילוסופיה)"
+  ],
+  "docs": [
+   "law:law905"
+  ]
+ },
+ {
+  "url": "https://law.huji.ac.il/book/llm-program-regulations",
+  "names": [
+   "LL.M. program regulations (הפקולטה למשפטים, באנגלית)"
+  ],
+  "docs": [
+   "law:law902"
+  ]
+ },
+ {
+  "url": "https://criminology.huji.ac.il/תואר-מוסמך",
+  "names": [
+   "תארים מתקדמים בקרימינולוגיה"
+  ],
+  "docs": [
+   "law:law1012"
+  ]
+ },
+ {
+  "url": "https://law.huji.ac.il/sites/default/files/law/files/takanondoc2021.docx",
+  "names": [
+   "תקנון לימודי דוקטור במשפטים"
+  ],
+  "docs": [
+   "law:law1129"
+  ]
+ },
+ {
+  "url": "https://heshinadvancedstudies.huji.ac.il/נוהל-קבלה",
+  "names": [
+   "נוהל קבלה ללימודי דוקטור (מרכז השין ללימודים מתקדמים במשפטים)"
+  ],
+  "docs": [
+   "law:law1026"
+  ]
+ },
+ {
+  "url": "https://medicine.ada.huji.ac.il/he/Pages/reserveService.aspx",
+  "names": [
+   "מילואים במלחמת חרבות ברזל: פקולטה לרפואה"
+  ],
+  "docs": [
+   "med:med17"
+  ]
+ },
+ {
+  "url": "https://medicine.ada.huji.ac.il/he/regulations/regulationsMedicine/Pages/MDClinical.aspx",
+  "names": [
+   "תקנון לימודי רפואה: שנים קליניות"
+  ],
+  "docs": [
+   "med:med26"
+  ]
+ },
+ {
+  "url": "https://medicine.ada.huji.ac.il/he/regulations/regulationsMedicine/Pages/md.aspx",
+  "names": [
+   "תקנון לימודי רפואה: שנים פרה-קליניות"
+  ],
+  "docs": [
+   "med:med31"
+  ]
+ },
+ {
+  "url": "https://medicine.ada.huji.ac.il/he/regulations/regulationsMedicine/Pages/exams.aspx",
+  "names": [
+   "תקנון בחינות פקולטת הרפואה"
+  ],
+  "docs": [
+   "med:med30"
+  ]
+ },
+ {
+  "url": "https://medicine.ada.huji.ac.il/he/regulations/regulationsMedicine/Pages/staj.aspx",
+  "names": [
+   "תקנון סטאז׳ ברפואה"
+  ],
+  "docs": [
+   "med:med33"
+  ]
+ },
+ {
+  "url": "https://medicine.ada.huji.ac.il/he/regulations/regulationsMedicine/Pages/nationalFinalExams.aspx",
+  "names": [
+   "נהלי בחינות גמר ארציות ברפואה"
+  ],
+  "docs": [
+   "med:med32"
+  ]
+ },
+ {
+  "url": "https://medicine.ada.huji.ac.il/he/regulations/regulationsMedicine/Pages/thesisMD.aspx",
+  "names": [
+   "עבודת הגמר לתואר MD"
+  ],
+  "docs": [
+   "med:med34"
+  ]
+ },
+ {
+  "url": "https://medicine.ada.huji.ac.il/he/regulations/regulationsMedicine/Pages/completing.aspx",
+  "names": [
+   "השלמת חסרים בלימודים קליניים עקב הריון או לידה"
+  ],
+  "docs": [
+   "med:med27"
+  ]
+ },
+ {
+  "url": "https://medicine.ada.huji.ac.il/he/regulations/regulationsMedicine/Pages/completingReserveService.aspx",
+  "names": [
+   "השלמת חסרים בשנים קליניות ברפואה בגין מילואים"
+  ],
+  "docs": [
+   "med:med28"
+  ]
+ },
+ {
+  "url": "https://medicine.ada.huji.ac.il/he/education/curriculumMedicine/Pages/Convention.aspx",
+  "names": [
+   "אמנת תלמידי רפואה ומוריהם בפקולטה לרפואה של בית הספר לרפואה של האוניברסיטה העברית והדסה"
+  ],
+  "docs": [
+   "med:med533"
+  ]
+ },
+ {
+  "url": "https://medicine.ada.huji.ac.il/he/regulations/regulationsNursing/Pages/graduated.aspx",
+  "names": [
+   "תקנון לימודי בוגר בסיעוד"
+  ],
+  "docs": [
+   "med:med35"
+  ]
+ },
+ {
+  "url": "https://medicine.ada.huji.ac.il/he/regulations/regulationsNursing/Pages/scholarships.aspx",
+  "names": [
+   "תקנון מלגות סיעוד"
+  ],
+  "docs": [
+   "med:med36"
+  ]
+ },
+ {
+  "url": "https://medicine.ada.huji.ac.il/he/regulations/regulationsOccupationalTherapy/Pages/clinicalTraining.aspx",
+  "names": [
+   "תקנון הכשרות קליניות בריפוי בעיסוק"
+  ],
+  "docs": [
+   "med:med37"
+  ]
+ },
+ {
+  "url": "https://medicine.ada.huji.ac.il/he/regulations/regulationsOccupationalTherapy/Pages/graduated.aspx",
+  "names": [
+   "תקנון תואר בוגר בריפוי בעיסוק"
+  ],
+  "docs": [
+   "med:med38"
+  ]
+ },
+ {
+  "url": "https://medicine.ada.huji.ac.il/he/regulations/regulationsOccupationalTherapy/Pages/scholarships.aspx",
+  "names": [
+   "תקנון מלגות בריפוי בעיסוק"
+  ],
+  "docs": [
+   "med:med39"
+  ]
+ },
+ {
+  "url": "https://schoolofpharmacy.huji.ac.il/excellence-program-protocol",
+  "names": [
+   "בית הספר לרוקחות: תקנון תכנית מצוינות"
+  ],
+  "docs": [
+   "med:med599"
+  ]
+ },
+ {
+  "url": "https://schoolofpharmacy.huji.ac.il/m-sc-protocol",
+  "names": [
+   "בית הספר לרוקחות: תקנון תואר מוסמך"
+  ],
+  "docs": [
+   "med:med600"
+  ]
+ },
+ {
+  "url": "https://schoolofpharmacy.huji.ac.il/pharmd-protocol",
+  "names": [
+   "תקנון רוקחות קלינית"
+  ],
+  "docs": [
+   "med:med601"
+  ]
+ },
+ {
+  "url": "https://schoolofpharmacy.huji.ac.il/professional-internship-protocol",
+  "names": [
+   "בית הספר לרוקחות: תקנון התמחות מקצועית"
+  ],
+  "docs": [
+   "med:med602"
+  ]
+ },
+ {
+  "url": "https://pharmacyschool.huji.ac.il/%D7%A0%D7%A1%D7%A4%D7%97%D7%99%D7%9D-%D7%9C%D7%AA%D7%A7%D7%A0%D7%95%D7%9F-%D7%91%D7%99%D7%94%D7%A1",
+  "names": [
+   "בית הספר לרוקחות: נספחים לתקנון ביה\"ס"
+  ],
+  "docs": [
+   "med:med171"
+  ]
+ },
+ {
+  "url": "https://medicine.ada.huji.ac.il/he/regulations/regulationsPublicHealth/Pages/postgraduate.aspx",
+  "names": [
+   "תקנון לימודים מתקדמים בבריאות הציבור"
+  ],
+  "docs": [
+   "med:med44"
+  ]
+ },
+ {
+  "url": "https://medicine.ada.huji.ac.il/he/regulations/regulationsPublicHealth/Pages/scholarships.aspx",
+  "names": [
+   "תקנון מלגות בבריאות הציבור"
+  ],
+  "docs": [
+   "med:med45"
+  ]
+ },
+ {
+  "url": "https://medicine.ada.huji.ac.il/he/regulations/regulationsPublicHealth/Pages/supplementalThesis.aspx",
+  "names": [
+   "נוהל השלמת תזה לצורך לימודי דוקטורט"
+  ],
+  "docs": [
+   "med:med46"
+  ]
+ },
+ {
+  "url": "https://medicine.ada.huji.ac.il/he/regulations/regulationsPublicHealth/Pages/thesis.aspx",
+  "names": [
+   "תקנון עבודת גמר בבריאות הציבור"
+  ],
+  "docs": [
+   "med:med47"
+  ]
+ },
+ {
+  "url": "https://medicine.ada.huji.ac.il/he/regulations/regulationsPublicHealth/Pages/combinedStudyMDMPH.aspx",
+  "names": [
+   "תקנון לימודים משולבים MD/MPH"
+  ],
+  "docs": [
+   "med:med172"
+  ]
+ },
+ {
+  "url": "https://medicine.ada.huji.ac.il/he/regulations/regulationsPublicHealth/Pages/finalExam.aspx",
+  "names": [
+   "מבחן סופי ללימודי MPH"
+  ],
+  "docs": [
+   "med:med173"
+  ]
+ },
+ {
+  "url": "https://medicine.ada.huji.ac.il/he/regulations/regulationsBioMed/Pages/graduated.aspx",
+  "names": [
+   "תקנון תואר בוגר במדעים ביו-רפואיים"
+  ],
+  "docs": [
+   "med:med21"
+  ]
+ },
+ {
+  "url": "https://medicine.ada.huji.ac.il/he/regulations/regulationsBioMed/Pages/postgraduate.aspx",
+  "names": [
+   "תקנון תואר מוסמך במדעים ביו-רפואיים"
+  ],
+  "docs": [
+   "med:med22"
+  ]
+ },
+ {
+  "url": "https://medicine.ada.huji.ac.il/he/regulations/regulationsBioMed/Pages/finalExam.aspx",
+  "names": [
+   "הנחיות לסגירת תואר בוגר"
+  ],
+  "docs": [
+   "med:med20"
+  ]
+ },
+ {
+  "url": "https://medicine.ada.huji.ac.il/he/regulations/regulationsBioMed/Pages/directTrackExam.aspx",
+  "names": [
+   "בחינת מעבר למסלול ישיר לדוקטורט"
+  ],
+  "docs": [
+   "med:med19"
+  ]
+ },
+ {
+  "url": "https://medicine.ada.huji.ac.il/he/regulations/regulationsBioMed/Pages/examination.aspx",
+  "names": [
+   "תקנון הבחינות"
+  ],
+  "docs": [
+   "med:med151"
+  ]
+ },
+ {
+  "url": "https://medicine.ada.huji.ac.il/he/regulations/regulationsBioMed/Pages/scholarships.aspx",
+  "names": [
+   "תקנון מלגות במדעים ביו-רפואיים"
+  ],
+  "docs": [
+   "med:med23"
+  ]
+ },
+ {
+  "url": "https://medicine.ada.huji.ac.il/he/regulations/regulationsBioMed/Pages/scholarshipsMDPhD.aspx",
+  "names": [
+   "תקנון מלגות MD/PhD"
+  ],
+  "docs": [
+   "med:med24"
+  ]
+ },
+ {
+  "url": "https://medicine.ada.huji.ac.il/he/regulations/regulationsBioMed/Pages/supervising.aspx",
+  "names": [
+   "תקנון הנחיית תלמידי מוסמך במדעים ביו-רפואיים"
+  ],
+  "docs": [
+   "med:med25"
+  ]
+ },
+ {
+  "url": "https://medicine.ada.huji.ac.il/he/regulations/regulationsBioMed/Pages/MDMSc.aspx",
+  "names": [
+   "לימודים משולבים MD/MSc"
+  ],
+  "docs": [
+   "med:med146"
+  ]
+ },
+ {
+  "url": "https://medicine.ada.huji.ac.il/he/education/curriculumMedicine/Pages/MDPHDMarom.aspx",
+  "names": [
+   "תקנון תכנית רופא-חוקר 'מרום'"
+  ],
+  "docs": [
+   "med:med156"
+  ]
+ },
+ {
+  "url": "https://medicine.ada.huji.ac.il/he/regulations/regulationsMedicine/Pages/scholarshipsMDPhD.aspx",
+  "names": [
+   "תקנון מלגות MD/PhD"
+  ],
+  "docs": [
+   "med:med158"
+  ]
+ },
+ {
+  "url": "https://medicine.ada.huji.ac.il/he/Pages/medStudentsSupport.aspx",
+  "names": [
+   "גורמי תמיכה לסטודנט/ית של ביה\"ס לרפואה"
+  ],
+  "docs": [
+   "med:med512"
+  ]
+ },
+ {
+  "url": "https://schoolofpharmacy.huji.ac.il/b-sc-protocol",
+  "names": [
+   "בית הספר לרוקחות: תקנון בוגר והסבה"
+  ],
+  "docs": [
+   "med:med598"
+  ]
+ },
+ {
+  "url": "https://openscholar.huji.ac.il/sites/default/files/pharmacyschoolheb/files/hnkhyvt_lktybt_htst_mkhqr_syvm_shnh_tvr_mvsmk.docx",
+  "names": [
+   "בית הספר לרוקחות: הנחיות לכתיבת הצעת מחקר (סיום שנה א' במוסמך)"
+  ],
+  "docs": [
+   "med:med545"
+  ]
+ },
+ {
+  "url": "https://openscholar.huji.ac.il/sites/default/files/pharmacyschoolheb/files/hnkhyvt_lktybt_bvdt_gmr.doc",
+  "names": [
+   "בית הספר לרוקחות: הנחיות לכתיבת עבודת מוסמך"
+  ],
+  "docs": [
+   "med:med546"
+  ]
+ },
+ {
+  "url": "https://research-students.huji.ac.il/%D7%9E%D7%94%D7%9C%D7%9A-%D7%94%D7%9C%D7%99%D7%9E%D7%95%D7%93%D7%99%D7%9D",
+  "names": [
+   "מהלך הלימודים"
+  ],
+  "docs": [
+   "research:research404"
+  ]
+ },
+ {
+  "url": "https://research-students.huji.ac.il/%D7%94%D7%A4%D7%A1%D7%A7%D7%AA-%D7%9C%D7%99%D7%9E%D7%95%D7%93%D7%99%D7%9D-%D7%95%D7%97%D7%99%D7%93%D7%95%D7%A9%D7%9D",
+  "names": [
+   "הפסקת הלימודים וחידושם"
+  ],
+  "docs": [
+   "research:research405"
+  ]
+ },
+ {
+  "url": "https://academic-secretary.huji.ac.il/sites/default/files/acs/files/talmidei_mehkar_2023.pdf",
+  "names": [
+   "תקנון תלמידי מחקר (דוקטורט)"
+  ],
+  "docs": [
+   "research:research4"
+  ]
+ },
+ {
+  "url": "https://academic-secretary.huji.ac.il/sites/default/files/acs/files/tqnvn_hnkhyyt_stvdntym.yvt_ltrym_mtqdmym_bvnybrsyth_hbryt.pdf",
+  "names": [
+   "תקנון הנחיית סטודנטים לתארים מתקדמים"
+  ],
+  "docs": [
+   "research:research5"
+  ]
+ },
+ {
+  "url": "https://academic-secretary.huji.ac.il/sites/default/files/acs/files/mihya.pdf",
+  "names": [
+   "תקנון מלגות מחיה למוסמך ולדוקטורט"
+  ],
+  "docs": [
+   "research:research3"
+  ]
+ },
+ {
+  "url": "https://science.huji.ac.il/תקנון-פקולטאי",
+  "names": [
+   "נהלי הוראה ולימודים בפקולטה למתמטיקה ולמדעי הטבע"
+  ],
+  "docs": [
+   "science:science58"
+  ]
+ },
+ {
+  "url": "https://science.huji.ac.il/תקנות-ובטיחות",
+  "names": [
+   "תקנות בטיחות במעבדות"
+  ],
+  "docs": [
+   "science:science59"
+  ]
+ },
+ {
+  "url": "https://science.huji.ac.il/sites/default/files/hujiscience/files/nvhl_ykhydt_bkhynvt_lbkhynvt_mqvvnvt_005.pdf",
+  "names": [
+   "נוהל יחידת הבחינות לבחינות מקוונות (מדעי הטבע)"
+  ],
+  "docs": [
+   "science:science1203"
+  ]
+ },
+ {
+  "url": "https://openscholar.huji.ac.il/sites/default/files/hujiscience/files/tqnvn_hnkhyyt_stvdntym.yvt_ltrym_mtqdmym_bvnybrsyth_hbryt_2.docx",
+  "names": [
+   "תקנון להנחיית סטודנטים לתארים מתקדמים (מדעי הטבע)"
+  ],
+  "docs": [
+   "science:science1204"
+  ]
+ },
+ {
+  "url": "https://science.huji.ac.il/קבלה-הרשמה-ומידע-נוסף",
+  "names": [
+   "מדעי הטבע: מידע לתלמידי בוגר ומוסמך, מילואים"
+  ],
+  "docs": [
+   "science:science1208"
+  ]
+ },
+ {
+  "url": "https://social.huji.ac.il/%D7%9E%D7%99%D7%9C%D7%95%D7%90%D7%99%D7%9D-%D7%97%D7%A8%D7%91%D7%95%D7%AA-%D7%91%D7%A8%D7%96%D7%9C",
+  "names": [
+   "מילואים חרבות ברזל"
+  ],
+  "docs": [
+   "social:social190"
+  ]
+ },
+ {
+  "url": "https://social.huji.ac.il/%D7%99%D7%95%D7%A2%D7%A6%D7%99%D7%9D",
+  "names": [
+   "יועצים"
+  ],
+  "docs": [
+   "social:social563"
+  ]
+ },
+ {
+  "url": "https://social.huji.ac.il/book/מידע-לסטודנט",
+  "names": [
+   "מדעי החברה: מידע לסטודנט, סיוע ומלגות"
+  ],
+  "docs": [
+   "social:social1051"
+  ]
+ },
+ {
+  "url": "https://social.huji.ac.il/sites/default/files/socialfacolty/files/tqnvn_mlgvt.pdf",
+  "names": [
+   "מדעי החברה: תקנון המלגות"
+  ],
+  "docs": [
+   "social:social1212"
+  ]
+ },
+ {
+  "url": "https://sw.huji.ac.il/נוהל-הגשת-ערעור-על-ציון",
+  "names": [
+   "נוהל הגשת ערעור על ציון"
+  ],
+  "docs": [
+   "sw:sw74"
+  ]
+ },
+ {
+  "url": "https://sw.huji.ac.il/הליך-ברור-אתי",
+  "names": [
+   "הליך בירור אתי"
+  ],
+  "docs": [
+   "sw:sw72"
+  ]
+ },
+ {
+  "url": "https://sw.huji.ac.il/הגשת-בקשות-למועדים-מיוחדים",
+  "names": [
+   "הגשת בקשה למבחן במועד מיוחד"
+  ],
+  "docs": [
+   "sw:sw988"
+  ]
+ },
+ {
+  "url": "https://sw.huji.ac.il/Milhemetharavot_main",
+  "names": [
+   "עבודה סוציאלית: מילואים"
+  ],
+  "docs": [
+   "sw:sw985"
+  ]
+ },
+ {
+  "url": "https://sw.huji.ac.il/sites/default/files/s-w/files/tqnvn_hnkhyyt_stvdntym.yvt_ltrym_mtqdmym_bvnybrsyth_hbryt_002.pdf",
+  "names": [
+   "תקנון הנחיית סטודנטים/ות לתארים מתקדמים (בית הספר לעבודה סוציאלית)"
+  ],
+  "docs": [
+   "sw:sw989"
+  ]
+ },
+ {
+  "url": "https://sw.huji.ac.il/sites/default/files/s-w/files/tqnvn_nhlym_lmlgvt_lstvdntym_ltvr_shny_vdvqtvrt.pdf",
+  "names": [
+   "תקנון נהלי מלגות ופרסים לסטודנטים (בית הספר לעבודה סוציאלית)"
+  ],
+  "docs": [
+   "sw:sw1225"
+  ]
+ }
+]

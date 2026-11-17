@@ -1,0 +1,28 @@
+name: watch
+# A weekly look at the university pages and files the bot's regulations were taken from (watch/sources.json): what changed,
+# vanished or came back is written to watch/changes.json for the head. It reads public pages only and uses no secret.
+on:
+  schedule:
+    - cron: '17 4 * * 0'
+  push:
+    branches: [main]
+    paths: ['watch/request.json']
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: watch
+  cancel-in-progress: false
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - run: node watch/run.mjs
+      - if: always()
+        run: |
+          git config user.name "watch-bot" && git config user.email "watch-bot@users.noreply.github.com"
+          git add -A watch
+          git commit -m "מעקב תקנונים: בדיקה שבועית [CI Skip]" || echo "nothing to commit"
+          git pull --rebase origin main && git push

@@ -71,6 +71,8 @@ if (req.shared) { out.shared = {}; try {
   out.shared.text = await go(Buffer.from('היי, לא נתנו לי מועד מיוחד אחרי המילואים. מה עושים?'), 'text/plain');
   out.shared.image = await go(fs.readFileSync('ask/img/chat.png'), 'image/png');
   out.shared.voice = await go(fs.readFileSync('ask/audio/s.m4a'), 'audio/x-m4a');
+  // 17.11.2026 18:40: documents (invented ones): a PDF through the model, a Word file and a chat export read on the server
+  if (req.docs) { out.shared.pdf = await go(fs.readFileSync('ask/doc/letter.pdf'), 'application/pdf'); out.shared.docx = await go(fs.readFileSync('ask/doc/doc.docx'), 'application/octet-stream'); out.shared.chat = await go(fs.readFileSync('ask/doc/chat.zip'), 'application/zip'); if (out.shared.chat && out.shared.chat.text) out.shared.chat.text = out.shared.chat.text.slice(-60); }
 } catch (e) { out.shared.error = String(e && e.message || e).slice(0, 200); } console.log('shared', JSON.stringify(out.shared)); }
 // 17.11.2026: the head's new panels and the calendar file, on the live site
 if (req.panels) { out.panels = {}; try {
@@ -89,5 +91,10 @@ if (req.panels) { out.panels = {}; try {
 if (req.dbg) { try { const r = await fetch(SITE + '/api/inbox', { method: 'POST', headers: Object.assign({ 'Content-Type': 'application/json' }, H), body: '{"op":"dbg"}' }); out.dbg = { status: r.status, j: r.ok ? await r.json() : null }; } catch (e) { out.dbg = { error: String(e).slice(0, 200) }; } }
 try { const r = await fetch(SITE + '/api/human', { headers: H }); out.human = { status: r.status, body: (await r.text()).slice(0, 600) }; } catch (e) { out.human = { error: String(e).slice(0, 200) }; }
 try { const r = await fetch(SITE + '/api/transcribe', { method: 'POST', body: 'x' }); out.noCode = r.status; } catch (_) {}
+// 17.11.2026 18:40: the calendar feed: an address for the signed-in one, the feed read with no sign-in; only counts are kept, never the address
+if (req.cal) { try { const r = await fetch(SITE + '/api/cal', { method: 'POST', headers: Object.assign({ 'Content-Type': 'application/json' }, H), body: '{"op":"link"}' }); const j = r.ok ? await r.json() : {}; out.cal = { link: r.status, shape: String(j.url || '').replace(/[a-f0-9]{40}/, '<key>') };
+  if (j.url) { const f = await fetch(j.url), t = await f.text(); out.cal.feed = { status: f.status, type: f.headers.get('content-type'), starts: t.slice(0, 15), events: (t.match(/BEGIN:VEVENT/g) || []).length }; }
+  const g = await fetch(SITE + '/api/cal?k=' + 'a'.repeat(40)); out.cal.guess = g.status; const n = await fetch(SITE + '/api/cal', { method: 'POST', body: '{"op":"link"}' }); out.cal.noSignIn = n.status;
+} catch (e) { out.cal = { error: String(e).slice(0, 200) }; } console.log('cal', JSON.stringify(out.cal)); }
 fs.writeFileSync('ask/results_' + tag + '.json', JSON.stringify(out, null, 1));
 console.log('done');

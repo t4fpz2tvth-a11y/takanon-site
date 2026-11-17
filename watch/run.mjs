@@ -9,13 +9,14 @@ const SRC = JSON.parse(fs.readFileSync('watch/sources.json', 'utf8'));
 const read = (f, d) => { try { return JSON.parse(fs.readFileSync(f, 'utf8')); } catch (_) { return d; } };
 const state = read('watch/state.json', {}), changes = read('watch/changes.json', []);
 const now = new Date().toISOString();
-const NORM = 2;   // the way a page's text is taken; when it changes, every address is recorded afresh and nothing is reported
+const NORM = 3;   // the way a page's text is taken; when it changes, every address is recorded afresh and nothing is reported
 // a page's own words: no scripts, styles or markup; no line that only says when the whole site was last updated; no
 // tokens that differ on every load
 function pageText(html) {
   // 17.11.2026, after the second look: a faculty page's trail of links ("הפקולטה לרפואה › סיעוד › …") came out differently on
-  // two loads of the same page. Menus, the page's head and foot and the trail are not the regulation: they are left out
-  return html.replace(/<(script|style|noscript|svg|head|nav|header|footer|aside|form)\b[\s\S]*?<\/\1>/gi, ' ').replace(/<(ol|ul|div)\b[^>]*class="[^"]*(breadcrumb|menu|navbar|pager)[^"]*"[\s\S]*?<\/\1>/gi, ' ').replace(/<!--[\s\S]*?-->/g, ' ').replace(/<br\s*\/?>|<\/(p|div|li|tr|h\d|td|th)>/gi, '\n').replace(/<[^>]+>/g, ' ')
+  // two loads of the same page. Menus, the page's foot and the trail are not the regulation: they are left out (not <form> or <header>: on some of the
+  // university's sites the whole page sits inside one, and 40 pages came out empty)
+  return html.replace(/<(script|style|noscript|svg|head|nav|footer|aside)\b[\s\S]*?<\/\1>/gi, ' ').replace(/<(ol|ul|div)\b[^>]*class="[^"]*(breadcrumb|menu|navbar|pager)[^"]*"[\s\S]*?<\/\1>/gi, ' ').replace(/<!--[\s\S]*?-->/g, ' ').replace(/<br\s*\/?>|<\/(p|div|li|tr|h\d|td|th)>/gi, '\n').replace(/<[^>]+>/g, ' ')
     .replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#0?39;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>')
     .split('\n').map(l => l.replace(/\s+/g, ' ').trim()).filter(l => l && !/^(עדכון אחרון|תאריך עדכון אחרון באתר|last updated)\b/i.test(l) && !/^©|כל הזכויות שמורות/.test(l)).join('\n');
 }

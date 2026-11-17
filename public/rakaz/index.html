@@ -499,10 +499,10 @@ function key(e,down){
   else hit=false;
   if(hit){
     const d=k==='ArrowRight'||k==='d'||k==='D'||k==='ג'?1:-1,side=d>0?'r':'l',ms=performance.now();
-    if(down){lastDir=d;if(!e.repeat){downAt[side]=ms;creepT=0;tapT=0}}
+    if(down){lastDir=d;if(!e.repeat)downAt[side]=ms}
     else if(ms-downAt[side]<=25){ // שחרור מיידי (אצל יוני נמדדו 0 עד 14 אלפיות שנייה): מקש שהגיע כהקשה בלי משך. הוא מזיז צעד קצר; רק הראשון ברצף ממשיך אחריו לאט, כי חזרות כבר נעות ברצף בעצמן
-      tapT=.12;tapDir=d;
-      if(ms-pairAt>220||pairDir!==d){creepT=.44;creepDir=d}
+      if(pairDir!==d||(ms-pairAt>220&&creepT<=0)){creepT=.56;creepDir=d;tapT=0}   // הקשה ראשונה: גלישה איטית עד שמתברר אם מגיעות חזרות
+      else{tapT=.12;tapDir=d;creepT=0}                               // חזרה: מהירות מלאה, ועצירה זמן קצר אחרי החזרה האחרונה
       pairAt=ms;pairDir=d;
     }
   }
@@ -798,7 +798,7 @@ function update(rdt){
   if(mode!=='over'){
     let dir=keys.r&&keys.l?lastDir:(keys.r?1:0)-(keys.l?1:0),kv=1;
     if(tapT>0){tapT-=rdt;if(!dir&&useKeys)dir=tapDir}
-    else if(creepT>0){creepT-=rdt;if(!dir&&useKeys){dir=creepDir;kv=.25}}
+    else if(creepT>0){creepT-=rdt;if(!dir&&useKeys){dir=creepDir;kv=Math.min(1,.43/(CFG.speed+CFG.speedUp*(play?P():0)))}} // 0.43 רוחב מגרש בשנייה, בכל שלב של היום
     let tx=useKeys?(dir?px+dir*FW:px):target;
     if(eff.rev>0)tx=useKeys?(dir?px-dir*FW:px):FX+FW-(target-FX);
     const lo=FX+PW,hi=FX+FW-PW,old=px;

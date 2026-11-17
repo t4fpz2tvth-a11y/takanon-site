@@ -1,0 +1,55 @@
+{
+ "tag": "cftest17",
+ "at": "2026-11-17T16:19:56.406Z",
+ "chat": [],
+ "audio": [],
+ "human": {
+  "status": 200,
+  "body": "{\"sitekey\":\"0x4AAAAAAGE7c5H8f2E5hAzv\",\"ok\":false,\"enforce\":false,\"days\":[{\"day\":\"2026-11-17\",\"pass\":false,\"n\":2}]}"
+ },
+ "shared": {
+  "text": {
+   "text": "היי, לא נתנו לי מועד מיוחד אחרי המילואים. מה עושים?",
+   "kind": "text",
+   "gone": false
+  },
+  "image": {
+   "text": "נועה כהן\nשלום, הגשתי ערעור על הציון בסטטיסטיקה לפני שבועיים ועדיין לא קיבלתי תשובה\nהיי נועה, באיזה תאריך בדיוק הגשת?\nב-3.11, והמרצה אמר שיחזור אליי עד ה-10.11",
+   "kind": "image",
+   "gone": false
+  },
+  "voice": {
+   "text": "I would like to ask about a second exam date after reserve duty. Thank you very much.",
+   "kind": "voice",
+   "gone": false
+  },
+  "pdf": {
+   "text": "לכבוד הסטודנטית )מסמך בדיקה(\n\nבקשתך למועד מיוחד נדחתה.\n\nניתן לערער בתוך 14 ימים.",
+   "kind": "doc",
+   "gone": false
+  },
+  "docx": {
+   "text": "לכבוד הסטודנטית\nבקשתך & ערעורך נדחו.",
+   "kind": "doc",
+   "gone": false
+  },
+  "chat": {
+   "text": "59:00] דנה: שורה 899\n[12.11.2026, 8:00:00] דנה: הודעה אחרונה",
+   "kind": "doc",
+   "gone": false
+  }
+ },
+ "noCode": 403,
+ "cal": {
+  "link": 200,
+  "shape": "https://takanon-site.pages.dev/api/cal?k=<key>",
+  "feed": {
+   "status": 200,
+   "type": "text/calendar; charset=utf-8",
+   "starts": "BEGIN:VCALENDAR",
+   "events": 0
+  },
+  "guess": 404,
+  "noSignIn": 401
+ }
+}

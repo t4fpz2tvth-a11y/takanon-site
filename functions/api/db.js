@@ -52,6 +52,21 @@ export async function onRequestPost({ request, env }) {
     const r0 = await env.DB.prepare('SELECT data FROM docs WHERE path = ?').bind(path).first();
     try { const d0 = r0 ? JSON.parse(r0.data) : null; ok = !!(d0 && d0.note === true && d0.uid === u.uid); } catch (_) { ok = false; }
   }
+  // 18.11.2026 00:00 (Yoni: "לתת לאנשים אחרים להיות אחראים על רכזים אחרים... רק לשיקול דעתי", and "לראות מקרים ספציפיים של
+  // אחרים"): two more ways to READ a coordinator's cases, both set by the head alone (config/access, through /api/access):
+  // a lead reads the records and the cases of the coordinators the head put under them; a case the head shared with someone
+  // is read by that one, that case alone. Reading only: nothing here lets anyone write. The private records (the students'
+  // own messages, the letters) stay each coordinator's alone, as they are for the head
+  if (!ok && !write && (op === 'get' || op === 'list') && !u.notify && !u.bench) {
+    const sg = segs(path);
+    if (sg[0] === 'log' && sg.length >= 2 && sg.length <= 4 && (sg.length === 2 || sg[2] === 'cases')) {
+      await setup(env);
+      let acc = {}; try { const r1 = await env.DB.prepare('SELECT data FROM docs WHERE path = ?').bind('config/access').first(); acc = r1 ? JSON.parse(r1.data) : {}; } catch (_) {}
+      const lead = acc.leads && acc.leads[u.uid], shared = acc.shares && acc.shares[sg[1] + '/' + sg[3]];
+      if (lead && Array.isArray(lead.of) && lead.of.includes(sg[1])) ok = true;
+      else if (sg.length === 4 && op === 'get' && Array.isArray(shared) && shared.includes(u.uid)) ok = true;
+    }
+  }
   if (!ok) return json({ code: 'permission_denied' }, 403);
   await setup(env);
   await sweep(env);

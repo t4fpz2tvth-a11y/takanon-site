@@ -1,0 +1,96 @@
+{
+ "tag": "cftest4",
+ "at": "2026-11-17T09:32:55.480Z",
+ "chat": [
+  {
+   "aig": false,
+   "stream": false,
+   "status": 200,
+   "via": "direct",
+   "log": "",
+   "type": "application/json",
+   "body": "\n         \n{\"id\":\"gen-1794907976-7qFWddbAWcIWzydandf0\",\"object\":\"chat.completion\",\"created\":1794907976,\"model\":\"anthropic/claude-haiku-5.5\",\"provider\":\"Claude Platform on AWS\",\"system_fingerprint\":null,\"service_tier\":\"default\",\"choices\":[{\"index\":0,\"logprobs\":null,\"finish_reason\":\"stop\",\"native_finish_reason\":\"end_turn\",\"message\":{\"role\":\"assistant\",\"content\":\"ירושלים\",\"refusal\":null,\"reasoning_details\":[{\"type\":\"reasoning.text\",\"text\":\"The user wants a one-word answer in Hebrew: the capital of Israel. Jerusalem is what Israel names as its capital, though its status is internationally disputed. Since they asked for one word, I'll just reply with that word.\\n\\n\",\"format\":\"anthropic-claude-v1\",\"index\":0,\"signature\":\"CAQSkgcKEAgTGAI4AUIIdGhpbmtpbmcSDJx+0z4buu60FOlFHhoMBSVv3CZXsZqilmNjIjBoNivpjVTCgEjDx0SZYk9S8KSXZgBYIwjjpvVbPmL/m2JIqDSy4R3qnrHcONfZTd8qrwYsCtSbGoRS5uIGXWsBmCBOmkqFrAFWF+Ge/meX",
+   "ms": 2621
+  },
+  {
+   "aig": false,
+   "stream": true,
+   "status": 200,
+   "via": "direct",
+   "log": "",
+   "type": "text/event-stream",
+   "chunks": 26,
+   "firstMs": 991,
+   "tail": ".chunk\",\"created\":1794907978,\"model\":\"anthropic/claude-haiku-5.5\",\"provider\":\"Claude Platform on AWS\",\"service_tier\":\"default\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"\",\"role\":\"assistant\"},\"finish_reason\":\"stop\",\"native_finish_reason\":\"end_turn\"}],\"usage\":{\"prompt_tokens\":32,\"completion_tokens\":98,\"total_tokens\":130,\"cost\":0.0000522,\"is_byok\":false,\"prompt_tokens_details\":{\"cached_tokens\":0,\"cache_write_tokens\":0,\"audio_tokens\":0,\"video_tokens\":0},\"cost_details\":{\"upstream_inference_cost\":0.0000522,\"upstream_inference_prompt_cost\":0.0000032,\"upstream_inference_completions_cost\":0.000049},\"completion_tokens_details\":{\"reasoning_tokens\":91,\"image_tokens\":0,\"audio_tokens\":0}}}\n\ndata: [DONE]\n\n",
+   "ms": 1925
+  },
+  {
+   "aig": true,
+   "stream": false,
+   "status": 200,
+   "via": "gateway",
+   "log": "",
+   "type": "application/json",
+   "body": "\n         \n{\"id\":\"gen-1794907981-ImoGB2Ps7idU1vrCXNEU\",\"object\":\"chat.completion\",\"created\":1794907981,\"model\":\"anthropic/claude-haiku-5.5\",\"provider\":\"Claude Platform on AWS\",\"system_fingerprint\":null,\"service_tier\":\"default\",\"choices\":[{\"index\":0,\"logprobs\":null,\"finish_reason\":\"stop\",\"native_finish_reason\":\"end_turn\",\"message\":{\"role\":\"assistant\",\"content\":\"ירושלים\",\"refusal\":null,\"reasoning_details\":[{\"type\":\"reasoning.text\",\"text\":\"The user wants a one-word answer in Hebrew for Israel's capital. I'm going with ירושלים, since that's Israel's own position, though it's internationally disputed and most countries don't formally recognize it as the capital. They asked for just one word, so I'll keep it to that.\\n\\n\",\"format\":\"anthropic-claude-v1\",\"index\":0,\"signature\":\"CAQS+wYKEAgTGAI4AUIIdGhpbmtpbmcSDKBr8oD2Tn3Qie9LRBoMYHLciG9svqIgSM7MIjC93sOVgWUWayvUwZxJVBoIW2108IKrUNlr8hBbR26EgifQ3D+/",
+   "ms": 3272
+  },
+  {
+   "aig": true,
+   "stream": true,
+   "status": 200,
+   "via": "gateway",
+   "log": "",
+   "type": "text/event-stream",
+   "chunks": 28,
+   "firstMs": 1412,
+   "tail": "unk\",\"created\":1794907983,\"model\":\"anthropic/claude-haiku-5.5\",\"provider\":\"Claude Platform on AWS\",\"service_tier\":\"default\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"\",\"role\":\"assistant\"},\"finish_reason\":\"stop\",\"native_finish_reason\":\"end_turn\"}],\"usage\":{\"prompt_tokens\":32,\"completion_tokens\":123,\"total_tokens\":155,\"cost\":0.0000647,\"is_byok\":false,\"prompt_tokens_details\":{\"cached_tokens\":0,\"cache_write_tokens\":0,\"audio_tokens\":0,\"video_tokens\":0},\"cost_details\":{\"upstream_inference_cost\":0.0000647,\"upstream_inference_prompt_cost\":0.0000032,\"upstream_inference_completions_cost\":0.0000615},\"completion_tokens_details\":{\"reasoning_tokens\":116,\"image_tokens\":0,\"audio_tokens\":0}}}\n\ndata: [DONE]\n\n",
+   "ms": 2624
+  },
+  {
+   "aig": true,
+   "stream": false,
+   "status": 200,
+   "via": "gateway",
+   "log": "id=yes id:36,created_at:26,updated_at:19,event_id:36,provider:10,model:26,model_type:0,path:16,duration:3,request_type:9,request_content_type:0,status_code:3,response_content_type:16,success:4,cached:5,tokens_in:2,tokens_out:1,metadata:null,step:1,timings:55,location:23,cost:9,custom_cost:5,feedback:null,score:null,request:0,response:0,prompts:null,guardrails:null,authentication:4,wholesale:5,byok:null,user_agent:null,rejection_reason:null,collect_log_payload:5,usage_metadata:162,dlp_action:null,dlp_profiles:null,request_size:null,request_head:null,request_head_complete:4,response_size:null,response_head:null,response_head_complete:4",
+   "type": "application/json",
+   "body": "\n         \n{\"id\":\"gen-1794907986-69zwAdTGM6wDApQMlmBt\",\"object\":\"chat.completion\",\"created\":1794907986,\"model\":\"anthropic/claude-haiku-5.5\",\"provider\":\"Claude Platform on AWS\",\"system_fingerprint\":null,\"service_tier\":\"default\",\"choices\":[{\"index\":0,\"logprobs\":null,\"finish_reason\":\"stop\",\"native_finish_reason\":\"end_turn\",\"message\":{\"role\":\"assistant\",\"content\":\"ירושלים\",\"refusal\":null}}],\"usage\":{\"prompt_tokens\":32,\"completion_tokens\":7,\"total_tokens\":39,\"cost\":0.0000067,\"is_byok\":false,\"prompt_tokens_details\":{\"cached_tokens\":0,\"cache_write_tokens\":0,\"audio_tokens\":0,\"video_tokens\":0},\"cost_details\":{\"upstream_inference_cost\":0.0000067,\"upstream_inference_prompt_cost\":0.0000032,\"upstream_inference_completions_cost\":0.0000035},\"completion_tokens_details\":{\"reasoning_tokens\":0,\"image_tokens\":0,\"audio_tokens\":0}}}",
+   "ms": 4099
+  },
+  {
+   "aig": true,
+   "stream": true,
+   "status": 200,
+   "via": "gateway",
+   "log": "",
+   "type": "text/event-stream",
+   "chunks": 22,
+   "firstMs": 891,
+   "tail": "unk\",\"created\":1794907990,\"model\":\"anthropic/claude-haiku-5.5\",\"provider\":\"Claude Platform on AWS\",\"service_tier\":\"default\",\"choices\":[{\"index\":0,\"delta\":{\"content\":\"\",\"role\":\"assistant\"},\"finish_reason\":\"stop\",\"native_finish_reason\":\"end_turn\"}],\"usage\":{\"prompt_tokens\":32,\"completion_tokens\":129,\"total_tokens\":161,\"cost\":0.0000677,\"is_byok\":false,\"prompt_tokens_details\":{\"cached_tokens\":0,\"cache_write_tokens\":0,\"audio_tokens\":0,\"video_tokens\":0},\"cost_details\":{\"upstream_inference_cost\":0.0000677,\"upstream_inference_prompt_cost\":0.0000032,\"upstream_inference_completions_cost\":0.0000645},\"completion_tokens_details\":{\"reasoning_tokens\":122,\"image_tokens\":0,\"audio_tokens\":0}}}\n\ndata: [DONE]\n\n",
+   "ms": 2095
+  },
+  {
+   "live": true,
+   "stream": false,
+   "status": 200,
+   "via": "gateway",
+   "len": 818,
+   "tail": "erence_cost\":0.0000066,\"upstream_inference_prompt_cost\":0.0000036,\"upstream_inference_completions_cost\":0.000003},\"completion_tokens_details\":{\"reasoning_tokens\":0,\"image_tokens\":0,\"audio_tokens\":0}}}",
+   "ms": 1175
+  },
+  {
+   "live": true,
+   "stream": true,
+   "status": 200,
+   "via": "gateway",
+   "len": 1752,
+   "tail": "000066,\"upstream_inference_prompt_cost\":0.0000036,\"upstream_inference_completions_cost\":0.000003},\"completion_tokens_details\":{\"reasoning_tokens\":0,\"image_tokens\":0,\"audio_tokens\":0}}}\n\ndata: [DONE]\n\n",
+   "ms": 1062
+  }
+ ],
+ "audio": [],
+ "human": {
+  "status": 200,
+  "body": "{\"sitekey\":\"\",\"ok\":true,\"enforce\":false,\"days\":[]}"
+ },
+ "noCode": 403
+}

@@ -1,0 +1,23 @@
+{
+ "tag": "cftest18",
+ "at": "2026-11-17T21:16:29.547Z",
+ "chat": [],
+ "audio": [],
+ "human": {
+  "status": 200,
+  "body": "{\"sitekey\":\"0x4AAAAAAGE7c5H8f2E5hAzv\",\"ok\":false,\"enforce\":false,\"days\":[{\"day\":\"2026-11-17\",\"pass\":false,\"n\":2}]}"
+ },
+ "noCode": 403,
+ "sheet": {
+  "status": 200,
+  "connected": true
+ },
+ "pushKey": {
+  "status": 200,
+  "len": 87
+ },
+ "tick": {
+  "status": 200,
+  "body": "{\"sent\":0,\"quiet\":true}"
+ }
+}

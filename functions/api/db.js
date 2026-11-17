@@ -44,7 +44,15 @@ export async function onRequestPost({ request, env }) {
     return r;
   }
   const write = ['set', 'update', 'delete', 'add'].includes(op);
-  if (!allowed(u, path, write, op)) return json({ code: 'permission_denied' }, 403);
+  let ok = allowed(u, path, write, op);
+  // 17.11.2026 21:30 (Yoni approved remarks beside the addresses): the shared book lets a coordinator add; changing and deleting
+  // are the head's. One exception: a coordinator deletes a remark (note: true) that they wrote themselves
+  if (!ok && op === 'delete' && !u.notify && !u.bench && (sg0 => sg0.length === 2 && sg0[0] === 'dir')(segs(path))) {
+    await setup(env);
+    const r0 = await env.DB.prepare('SELECT data FROM docs WHERE path = ?').bind(path).first();
+    try { const d0 = r0 ? JSON.parse(r0.data) : null; ok = !!(d0 && d0.note === true && d0.uid === u.uid); } catch (_) { ok = false; }
+  }
+  if (!ok) return json({ code: 'permission_denied' }, 403);
   await setup(env);
   await sweep(env);
   const n = segs(path).length, now = Date.now();

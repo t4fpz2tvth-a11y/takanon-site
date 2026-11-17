@@ -31,7 +31,7 @@ for (const stream of req.chat === false ? [] : [false, true]) {
   } catch (e) { row.error = String(e && e.message || e).slice(0, 200); }
   row.ms = Date.now() - t0; out.chat.push(row); console.log('live', JSON.stringify(row).slice(0, 300));
 }
-for (const f of req.audio === false ? [] : fs.readdirSync('ask/audio').sort()) for (const lang of f.startsWith('s.') ? ['auto', 'he'] : ['he']) {
+for (const f of req.audio === false ? [] : fs.readdirSync('ask/audio').sort()) for (const lang of ['auto']) {
   const t0 = Date.now(), row = { file: f, lang, bytes: fs.statSync('ask/audio/' + f).size };
   try {
     const r = await fetch(SITE + '/api/transcribe?lang=' + lang, { method: 'POST', headers: Object.assign({ 'Content-Type': 'application/octet-stream' }, H), body: fs.readFileSync('ask/audio/' + f) });
@@ -53,6 +53,16 @@ if (req.inbox) { out.inbox = {}; try {
   out.inbox.state = (await op('state')).j; out.inbox.unkey = (await op('unkey')).status;
   const after = await fetch(SITE + '/api/inbox', { method: 'POST', headers: { 'X-Inbox-Key': key, 'Content-Type': 'audio/ogg' }, body: fs.readFileSync('ask/audio/s.ogg') }); out.inbox.afterUnkey = after.status;
 } catch (e) { out.inbox.error = String(e && e.message || e).slice(0, 200); } console.log('inbox', JSON.stringify(out.inbox)); }
+// the keyless road of the Shortcut: a synthetic recording -> a ticket address -> claimed once
+if (req.ticket) { out.ticket = {}; try {
+  const s1 = await fetch(SITE + '/api/inbox?lang=auto', { method: 'POST', headers: { 'X-Inbox-App': 'takanon', 'Content-Type': 'audio/x-m4a' }, body: fs.readFileSync('ask/audio/s.m4a') });
+  const u = await s1.text(); out.ticket.send = { status: s1.status, shape: u.replace(/[a-f0-9]{32}/, '<ticket>') };
+  const id = (/inbox=([a-f0-9]{32})/.exec(u) || [])[1] || '';
+  const claim = async () => { const r = await fetch(SITE + '/api/inbox', { method: 'POST', headers: Object.assign({ 'Content-Type': 'application/json' }, H), body: JSON.stringify({ op: 'claim', id }) }); return r.ok ? await r.json() : { status: r.status }; };
+  out.ticket.first = await claim(); out.ticket.second = await claim();
+  const nc = await fetch(SITE + '/api/inbox', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ op: 'claim', id }) }); out.ticket.noSignIn = nc.status;
+  const bad = await fetch(SITE + '/api/inbox', { method: 'POST', headers: { 'X-Inbox-App': 'other', 'Content-Type': 'audio/x-m4a' }, body: fs.readFileSync('ask/audio/s.m4a') }); out.ticket.otherApp = (await bad.text()).slice(-20);
+} catch (e) { out.ticket.error = String(e && e.message || e).slice(0, 200); } console.log('ticket', JSON.stringify(out.ticket)); }
 if (req.dbg) { try { const r = await fetch(SITE + '/api/inbox', { method: 'POST', headers: Object.assign({ 'Content-Type': 'application/json' }, H), body: '{"op":"dbg"}' }); out.dbg = { status: r.status, j: r.ok ? await r.json() : null }; } catch (e) { out.dbg = { error: String(e).slice(0, 200) }; } }
 try { const r = await fetch(SITE + '/api/human', { headers: H }); out.human = { status: r.status, body: (await r.text()).slice(0, 600) }; } catch (e) { out.human = { error: String(e).slice(0, 200) }; }
 try { const r = await fetch(SITE + '/api/transcribe', { method: 'POST', body: 'x' }); out.noCode = r.status; } catch (_) {}

@@ -1,0 +1,35 @@
+{
+ "out": "bench/results_lang2a.json",
+ "set": "lang2",
+ "target": "public",
+ "tag": "lang2a",
+ "exp": "live",
+ "judge": "anthropic/claude-sonnet-5.5",
+ "judges": null,
+ "reps": 1,
+ "site": "https://takanon-site.pages.dev",
+ "started": "2026-11-17T14:21:17.345Z",
+ "written": "2026-11-17T14:23:18.081Z",
+ "finished": true,
+ "builds": [
+  "c73b330f"
+ ],
+ "summary": {
+  "anthropic/claude-haiku-5.5": {
+   "rows": 12,
+   "scored": 12,
+   "infra": 0,
+   "infra_by": {},
+   "unscored": 0,
+   "mean": 1,
+   "mean_unseen": 1,
+   "scored_unseen": 12,
+   "no_serious": 1,
+   "reps": 1,
+   "left_out_share": 0,
+   "builds": [
+    "c73b330f"
+   ]
+  }
+ }
+}

@@ -21,6 +21,16 @@ for (const aig of ['', '1', 'log']) for (const stream of [false, true]) {
   } catch (e) { row.error = String(e && e.message || e).slice(0, 200); }
   row.ms = Date.now() - t0; out.chat.push(row); console.log('chat', JSON.stringify(row).slice(0, 300));
 }
+// the live road, as the public page calls it (no test mode, no code): it should say X-Via: gateway
+for (const stream of [false, true]) {
+  const t0 = Date.now(), row = { live: true, stream };
+  try {
+    const r = await fetch(SITE + '/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Origin': SITE, 'X-Preview': '1', 'X-Client': 'cftest0cftest0cftest0' },
+      body: JSON.stringify({ input: 'ענו במילה אחת בלבד: כמה ימים יש בשבוע?', tier: 'default', stream }) });
+    row.status = r.status; row.via = r.headers.get('X-Via'); const t = await r.text(); row.len = t.length; row.tail = t.slice(-200);
+  } catch (e) { row.error = String(e && e.message || e).slice(0, 200); }
+  row.ms = Date.now() - t0; out.chat.push(row); console.log('live', JSON.stringify(row).slice(0, 300));
+}
 for (const f of req.audio === false ? [] : fs.readdirSync('ask/audio').sort()) for (const lang of f.startsWith('s.') ? ['auto', 'he'] : ['he']) {
   const t0 = Date.now(), row = { file: f, lang, bytes: fs.statSync('ask/audio/' + f).size };
   try {

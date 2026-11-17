@@ -1,4 +1,27 @@
 דילוג לתוכן העיקרי
+הפקולטה למדעי החברה
+האוניברסיטה העברית, קמפוס הר הצופים
+https://www.youtube.com/user/HUJISocialSciences
+https://www.facebook.com/hu.social.sciences/
+https://www.instagram.com/social.science.huji/
+accessibility הגדלת גופן
+text_fields
+גווני אפור
+format_color_reset
+היפוך צבעים
+invert_colors
+ניגודיות גבוהה
+contrast
+ניגודיות בהירה
+light_mode
+הדגשת קישורים
+links
+גופן קריא
+title
+איתחול
+restart_alt
+check
+מילואים חרבות ברזל
 Pause
 Play
 סטודנטים וסטודנטיות יקרים,
@@ -12,3 +35,5 @@ Play
 *האתר מנוסח בלשון זכר אך פונה לנשים ולגברים כאחד.
 ** שימו לב, הנהלים המפורטים בחלק זה עשויים להתעדכן מעת לעת.
 באתרי האוניברסיטה העברית נעשה שימוש בקבצי Cookies. הגלישה באתרים אלו מהווים הסכמה לשימוש זה.
+ביטול
+אישור

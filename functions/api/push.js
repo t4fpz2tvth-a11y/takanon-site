@@ -52,16 +52,18 @@ async function notify(env, uid, body, url) {
 // small script the head keeps in the department's tracking sheet (the same one the sheet's sync uses, with the same shared
 // secret; see sheet.js), so it is sent from the department's own mailbox and no mail service or new account is needed. The
 // site hands over the address alone: the subject and the text are fixed inside the script and hold nothing of the case.
-// At most one mail per coordinator in half an hour. Until the script is connected (or updated), nothing is sent
-async function mailNote(env, uid) {
+// 17.11.2026 23:35 (Yoni: "שיגיד בדיוק באיזה מקרה, מה ההערה, וקישור ישיר"): the mail now names the case (as the head's page
+// describes it), carries the remark and links straight to the case. So the remark and that description do pass through the
+// department's mailbox to the coordinator's; that is the head's decision. A double tap within a minute sends one mail. Until the script is connected (or updated), nothing is sent
+async function mailNote(env, uid, more) {
   try {
     const last = await env.DB.prepare('SELECT v FROM push_cfg WHERE k = ?').bind('mail:' + uid).first();
-    if (last && Date.now() - Number(last.v) < 30 * 60e3) return false;
+    if (last && Date.now() - Number(last.v) < 60e3) return false;   // 23:35: each remark has its own mail now (it carries the remark), so only a double tap is held back
     const row = await env.DB.prepare('SELECT data FROM docs WHERE path = ?').bind('config/sheet').first(), cfg = row ? JSON.parse(row.data) : {};
     const secret = (env.SHEET_SECRET && String(env.SHEET_SECRET).length >= 24) ? String(env.SHEET_SECRET) : cfg.secret || '';
     const rec = await env.DB.prepare('SELECT data FROM docs WHERE path = ?').bind('log/' + uid).first(), to = rec ? String(JSON.parse(rec.data).email || '').trim() : '';
     if (!cfg.url || secret.length < 24 || to.length > 120 || !/^[^@\s,;<>]+@[^@\s,;<>]+\.[^@\s,;<>]+$/.test(to)) return false;
-    const r = await fetch(cfg.url, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ tool: 'send_mail', args: { to }, secret }), redirect: 'follow' });
+    const r = await fetch(cfg.url, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ tool: 'send_mail', args: Object.assign({ to }, more || {}), secret }), redirect: 'follow' });
     let j = null; try { j = JSON.parse(await r.text()); } catch (_) {}
     if (!(j && j.ok)) return false;
     await env.DB.prepare('INSERT INTO push_cfg (k, v) VALUES (?, ?) ON CONFLICT (k) DO UPDATE SET v = excluded.v').bind('mail:' + uid, String(Date.now())).run();
@@ -131,8 +133,10 @@ export async function onRequestPost({ request, env }) {
   if (b.op === 'note') {
     if (!u.admin) return json({ error: 'not allowed' }, 403);
     const uid = String(b.uid || '').replace(/[^A-Za-z0-9_-]/g, '').slice(0, 60); if (!uid || uid === u.uid) return json({ sent: 0 });
-    const sent = await notify(env, uid, 'רמ״ח הוסיף הערה למקרה שלך', origin + '/coord/');
-    return json({ sent, mailed: await mailNote(env, uid) });
+    const cid = String(b.id || '').replace(/[^A-Za-z0-9_-]/g, '').slice(0, 60), link = origin + '/coord/' + (cid ? '?c=' + cid + '&u=' + uid : '');
+    const clean = (x, n) => String(x || '').replace(/[\u0000-\u0008\u000b-\u001f]/g, ' ').trim().slice(0, n);
+    const sent = await notify(env, uid, 'רמ״ח הוסיף הערה למקרה שלך', link);   // the notification itself still says nothing of the case; a tap opens it
+    return json({ sent, mailed: await mailNote(env, uid, { link, label: clean(b.label, 160), text: clean(b.text, 700) }) });
   }
   return json({ error: 'unknown op' }, 400);
 }

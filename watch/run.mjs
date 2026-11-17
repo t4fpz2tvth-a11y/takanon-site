@@ -9,10 +9,13 @@ const SRC = JSON.parse(fs.readFileSync('watch/sources.json', 'utf8'));
 const read = (f, d) => { try { return JSON.parse(fs.readFileSync(f, 'utf8')); } catch (_) { return d; } };
 const state = read('watch/state.json', {}), changes = read('watch/changes.json', []);
 const now = new Date().toISOString();
+const NORM = 2;   // the way a page's text is taken; when it changes, every address is recorded afresh and nothing is reported
 // a page's own words: no scripts, styles or markup; no line that only says when the whole site was last updated; no
 // tokens that differ on every load
 function pageText(html) {
-  return html.replace(/<(script|style|noscript|svg|head)\b[\s\S]*?<\/\1>/gi, ' ').replace(/<!--[\s\S]*?-->/g, ' ').replace(/<br\s*\/?>|<\/(p|div|li|tr|h\d|td|th)>/gi, '\n').replace(/<[^>]+>/g, ' ')
+  // 17.11.2026, after the second look: a faculty page's trail of links ("הפקולטה לרפואה › סיעוד › …") came out differently on
+  // two loads of the same page. Menus, the page's head and foot and the trail are not the regulation: they are left out
+  return html.replace(/<(script|style|noscript|svg|head|nav|header|footer|aside|form)\b[\s\S]*?<\/\1>/gi, ' ').replace(/<(ol|ul|div)\b[^>]*class="[^"]*(breadcrumb|menu|navbar|pager)[^"]*"[\s\S]*?<\/\1>/gi, ' ').replace(/<!--[\s\S]*?-->/g, ' ').replace(/<br\s*\/?>|<\/(p|div|li|tr|h\d|td|th)>/gi, '\n').replace(/<[^>]+>/g, ' ')
     .replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#0?39;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>')
     .split('\n').map(l => l.replace(/\s+/g, ' ').trim()).filter(l => l && !/^(עדכון אחרון|תאריך עדכון אחרון באתר|last updated)\b/i.test(l) && !/^©|כל הזכויות שמורות/.test(l)).join('\n');
 }
@@ -38,7 +41,7 @@ async function worker() {
     const s = queue.shift(); if (!s) return;
     const r = await look(s.url), old = state[s.url] || null, name = s.names[0] || s.url; n++;
     if (r.ok) {
-      if (!old || !old.hash) { first++; }
+      if (!old || !old.hash || old.norm !== NORM) { first++; }
       else if (old.hash !== r.hash) {
         changed++;
         // for a page: how many lines were added and removed, and the first few of each (the regulations are public)
@@ -49,12 +52,13 @@ async function worker() {
         changes.push({ t: now, kind: 'changed', url: s.url, name, docs: s.docs, note });
       }
       if (old && old.down >= 2) changes.push({ t: now, kind: 'back', url: s.url, name, docs: s.docs, note: 'העמוד חזר לעלות' });
-      state[s.url] = { hash: r.hash, len: r.len, kind: r.kind, seen: now, since: old && old.hash === r.hash ? (old.since || now) : now, down: 0 };
+      state[s.url] = { hash: r.hash, len: r.len, kind: r.kind, norm: NORM, seen: now, since: old && old.hash === r.hash ? (old.since || now) : now, down: 0 };
       if (r.text) fs.writeFileSync('watch/text/' + key(s.url) + '.txt', r.text);
     } else {
       const down = ((old && old.down) || 0) + 1;
       state[s.url] = Object.assign({}, old || {}, { down, why: r.why, tried: now });
-      if (down === 2) { lost++; changes.push({ t: now, kind: 'lost', url: s.url, name, docs: s.docs, note: r.why }); }
+      // a page that was never opened is listed as unreachable, not as lost
+      if (down === 2 && old && old.hash) { lost++; changes.push({ t: now, kind: 'lost', url: s.url, name, docs: s.docs, note: r.why }); }
     }
   }
 }

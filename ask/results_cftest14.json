@@ -1,0 +1,18 @@
+{
+ "tag": "cftest14",
+ "at": "2026-11-17T11:51:46.124Z",
+ "chat": [],
+ "audio": [],
+ "human": {
+  "status": 200,
+  "body": "{\"sitekey\":\"0x4AAAAAAGE7c5H8f2E5hAzv\",\"ok\":false,\"enforce\":false,\"days\":[{\"day\":\"2026-11-17\",\"pass\":false,\"n\":2}]}"
+ },
+ "state": {
+  "status": 200,
+  "j": {
+   "hasKey": true,
+   "shortcut": "https://www.icloud.com/shortcuts/b4651da468e84c5dbf6cf4616e6576e6"
+  }
+ },
+ "noCode": 403
+}

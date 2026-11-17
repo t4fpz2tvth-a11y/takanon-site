@@ -1,0 +1,15 @@
+{
+ "tag": "cftest7",
+ "at": "2026-11-17T10:55:24.753Z",
+ "chat": [],
+ "audio": [],
+ "human": {
+  "status": 200,
+  "body": "{\"sitekey\":\"0x4AAAAAAGE7c5H8f2E5hAzv\",\"ok\":false,\"enforce\":false,\"days\":[{\"day\":\"2026-11-17\",\"pass\":false,\"n\":2}]}"
+ },
+ "dbg": {
+  "status": 200,
+  "j": {}
+ },
+ "noCode": 403
+}

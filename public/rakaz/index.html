@@ -499,13 +499,14 @@ function key(e,down){
   else hit=false;
   if(hit){
     const d=k==='ArrowRight'||k==='d'||k==='D'||k==='ג'?1:-1,side=d>0?'r':'l',ms=performance.now();
-    if(down){lastDir=d;if(!e.repeat){downAt[side]=ms;creepT=0}}
-    else if(ms-downAt[side]<=25){ // שחרור מיידי (אצל יוני נמדדו 0 עד 14 אלפיות שנייה): מקש שהגיע כהקשה בלי משך. רק הראשון ברצף ממשיך לאט; חזרות כבר נעות ברצף בעצמן
+    if(down){lastDir=d;if(!e.repeat){downAt[side]=ms;creepT=0;tapT=0}}
+    else if(ms-downAt[side]<=25){ // שחרור מיידי (אצל יוני נמדדו 0 עד 14 אלפיות שנייה): מקש שהגיע כהקשה בלי משך. הוא מזיז צעד קצר; רק הראשון ברצף ממשיך אחריו לאט, כי חזרות כבר נעות ברצף בעצמן
+      tapT=.12;tapDir=d;
       if(ms-pairAt>220||pairDir!==d){creepT=.44;creepDir=d}
       pairAt=ms;pairDir=d;
     }
   }
-  if(hit&&mode==='play'&&!paused){useKeys=true;if(down&&!e.repeat){tapT=.12;tapDir=lastDir}e.preventDefault()}
+  if(hit&&mode==='play'&&!paused){useKeys=true;e.preventDefault()}
 }
 window.addEventListener('keydown',e=>key(e,true));
 window.addEventListener('keyup',e=>key(e,false));

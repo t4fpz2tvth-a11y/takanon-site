@@ -1,0 +1,70 @@
+{
+ "tag": "cftest9",
+ "at": "2026-11-17T11:12:39.272Z",
+ "chat": [],
+ "audio": [],
+ "human": {
+  "status": 200,
+  "body": "{\"sitekey\":\"0x4AAAAAAGE7c5H8f2E5hAzv\",\"ok\":false,\"enforce\":false,\"days\":[{\"day\":\"2026-11-17\",\"pass\":false,\"n\":2}]}"
+ },
+ "dbg": {
+  "status": 200,
+  "j": {
+   "t": 1794913892652,
+   "meta": {
+    "bytes": 158195,
+    "type": "audio/x-m4a",
+    "name": "",
+    "magic": "0000001c667479704d344120000000004d3441206d70343269736f6d00000c7f6d6f6f760000006c",
+    "ua": "BackgroundShortcutRunner/5203.0.1 CFNetwork/3896.300.31 Darwin/27.3.0",
+    "a": {
+     "text": "היי, קוראים לי דני, אני סטודנט שנעבד במשפטים. הייתי למילואים 3 שחיבות בדצמבר ובפרספציתי את מועד א' ובדיני חוזים. מציץ לדעת, אני מגן לי למועד מיוחד.",
+     "info": {
+      "language": "he",
+      "language_probability": 1,
+      "duration": 12.18,
+      "duration_after_vad": 11.3
+     },
+     "segs": 3
+    },
+    "novad": {
+     "text": "היי, קוראים לי דני, אני סטודנט של עבד במשפטים, הייתי למילואים שלושה חיבות בדצמבר, בפרספצית מועד א' ובדיני החזים, מציף לי לדעת, נמדתי, אני מועד מיוחד.",
+     "info": {
+      "language": "he",
+      "language_probability": 1,
+      "duration": 12.18,
+      "duration_after_vad": 12.18
+     }
+    },
+    "auto": {
+     "text": "היי, קוראים לי דני, אני סטודנט של עבד במשפטים, הייתי למילואים שלושה חיבות בדצמבר, בפרספצית מועד א' ובדיני החזים, מציף לי לדעת, נמדתי, אני מועד מיוחד.",
+     "info": {
+      "language": "he",
+      "language_probability": 0.91748046875,
+      "duration": 12.18,
+      "duration_after_vad": 12.18
+     }
+    },
+    "prompt": {
+     "text": "היי, קוראים לי דני, אני סטודנט שנעבלת במשפטים. הייתי למילואים שלושא חיבוד בדצמבר, בפרספצית מועד א' ובדיני החזים. מציף לי לדעת, נמדתי, אני מועד מיוחד.",
+     "info": {
+      "language": "he",
+      "language_probability": 1,
+      "duration": 12.18,
+      "duration_after_vad": 12.18
+     }
+    },
+    "nova_he": {
+     "error": "8007: Bad Request: No such model/language/tier combination found."
+    },
+    "nova_multi": {
+     "raw": "{\"results\":{\"channels\":[{\"alternatives\":[{\"transcript\":\"hi currym leidani my student\",\"confidence\":0.5418701,\"languages\":[\"en\"],\"words\":[{\"word\":\"hi\",\"start\":1.92,\"end\":2.48,\"confidence\":0.7902832,\"language\":\"en\"},{\"word\":\"currym\",\"start\":2.48,\"end\":2.8799999,\"confidence\":0.3264567,\"language\":\"en\"},{\"word\":\"leidani\",\"start\":2.8799999,\"end\":3.52,\"confidence\":0.62493896,\"language\":\"en\"},{\"word\":\"my\",\"start\":3.52,\"end\":3.6799998,\"confidence\":0.12561035,\"language\":\"en\"},{\"word\":\"student\",\"start\":3.6799998,\"end\":4,\"confidence\":0.5418701,\"language\":\"en\"}]}]}]},\"usage\":{\"prompt_tokens\":0,\"completion_tokens\":0,\"total_tokens\":0,\"prompt_tokens_details\":{\"cached_tokens\":0},\"neurons\":95.459946}}"
+    },
+    "nova_detect": {
+     "raw": "{\"results\":{\"channels\":[{\"alternatives\":[{\"transcript\":\"hi currym leidani my student\",\"confidence\":0.5418701,\"languages\":[\"en\"],\"words\":[{\"word\":\"hi\",\"start\":1.92,\"end\":2.48,\"confidence\":0.7902832,\"language\":\"en\"},{\"word\":\"currym\",\"start\":2.48,\"end\":2.8799999,\"confidence\":0.3264567,\"language\":\"en\"},{\"word\":\"leidani\",\"start\":2.8799999,\"end\":3.52,\"confidence\":0.62493896,\"language\":\"en\"},{\"word\":\"my\",\"start\":3.52,\"end\":3.6799998,\"confidence\":0.12561035,\"language\":\"en\"},{\"word\":\"student\",\"start\":3.6799998,\"end\":4,\"confidence\":0.5418701,\"language\":\"en\"}]}]}]},\"usage\":{\"prompt_tokens\":0,\"completion_tokens\":0,\"total_tokens\":0,\"prompt_tokens_details\":{\"cached_tokens\":0},\"neurons\":95.459946}}"
+    }
+   }
+  }
+ },
+ "noCode": 403
+}

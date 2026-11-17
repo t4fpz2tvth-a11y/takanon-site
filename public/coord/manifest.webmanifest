@@ -66,5 +66,31 @@
     }
    ]
   }
- }
+ },
+ "shortcuts": [
+  {
+   "name": "שאלה חדשה",
+   "short_name": "שאלה חדשה",
+   "url": "/coord/?new=1",
+   "icons": [
+    {
+     "src": "/coord/icons/192.png",
+     "sizes": "192x192",
+     "type": "image/png"
+    }
+   ]
+  },
+  {
+   "name": "המקרים שלי",
+   "short_name": "המקרים שלי",
+   "url": "/coord/?my=1",
+   "icons": [
+    {
+     "src": "/coord/icons/192.png",
+     "sizes": "192x192",
+     "type": "image/png"
+    }
+   ]
+  }
+ ]
 }

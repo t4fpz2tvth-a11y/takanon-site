@@ -6,7 +6,7 @@
 //   POST the recording, header X-Inbox-Key (from the Shortcut)       -> a short line of text for the Shortcut to show
 //   POST { op: 'state' | 'key' | 'unkey' | 'take' } (the signed-in page) -> { hasKey, shortcut } | { key } | { ok } | { items }
 import { json, text, who, sha } from '../_lib.js';
-import { transcribe, kindOf, readImage } from '../_voice.js';
+import { transcribe, kindOf, readImage, readPdf, readZip } from '../_voice.js';
 // the iCloud link of the Apple Shortcut "לבוט הרכזים" (not a secret); the setting SHORTCUT_URL overrides it
 const SHORTCUT = 'https://www.icloud.com/shortcuts/b4651da468e84c5dbf6cf4616e6576e6';   // 17.11.2026 13:49, from Yoni
 const MAX = 12 * 1048576, KEEP = 30 * 60e3, KEY = /^[a-f0-9]{40}$/;
@@ -61,9 +61,11 @@ export async function onRequestPost({ request, env }) {
     try {
       if (what.kind === 'text') said = what.text.replace(/\r/g, '').replace(/[ \t]+/g, ' ').replace(/\n{3,}/g, '\n\n').trim().slice(0, 20000);
       else if (what.kind === 'image') said = (await readImage(env, buf, what.mime)).text;
+      else if (what.kind === 'pdf') said = (await readPdf(env, buf)).text.slice(0, 20000);   // 17.11.2026 17:55: a document
+      else if (what.kind === 'zip') said = (await readZip(buf, 20000)).text;   // a Word file, or WhatsApp's chat export
       else said = (await transcribe(env, buf, request.headers.get('Content-Type') || '', url.searchParams.get('lang') || 'he')).text;
     } catch (_) { return ticketRoad ? back('err-fail') : text('לא הצלחנו לתמלל את ההקלטה. נסו שוב.', 502); }
-    if (!said && what.kind !== 'voice') return ticketRoad ? back(what.kind === 'image' ? 'err-notext' : 'err-none') : text('לא נמצא טקסט.', 422);
+    if (!said && what.kind !== 'voice') return ticketRoad ? back(what.kind !== 'text' ? 'err-notext' : 'err-none') : text('לא נמצא טקסט.', 422);
     if (!said) return ticketRoad ? back('err-quiet') : text('לא נשמע דיבור בהקלטה.', 422);
     name = String(name || url.searchParams.get('name') || 'הודעה קולית').replace(/[\u0000-\u001f<>]/g, '').slice(0, 120);
     if (ticketRoad) {
@@ -107,8 +109,8 @@ export async function onRequestPost({ request, env }) {
     // 17.11.2026 14:00 (Yoni: the iPhone button goes away once the coordinator is connected): a first transcript that
     // arrived means the Shortcut is installed and works; the head can reset it (voice-reset), and the button comes back
     if (r) await env.DB.prepare('INSERT INTO inbox_done (uid, t, last, n) VALUES (?, ?, ?, 1) ON CONFLICT (uid) DO UPDATE SET last = excluded.last, n = n + 1').bind(w.uid, Date.now(), Date.now()).run();
-    const m = r ? /^([vit])\|([\s\S]*)$/.exec(r.body) : null;
-    return json({ text: r ? (m ? m[2] : r.body) : '', kind: m ? { v: 'voice', i: 'image', t: 'text' }[m[1]] : 'voice', gone: !r });
+    const m = r ? /^([vitpz])\|([\s\S]*)$/.exec(r.body) : null;
+    return json({ text: r ? (m ? m[2] : r.body) : '', kind: m ? { v: 'voice', i: 'image', t: 'text', p: 'doc', z: 'doc' }[m[1]] : 'voice', gone: !r });
   }
   if (b.op === 'take') {
     const rs = await env.DB.prepare('SELECT id, name, body, t FROM inbox WHERE uid = ? ORDER BY id LIMIT 10').bind(w.uid).all(), items = rs.results || [];

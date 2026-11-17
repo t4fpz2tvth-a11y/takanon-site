@@ -78,3 +78,20 @@ self.addEventListener('fetch', (e) => {
   }
   if (req.mode === 'navigate') e.respondWith(fetch(req).catch(() => new Response(OFF, { headers: { 'Content-Type': 'text/html; charset=utf-8' } })));
 });
+
+// 17.11.2026 22:55 (Yoni approved notifications from the icon): a push carries no content; woken by it, the app asks the site
+// what to show (with this device's own sign-in) and shows it. Never a name, never anything of a case. A tap opens the app there
+self.addEventListener('push', (e) => e.waitUntil((async () => {
+  let m = { title: 'בוט הרכזים', body: 'יש עדכון בבוט הרכזים', url: ROOT() };
+  try { const r = await fetch('/api/push', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{"op":"peek"}', credentials: 'same-origin' }); if (r.ok) m = Object.assign(m, await r.json()); } catch (_) {}
+  await self.registration.showNotification(String(m.title || 'בוט הרכזים'), { body: String(m.body || ''), icon: ROOT() + 'icons/192.png', badge: ROOT() + 'icons/192.png', tag: 'takanon', renotify: true, dir: 'rtl', lang: 'he', data: { url: String(m.url || ROOT()) } });
+})()));
+self.addEventListener('notificationclick', (e) => {
+  e.notification.close();
+  const url = (e.notification.data && e.notification.data.url) || ROOT();
+  e.waitUntil((async () => {
+    const all = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+    for (const c of all) { if (new URL(c.url).pathname.indexOf(ROOT()) === 0) { try { await c.navigate(url); } catch (_) {} try { return await c.focus(); } catch (_) {} } }
+    return self.clients.openWindow(url);
+  })());
+});

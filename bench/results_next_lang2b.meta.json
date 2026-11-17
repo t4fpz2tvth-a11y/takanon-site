@@ -1,0 +1,16 @@
+{
+ "out": "bench/results_next_lang2b.json",
+ "set": "lang2",
+ "target": "next",
+ "tag": "lang2b",
+ "exp": "live",
+ "judge": "anthropic/claude-sonnet-5.5",
+ "judges": null,
+ "reps": 1,
+ "site": "https://takanon-site.pages.dev",
+ "started": "2026-11-17T14:24:29.048Z",
+ "written": "2026-11-17T14:34:29.696Z",
+ "finished": false,
+ "builds": [],
+ "summary": {}
+}

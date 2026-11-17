@@ -51,6 +51,11 @@ export async function onRequestPost({ request, env }) {
       for (const [k, opt] of [['novad', { audio: b64, task: 'transcribe', language: 'he' }], ['auto', { audio: b64, task: 'transcribe' }], ['prompt', { audio: b64, task: 'transcribe', language: 'he', initial_prompt: 'הודעה קולית של סטודנט באוניברסיטה העברית בנושא לימודים, בחינות ומועדים.' }]]) {
         try { const o = await env.AI.run(MODEL, opt); meta[k] = { text: String(o && o.text || '').slice(0, 600), info: o && o.transcription_info || null }; } catch (e) { meta[k] = { error: String(e && e.message || e).slice(0, 200) }; }
       }
+      // another speech model on Cloudflare itself (Deepgram nova-3), in the two input forms its page may take
+      const ct = (request.headers.get('Content-Type') || 'audio/mp4').replace('audio/x-m4a', 'audio/mp4');
+      for (const [k, mk] of [['nova_he', () => ({ audio: { body: new Response(buf).body, contentType: ct }, language: 'he' })], ['nova_multi', () => ({ audio: { body: new Response(buf).body, contentType: ct }, language: 'multi' })], ['nova_detect', () => ({ audio: { body: new Response(buf).body, contentType: ct }, detect_language: true })]]) {
+        try { const o = await env.AI.run('@cf/deepgram/nova-3', mk()); meta[k] = { raw: JSON.stringify(o).slice(0, 700) }; } catch (e) { meta[k] = { error: String(e && e.message || e).slice(0, 300) }; }
+      }
       await env.DB.prepare('INSERT INTO inbox_dbg (uid, meta, t) VALUES (?, ?, ?) ON CONFLICT (uid) DO UPDATE SET meta = excluded.meta, t = excluded.t').bind(owner.uid, JSON.stringify(meta), Date.now()).run();
     } catch (_) {}
     if (!said) return text('לא נשמע דיבור בהקלטה.', 422);

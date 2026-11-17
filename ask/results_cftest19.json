@@ -1,0 +1,23 @@
+{
+ "tag": "cftest19",
+ "at": "2026-11-17T21:28:06.075Z",
+ "chat": [],
+ "audio": [],
+ "human": {
+  "status": 200,
+  "body": "{\"sitekey\":\"0x4AAAAAAGE7c5H8f2E5hAzv\",\"ok\":false,\"enforce\":false,\"days\":[{\"day\":\"2026-11-17\",\"pass\":false,\"n\":2}]}"
+ },
+ "noCode": 403,
+ "pushtest": {
+  "status": 200,
+  "j": {
+   "subs": 1,
+   "got": [
+    {
+     "host": "web.push.apple.com",
+     "status": 201
+    }
+   ]
+  }
+ }
+}

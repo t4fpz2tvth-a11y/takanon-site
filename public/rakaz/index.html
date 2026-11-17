@@ -479,6 +479,10 @@ window.addEventListener('resize',resize);
 // 17.11.2026 (יוני: "החצים לא עובדים בדפדפן במחשב"): עכבר שנח מעל המגרש שלח אירועי תזוזה, וכל אחד מהם החזיר את השליטה לעכבר ומשך את
 // עברי בחזרה אליו. מעכשיו, אחרי לחיצה על מקש, העכבר חוזר לשלוט רק בלחיצה. מגע לא השתנה
 let lastDir=0;               // כששני החצים לחוצים יחד, האחרון שנלחץ קובע (כדי שמעבר מהיר מצד לצד לא ייעצר)
+// 17.11.2026: בדפדפן שבתוך אפליקציית קלוד מקש מוחזק לא מגיע כהחזקה. לפי המדידה אצל יוני מגיעים זוגות של לחיצה ושחרור באותה אלפית שנייה:
+// אחד מיד, ואחרי חצי שנייה עוד אחד כל 83 אלפיות שנייה. לכן שם לחיצה ארוכה זזה, נעצרה לחצי שנייה והמשיכה. כשמזהים זוג כזה (שחרור תוך 25
+// אלפיות שנייה, מה שאצבע לא עושה), הזוג הראשון ממשיך לנוע לאט עד שהחזרות מתחילות, במקום לעצור. בדפדפן רגיל זה לא מופעל בכלל
+const downAt={l:0,r:0};let pairAt=0,pairDir=0,creepT=0,creepDir=0;
 let tapT=0,tapDir=0;         // כל הקשה על חץ מזיזה לפחות 0.12 שנייה, גם אם המקש שוחרר מיד
 function setTarget(e,press){
   if(useKeys&&!press&&e.pointerType==='mouse')return; // המקלדת שולטת: עכבר שמרחף לא מזיז, רק לחיצה
@@ -493,7 +497,14 @@ function key(e,down){
   if(k==='ArrowLeft'||k==='a'||k==='A'||k==='ש')keys.l=down;
   else if(k==='ArrowRight'||k==='d'||k==='D'||k==='ג')keys.r=down;
   else hit=false;
-  if(hit&&down)lastDir=k==='ArrowRight'||k==='d'||k==='D'||k==='ג'?1:-1;
+  if(hit){
+    const d=k==='ArrowRight'||k==='d'||k==='D'||k==='ג'?1:-1,side=d>0?'r':'l',ms=performance.now();
+    if(down){lastDir=d;if(!e.repeat){downAt[side]=ms;creepT=0}}
+    else if(ms-downAt[side]<=25){ // שחרור מיידי (אצל יוני נמדדו 0 עד 14 אלפיות שנייה): מקש שהגיע כהקשה בלי משך. רק הראשון ברצף ממשיך לאט; חזרות כבר נעות ברצף בעצמן
+      if(ms-pairAt>220||pairDir!==d){creepT=.44;creepDir=d}
+      pairAt=ms;pairDir=d;
+    }
+  }
   if(hit&&mode==='play'&&!paused){useKeys=true;if(down&&!e.repeat){tapT=.12;tapDir=lastDir}e.preventDefault()}
 }
 window.addEventListener('keydown',e=>key(e,true));
@@ -670,7 +681,7 @@ function start(){
   const order=THEMES.slice().sort(()=>Math.random()-.5); // ארבע כותרות עד 18:00, והבאות בתור בזמן הפגישה
   stages=[mk(BASE,CFG.introCount,[3],-1)].concat(order.slice(0,4).map(th=>mk(th,CFG.stageCount,[3,9,15],12)),[mk(FINAL,CFG.stageCount,[4,11,17],8,true)],order.slice(4,4+CFG.otStages).map(th=>Object.assign(mk(th,CFG.stageCount,[3,9,15],12),{ot:true})));
   arrived=false;$('dest').textContent='גבעת רם, 18:00';streak=0;goldAt=-1;bonusPts=0;
-  roundId++;px=target=FX+FW/2;vx=0;facing=0;useKeys=false;keys.l=keys.r=false;tapT=0;
+  roundId++;px=target=FX+FW/2;vx=0;facing=0;useKeys=false;keys.l=keys.r=false;tapT=0;creepT=0;
   mode='play';paused=false;t=0;helped=0;pile=0;spawnT=.9;coffee=0;bot=0;hold=0;drain=0;ending=0;camp=0;revDone=false;revStage=1+(Math.random()*3|0);botsDue=[.42,.74];botAnswered=0;botSecs=0;sprint=false;banner=null;
   items=[];fx=[];pileSpots=[];farFrom=null;healedRound=0;seenQ=[];learned=[];fresh=[];bag={};effKind='';
   for(const k in eff)eff[k]=0;stageIdx=0;onStage();
@@ -784,13 +795,15 @@ function update(rdt){
   // תנועה
   if(mode==='idle'){let n=null;for(const it of items)if(!it.done&&it.type!=='haz'&&(!n||it.y>n.y))n=it;if(n)target=n.x;useKeys=false}
   if(mode!=='over'){
-    let dir=keys.r&&keys.l?lastDir:(keys.r?1:0)-(keys.l?1:0);if(tapT>0){tapT-=rdt;if(!dir&&useKeys)dir=tapDir}
+    let dir=keys.r&&keys.l?lastDir:(keys.r?1:0)-(keys.l?1:0),kv=1;
+    if(tapT>0){tapT-=rdt;if(!dir&&useKeys)dir=tapDir}
+    else if(creepT>0){creepT-=rdt;if(!dir&&useKeys){dir=creepDir;kv=.25}}
     let tx=useKeys?(dir?px+dir*FW:px):target;
     if(eff.rev>0)tx=useKeys?(dir?px-dir*FW:px):FX+FW-(target-FX);
     const lo=FX+PW,hi=FX+FW-PW,old=px;
     if(eff.freeze>0){vx=0}
     else if(eff.ice>0){vx+=(Math.max(lo,Math.min(hi,tx))-px)*9*rdt;vx*=Math.pow(.3,rdt);px+=vx*rdt;if(px<lo){px=lo;vx=Math.abs(vx)*.5}if(px>hi){px=hi;vx=-Math.abs(vx)*.5}}
-    else{const maxV=FW*(CFG.speed+CFG.speedUp*(play?P():0))*(coffee>0?1.7:1)*(eff.slow>0?.2:1)*(mode==='idle'?.45:1);px+=Math.max(-maxV*rdt,Math.min(maxV*rdt,tx-px));px=Math.max(lo,Math.min(hi,px));vx=rdt?(px-old)/rdt:0}
+    else{const maxV=FW*(CFG.speed+CFG.speedUp*(play?P():0))*(coffee>0?1.7:1)*(eff.slow>0?.2:1)*(mode==='idle'?.45:1)*kv;px+=Math.max(-maxV*rdt,Math.min(maxV*rdt,tx-px));px=Math.max(lo,Math.min(hi,px));vx=rdt?(px-old)/rdt:0}
     camp=Math.abs(vx)<FW*.03?camp+rdt:0;
     const mv=Math.abs(vx)>FW*.04?Math.sign(vx):0;facing+=(mv-facing)*Math.min(1,rdt*9);
   }

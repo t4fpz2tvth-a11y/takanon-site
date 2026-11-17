@@ -1,0 +1,39 @@
+{
+ "tag": "cftest6",
+ "at": "2026-11-17T10:31:45.025Z",
+ "chat": [],
+ "audio": [],
+ "human": {
+  "status": 200,
+  "body": "{\"sitekey\":\"0x4AAAAAAGE7c5H8f2E5hAzv\",\"ok\":false,\"enforce\":false,\"days\":[{\"day\":\"2026-11-17\",\"pass\":false,\"n\":2}]}"
+ },
+ "inbox": {
+  "key": {
+   "status": 200,
+   "len": 40
+  },
+  "wrong": 403,
+  "send": {
+   "status": 200,
+   "text": "ההודעה תומללה ומחכה בבוט הרכזים.",
+   "ms": 3014
+  },
+  "take": {
+   "status": 200,
+   "items": [
+    {
+     "name": "הודעה קולית",
+     "text": "I would like to ask about a second exam date after reserve duty, thank you very much."
+    }
+   ]
+  },
+  "again": 0,
+  "state": {
+   "hasKey": true,
+   "shortcut": ""
+  },
+  "unkey": 200,
+  "afterUnkey": 403
+ },
+ "noCode": 403
+}

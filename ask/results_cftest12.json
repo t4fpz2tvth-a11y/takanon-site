@@ -1,0 +1,76 @@
+{
+ "tag": "cftest12",
+ "at": "2026-11-17T11:25:37.645Z",
+ "chat": [],
+ "audio": [
+  {
+   "file": "s.m4a",
+   "lang": "auto",
+   "bytes": 22974,
+   "status": 200,
+   "body": "{\"text\":\"I would like to ask about a second exam date after reserve duty. Thank you very much.\",\"via\":\"gemini-3-flash\"}",
+   "ms": 2891
+  },
+  {
+   "file": "s.mp3",
+   "lang": "auto",
+   "bytes": 21825,
+   "status": 200,
+   "body": "{\"text\":\"הייתי רוצה לשאול לגבי מועד ב' לאחר שירות מילואים, תודה רבה.\",\"via\":\"gemini-3-flash\"}",
+   "ms": 1541
+  },
+  {
+   "file": "s.ogg",
+   "lang": "auto",
+   "bytes": 11082,
+   "status": 200,
+   "body": "{\"text\":\"הייתי רוצה לשאול לגבי מועד ב' לאחר שירות מילואים, תודה רבה.\",\"via\":\"gemini-3-flash\"}",
+   "ms": 1426
+  },
+  {
+   "file": "s.opus",
+   "lang": "auto",
+   "bytes": 11082,
+   "status": 200,
+   "body": "{\"text\":\"I would like to ask about a second exam date after reserve duty. Thank you very much.\",\"via\":\"gemini-3-flash\"}",
+   "ms": 1535
+  },
+  {
+   "file": "s.wav",
+   "lang": "auto",
+   "bytes": 170158,
+   "status": 200,
+   "body": "{\"text\":\"איי ווד לייק טו אסק אבאוט א סקנד אקזם דייט אפטר ריזרב דיוטי, ת'נק יו ורי מאץ'.\",\"via\":\"gemini-3-flash\"}",
+   "ms": 2626
+  },
+  {
+   "file": "s.webm",
+   "lang": "auto",
+   "bytes": 12686,
+   "status": 200,
+   "body": "{\"text\":\"הייתי רוצה לשאול לגבי מועד ב' לאחר שירות מילואים, תודה רבה.\",\"via\":\"gemini-3-flash\"}",
+   "ms": 1409
+  }
+ ],
+ "human": {
+  "status": 200,
+  "body": "{\"sitekey\":\"0x4AAAAAAGE7c5H8f2E5hAzv\",\"ok\":false,\"enforce\":false,\"days\":[{\"day\":\"2026-11-17\",\"pass\":false,\"n\":2}]}"
+ },
+ "ticket": {
+  "send": {
+   "status": 200,
+   "shape": "https://takanon-site.pages.dev/coord/?inbox=<ticket>"
+  },
+  "first": {
+   "text": "I would like to ask about a second exam date after reserve duty, thank you very much.",
+   "gone": false
+  },
+  "second": {
+   "text": "",
+   "gone": true
+  },
+  "noSignIn": 403,
+  "otherApp": "coord/?inbox=err-app"
+ },
+ "noCode": 403
+}

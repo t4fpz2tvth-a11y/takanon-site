@@ -602,6 +602,36 @@
       })();
     });
   }
+  // 17.11.2026 (Yoni: "להעביר הודעות קוליות של הווטסאפ ישירות לבוט"): the app was opened by a share from another app (sw.js put the
+  // shared files aside on this device). Once the coordinator is signed in and files can be attached, they are attached as
+  // if chosen with "צירוף קבצים" (a voice message is transcribed), a shared text goes into the empty question box, and
+  // what was put aside is removed. Older than an hour: removed unread
+  (async function takeShared() {
+    if (!/[?&]shared=1/.test(location.search) || !window.caches) return;
+    try { history.replaceState(null, '', location.pathname); } catch (_) {}
+    var files = [], text = '';
+    try {
+      var cache = await caches.open('takanon-shared-v1'), keys = await cache.keys();
+      for (var i = 0; i < keys.length; i++) {
+        var r = await cache.match(keys[i]); await cache.delete(keys[i]);
+        if (!r || Date.now() - Number(r.headers.get('X-At') || 0) > 3600e3) continue;
+        if (/__shared\/text$/.test(keys[i].url)) { text = await r.text(); continue; }
+        var nm = 'file'; try { nm = decodeURIComponent(r.headers.get('X-Name') || 'file'); } catch (_) {}
+        files.push(new File([await r.blob()], nm, { type: r.headers.get('Content-Type') || '' }));
+      }
+    } catch (_) {}
+    if (!files.length && !text) return;
+    try { await meReady; } catch (_) {}   // the sign-in first: the transcription is for signed-in coordinators
+    for (var n = 0; n < 120; n++) {   // then the page itself, until files can be attached
+      var row = document.getElementById('attach-row');
+      if (row && !row.hidden && typeof addFiles === 'function') break;
+      await new Promise(function (z) { setTimeout(z, 500); });
+    }
+    var q = document.getElementById('q');
+    // a share that is only a file's own caption (WhatsApp sends the file's name as text) is not a question
+    if (text && q && !q.value.trim() && !(files.length && text.length < 80)) { q.value = text; q.dispatchEvent(new Event('input', { bubbles: true })); }
+    if (files.length && typeof addFiles === 'function') { addFiles(files); try { document.getElementById('attach-list').scrollIntoView({ block: 'center' }); } catch (_) {} }
+  })();
 })();
 
 </script>

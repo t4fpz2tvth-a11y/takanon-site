@@ -33,5 +33,38 @@
    "type": "image/png",
    "purpose": "maskable"
   }
- ]
+ ],
+ "share_target": {
+  "action": "/coord/share",
+  "method": "POST",
+  "enctype": "multipart/form-data",
+  "params": {
+   "title": "title",
+   "text": "text",
+   "url": "url",
+   "files": [
+    {
+     "name": "files",
+     "accept": [
+      "audio/*",
+      "image/*",
+      "application/pdf",
+      "text/plain",
+      ".ogg",
+      ".opus",
+      ".oga",
+      ".m4a",
+      ".mp3",
+      ".aac",
+      ".wav",
+      ".pdf",
+      ".docx",
+      ".jpg",
+      ".jpeg",
+      ".png"
+     ]
+    }
+   ]
+  }
+ }
 }

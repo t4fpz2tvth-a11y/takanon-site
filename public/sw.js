@@ -29,11 +29,32 @@ self.addEventListener('install', (e) => e.waitUntil((async () => {   // the app'
   await self.skipWaiting();
 })()));
 self.addEventListener('activate', (e) => e.waitUntil((async () => {
-  for (const k of await caches.keys()) if (k !== CACHE) await caches.delete(k);
+  for (const k of await caches.keys()) if (k !== CACHE && k !== SHARED) await caches.delete(k);
   await self.clients.claim();
 })()));
+/* 17.11.2026 (Yoni: "להעביר הודעות קוליות של הווטסאפ ישירות לבוט, מהווטסאפ בטלפון"): the coordinators' app, installed on an
+   Android phone, is offered in the "share" list (the manifest's share_target). What was shared (a voice message, a
+   picture, a document, a text) arrives here as a form; the files are put aside on this device only (the cache below),
+   and the app opens with ?shared=1, takes them as attached files and removes them. Whatever was left is dropped after an hour. */
+const SHARED = 'takanon-shared-v1';
+async function takeShare(req) {
+  const root = ROOT();
+  try {
+    const form = await req.formData(), cache = await caches.open(SHARED);
+    for (const k of await cache.keys()) await cache.delete(k);
+    let i = 0;
+    for (const f of form.getAll('files')) {
+      if (!f || typeof f === 'string' || !f.size || f.size > 40 * 1048576 || i >= 10) continue;
+      await cache.put(root + '__shared/' + (i++), new Response(f, { headers: { 'Content-Type': f.type || 'application/octet-stream', 'X-Name': encodeURIComponent(f.name || 'file'), 'X-At': String(Date.now()) } }));
+    }
+    const text = [form.get('title'), form.get('text'), form.get('url')].filter(x => typeof x === 'string' && x.trim()).join('\n').slice(0, 20000);
+    if (text) await cache.put(root + '__shared/text', new Response(text, { headers: { 'Content-Type': 'text/plain; charset=utf-8', 'X-At': String(Date.now()) } }));
+  } catch (_) {}
+  return Response.redirect(root + '?shared=1', 303);
+}
 self.addEventListener('fetch', (e) => {
   const req = e.request;
+  if (req.method === 'POST' && new URL(req.url).origin === self.location.origin && new URL(req.url).pathname === ROOT() + 'share') { e.respondWith(takeShare(req)); return; }
   if (req.method !== 'GET') return;
   const u = new URL(req.url), root = ROOT();
   if (u.origin !== self.location.origin || u.search || /^\/api\//.test(u.pathname)) return;

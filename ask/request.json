@@ -1,1 +1,1 @@
-{"mode": "cftest", "tag": "cftest16", "audio": false, "chat": false, "panels": true, "run": 16}
+{"prompt": "ideas_prompt.md", "tag": "ideas1", "models": ["openai/gpt-6.1-terra", "google/gemini-3.8-flash", "anthropic/claude-sonnet-5.5", "openai/gpt-6-luna"], "run": 17}

@@ -63,6 +63,7 @@ if (req.ticket) { out.ticket = {}; try {
   const nc = await fetch(SITE + '/api/inbox', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ op: 'claim', id }) }); out.ticket.noSignIn = nc.status;
   const bad = await fetch(SITE + '/api/inbox', { method: 'POST', headers: { 'X-Inbox-App': 'other', 'Content-Type': 'audio/x-m4a' }, body: fs.readFileSync('ask/audio/s.m4a') }); out.ticket.otherApp = (await bad.text()).slice(-20);
 } catch (e) { out.ticket.error = String(e && e.message || e).slice(0, 200); } console.log('ticket', JSON.stringify(out.ticket)); }
+if (req.state) { try { const r = await fetch(SITE + '/api/inbox', { method: 'POST', headers: Object.assign({ 'Content-Type': 'application/json' }, H), body: '{"op":"state"}' }); out.state = { status: r.status, j: r.ok ? await r.json() : null }; } catch (e) { out.state = { error: String(e).slice(0, 200) }; } }
 if (req.dbg) { try { const r = await fetch(SITE + '/api/inbox', { method: 'POST', headers: Object.assign({ 'Content-Type': 'application/json' }, H), body: '{"op":"dbg"}' }); out.dbg = { status: r.status, j: r.ok ? await r.json() : null }; } catch (e) { out.dbg = { error: String(e).slice(0, 200) }; } }
 try { const r = await fetch(SITE + '/api/human', { headers: H }); out.human = { status: r.status, body: (await r.text()).slice(0, 600) }; } catch (e) { out.human = { error: String(e).slice(0, 200) }; }
 try { const r = await fetch(SITE + '/api/transcribe', { method: 'POST', body: 'x' }); out.noCode = r.status; } catch (_) {}

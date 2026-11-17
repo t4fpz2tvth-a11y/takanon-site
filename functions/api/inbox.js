@@ -46,16 +46,21 @@ export async function onRequestPost({ request, env }) {
     // 17.11.2026 12:55, TEMPORARY (Yoni's first test from his iPhone came out "תודה רבה"): for the head's own key only, what
     // arrived (size, type, first bytes) and how three settings of the speech model heard it, kept two hours for the diagnosis
     if (owner.uid === 'admin') try {
+      const ct0 = String(request.headers.get('Content-Type') || '').toLowerCase();
       const meta = { bytes: buf.length, type: request.headers.get('Content-Type') || '', name, magic: [...buf.subarray(0, 40)].map(x => x.toString(16).padStart(2, '0')).join(''), ua: (request.headers.get('User-Agent') || '').slice(0, 80),
         a: { text: said, info: out && out.transcription_info || null, segs: (out && out.segments || []).length } };
-      for (const [k, opt] of [['novad', { audio: b64, task: 'transcribe', language: 'he' }], ['auto', { audio: b64, task: 'transcribe' }], ['prompt', { audio: b64, task: 'transcribe', language: 'he', initial_prompt: 'הודעה קולית של סטודנט באוניברסיטה העברית בנושא לימודים, בחינות ומועדים.' }]]) {
-        try { const o = await env.AI.run(MODEL, opt); meta[k] = { text: String(o && o.text || '').slice(0, 600), info: o && o.transcription_info || null }; } catch (e) { meta[k] = { error: String(e && e.message || e).slice(0, 200) }; }
-      }
-      // another speech model on Cloudflare itself (Deepgram nova-3), in the two input forms its page may take
-      const ct = (request.headers.get('Content-Type') || 'audio/mp4').replace('audio/x-m4a', 'audio/mp4');
-      for (const [k, mk] of [['nova_he', () => ({ audio: { body: new Response(buf).body, contentType: ct }, language: 'he' })], ['nova_multi', () => ({ audio: { body: new Response(buf).body, contentType: ct }, language: 'multi' })], ['nova_detect', () => ({ audio: { body: new Response(buf).body, contentType: ct }, detect_language: true })]]) {
-        try { const o = await env.AI.run('@cf/deepgram/nova-3', mk()); meta[k] = { raw: JSON.stringify(o).slice(0, 700) }; } catch (e) { meta[k] = { error: String(e && e.message || e).slice(0, 300) }; }
-      }
+      // 13:15: Deepgram nova-3 on Cloudflare has no Hebrew. Candidates through OpenRouter (the union's own key), on the head's test only
+      const fmt = /ogg|opus/.test(ct0) ? 'ogg' : /mpeg|mp3/.test(ct0) ? 'mp3' : /wav/.test(ct0) ? 'wav' : /webm/.test(ct0) ? 'webm' : /flac/.test(ct0) ? 'flac' : /aac/.test(ct0) ? 'aac' : 'm4a';
+      const OR = { 'Authorization': 'Bearer ' + env.OPENROUTER_KEY, 'Content-Type': 'application/json', 'X-Title': 'Ma Omer HaTakanon' };
+      const ask = 'תמללו את ההקלטה מילה במילה, בעברית, עם פיסוק. החזירו רק את התמלול, בלי הקדמה ובלי הערות. אם לא נשמע דיבור, החזירו שורה ריקה.';
+      const jobs = [];
+      for (const m of ['google/gemini-2.5-flash', 'google/gemini-3-flash-preview', 'google/gemini-2.5-flash-lite', 'openai/gpt-audio-mini', 'mistralai/voxtral-small-24b-2507']) jobs.push((async () => { const t0 = Date.now();
+        try { const r = await fetch('https://openrouter.ai/api/v1/chat/completions', { method: 'POST', headers: OR, body: JSON.stringify({ model: m, temperature: 0, max_tokens: 1500, provider: { data_collection: 'deny' }, usage: { include: true }, messages: [{ role: 'user', content: [{ type: 'text', text: ask }, { type: 'input_audio', input_audio: { data: b64, format: fmt } }] }] }) });
+          const j = await r.json(); meta['or:' + m] = r.ok ? { text: String(j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content || '').slice(0, 700), cost: j.usage && j.usage.cost, ms: Date.now() - t0, provider: j.provider } : { status: r.status, error: JSON.stringify(j).slice(0, 300) }; } catch (e) { meta['or:' + m] = { error: String(e && e.message || e).slice(0, 200) }; } })());
+      for (const m of ['openai/whisper-large-v3', 'openai/gpt-4o-transcribe', 'openai/gpt-4o-mini-transcribe']) jobs.push((async () => { const t0 = Date.now();
+        try { const r = await fetch('https://openrouter.ai/api/v1/audio/transcriptions', { method: 'POST', headers: OR, body: JSON.stringify({ model: m, language: 'he', input_audio: { data: b64, format: fmt } }) });
+          const tx = await r.text(); meta['tr:' + m] = { status: r.status, body: tx.slice(0, 700), ms: Date.now() - t0 }; } catch (e) { meta['tr:' + m] = { error: String(e && e.message || e).slice(0, 200) }; } })());
+      await Promise.all(jobs);
       await env.DB.prepare('INSERT INTO inbox_dbg (uid, meta, t) VALUES (?, ?, ?) ON CONFLICT (uid) DO UPDATE SET meta = excluded.meta, t = excluded.t').bind(owner.uid, JSON.stringify(meta), Date.now()).run();
     } catch (_) {}
     if (!said) return text('לא נשמע דיבור בהקלטה.', 422);

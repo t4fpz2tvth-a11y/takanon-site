@@ -72,6 +72,20 @@ if (req.shared) { out.shared = {}; try {
   out.shared.image = await go(fs.readFileSync('ask/img/chat.png'), 'image/png');
   out.shared.voice = await go(fs.readFileSync('ask/audio/s.m4a'), 'audio/x-m4a');
 } catch (e) { out.shared.error = String(e && e.message || e).slice(0, 200); } console.log('shared', JSON.stringify(out.shared)); }
+// 17.11.2026: the head's new panels and the calendar file, on the live site
+if (req.panels) { out.panels = {}; try {
+  const J = Object.assign({ 'Content-Type': 'application/json' }, H);
+  const w = await fetch(SITE + '/api/watch', { method: 'POST', headers: J, body: '{}' }); const wj = w.ok ? await w.json() : null;
+  out.panels.watch = { status: w.status, last: wj && wj.last, changes: wj && (wj.changes || []).map(c => c.kind + ' ' + c.name).slice(0, 6), unreachable: wj && (wj.unreachable || []).length, sources: wj && wj.sources };
+  const s1 = await fetch(SITE + '/api/stat', { method: 'POST', headers: J, body: JSON.stringify({ op: 'report' }) }); const sj = s1.ok ? await s1.json() : null;
+  out.panels.stat = { status: s1.status, month: sj && sj.month, rows: sj && (sj.rows || []).slice(0, 12) };
+  const nos = await fetch(SITE + '/api/stat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ op: 'report' }) }); out.panels.statNoSignIn = nos.status;
+  const now = await fetch(SITE + '/api/watch', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' }); out.panels.watchNoSignIn = now.status;
+  const ic = await fetch(SITE + '/api/ics?d=2026-11-30&k=deadline&o=3.11&u=test1'); const it = await ic.text();
+  out.panels.ics = { status: ic.status, type: ic.headers.get('content-type'), lines: it.split('\r\n').length, summary: (it.split('\r\n').find(l => l.startsWith('SUMMARY:')) || '') };
+  const vl = await fetch(SITE + '/api/inbox', { method: 'POST', headers: J, body: JSON.stringify({ op: 'voice-list' }) }); const vj = vl.ok ? await vl.json() : null;
+  out.panels.voice = { status: vl.status, rows: vj && (vj.rows || []).length, connected: vj && (vj.rows || []).filter(r => r.t).length, today: vj && vj.today };
+} catch (e) { out.panels.error = String(e && e.message || e).slice(0, 200); } console.log('panels', JSON.stringify(out.panels)); }
 if (req.dbg) { try { const r = await fetch(SITE + '/api/inbox', { method: 'POST', headers: Object.assign({ 'Content-Type': 'application/json' }, H), body: '{"op":"dbg"}' }); out.dbg = { status: r.status, j: r.ok ? await r.json() : null }; } catch (e) { out.dbg = { error: String(e).slice(0, 200) }; } }
 try { const r = await fetch(SITE + '/api/human', { headers: H }); out.human = { status: r.status, body: (await r.text()).slice(0, 600) }; } catch (e) { out.human = { error: String(e).slice(0, 200) }; }
 try { const r = await fetch(SITE + '/api/transcribe', { method: 'POST', body: 'x' }); out.noCode = r.status; } catch (_) {}

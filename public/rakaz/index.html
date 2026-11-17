@@ -476,20 +476,14 @@ function resize(){
 }
 window.addEventListener('resize',resize);
 
-// 17.11.2026 (יוני: "החצים לא עובדים בדפדפן במחשב"): עכבר שנח מעל המגרש שלח אירועי תזוזה, וכל אחד מהם החזיר את השליטה לעכבר ומשך את
-// עברי בחזרה אליו. מעכשיו, אחרי לחיצה על מקש, העכבר חוזר לשלוט רק בלחיצה. מגע לא השתנה
-let lastDir=0;               // כששני החצים לחוצים יחד, האחרון שנלחץ קובע (כדי שמעבר מהיר מצד לצד לא ייעצר)
-// 17.11.2026: בדפדפן שבתוך אפליקציית קלוד מקש מוחזק לא מגיע כהחזקה. לפי המדידה אצל יוני מגיעים זוגות של לחיצה ושחרור באותה אלפית שנייה:
-// אחד מיד, ואחרי חצי שנייה עוד אחד כל 83 אלפיות שנייה. לכן שם לחיצה ארוכה זזה, נעצרה לחצי שנייה והמשיכה. כשמזהים זוג כזה (שחרור תוך 25
-// אלפיות שנייה, מה שאצבע לא עושה), הזוג הראשון ממשיך לנוע לאט עד שהחזרות מתחילות, במקום לעצור. בדפדפן רגיל זה לא מופעל בכלל
-const downAt={l:0,r:0};let pairAt=0,pairDir=0,creepT=0,creepDir=0;
-let tapT=0,tapDir=0;         // כל הקשה על חץ מזיזה לפחות 0.12 שנייה, גם אם המקש שוחרר מיד
-function setTarget(e,press){
-  if(useKeys&&!press&&e.pointerType==='mouse')return; // המקלדת שולטת: עכבר שמרחף לא מזיז, רק לחיצה
-  const r=stage.getBoundingClientRect();target=e.clientX-r.left;useKeys=false;
-}
-stage.addEventListener('pointerdown',e=>{if(mode==='play'&&!paused)setTarget(e,true)});
-stage.addEventListener('pointermove',e=>{if(mode==='play'&&!paused)setTarget(e,false)});
+// 17.11.2026: כשההגדרה "גישה מלאה למקלדת" דולקת במק (כך היה אצל יוני), מקש מוחזק לא מגיע לדפדפן כהחזקה אלא כהקשות נפרדות שמשוחררות מיד:
+// אחת מיד, ואחרי חצי שנייה עוד אחת כל 83 אלפיות שנייה. בלי טיפול, החצים כמעט לא מזיזים שם את עברי. לכן כשמזהים הקשה כזאת (שחרור בתוך 25
+// אלפיות שנייה, מה שאצבע לא עושה), הראשונה גולשת לאט, וכשהחזרות מגיעות עוברים למהירות מלאה. במקלדת רגילה שום דבר מזה לא מופעל,
+// והעכבר והמקלדת מתנהגים בדיוק כמו בגרסאות שלפני 17.11
+const downAt={l:0,r:0};let pairAt=0,pairDir=0,creepT=0,creepDir=0,tapT=0,tapDir=0;
+function setTarget(e){const r=stage.getBoundingClientRect();target=e.clientX-r.left;useKeys=false}
+stage.addEventListener('pointerdown',e=>{if(mode==='play'&&!paused)setTarget(e)});
+stage.addEventListener('pointermove',e=>{if(mode==='play'&&!paused)setTarget(e)});
 function key(e,down){
   const k=e.key;
   if(down&&(k==='Escape'||k==='p'||k==='P'||k==='פ')&&mode==='play'){paused?resume():pause();e.preventDefault();return}
@@ -499,8 +493,8 @@ function key(e,down){
   else hit=false;
   if(hit){
     const d=k==='ArrowRight'||k==='d'||k==='D'||k==='ג'?1:-1,side=d>0?'r':'l',ms=performance.now();
-    if(down){lastDir=d;if(!e.repeat)downAt[side]=ms}
-    else if(ms-downAt[side]<=25){ // שחרור מיידי (אצל יוני נמדדו 0 עד 14 אלפיות שנייה): מקש שהגיע כהקשה בלי משך. הוא מזיז צעד קצר; רק הראשון ברצף ממשיך אחריו לאט, כי חזרות כבר נעות ברצף בעצמן
+    if(down){if(!e.repeat)downAt[side]=ms}
+    else if(ms-downAt[side]<=25){ // שחרור מיידי (אצל יוני נמדדו 0 עד 17 אלפיות שנייה): מקש שהגיע כהקשה בלי משך
       if(pairDir!==d||(ms-pairAt>220&&creepT<=0)){creepT=.56;creepDir=d;tapT=0}   // הקשה ראשונה: גלישה איטית עד שמתברר אם מגיעות חזרות
       else{tapT=.12;tapDir=d;creepT=0}                               // חזרה: מהירות מלאה, ועצירה זמן קצר אחרי החזרה האחרונה
       pairAt=ms;pairDir=d;
@@ -796,7 +790,7 @@ function update(rdt){
   // תנועה
   if(mode==='idle'){let n=null;for(const it of items)if(!it.done&&it.type!=='haz'&&(!n||it.y>n.y))n=it;if(n)target=n.x;useKeys=false}
   if(mode!=='over'){
-    let dir=keys.r&&keys.l?lastDir:(keys.r?1:0)-(keys.l?1:0),kv=1;
+    let dir=(keys.r?1:0)-(keys.l?1:0),kv=1;
     if(tapT>0){tapT-=rdt;if(!dir&&useKeys)dir=tapDir}
     else if(creepT>0){creepT-=rdt;if(!dir&&useKeys){dir=creepDir;kv=Math.min(1,.43/(CFG.speed+CFG.speedUp*(play?P():0)))}} // 0.43 רוחב מגרש בשנייה, בכל שלב של היום
     let tx=useKeys?(dir?px+dir*FW:px):target;

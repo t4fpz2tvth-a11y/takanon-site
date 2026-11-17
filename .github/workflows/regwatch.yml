@@ -1,7 +1,6 @@
 name: regwatch
+# 17.11.2026: replaced by the wider weekly look (watch.yml, watch/run.mjs); kept for a run by hand only
 on:
-  schedule:
-    - cron: '17 5 * * 0'
   workflow_dispatch:
 permissions:
   contents: write

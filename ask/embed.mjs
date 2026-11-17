@@ -1,7 +1,8 @@
 // 17.11.2026: the meaning search's clause vectors, made once (and again when the regulations change). Reads ask/embed_in.json
-// (every clause: id and the text to embed: document, number, title, the clause's everyday words and the opening of its text),
+// (every clause in pieces of about 700 characters: the clause's id and the text to embed: document, number, title, a piece of
+// the text; the first piece also carries the clause's everyday words),
 // asks /api/embed in batches with the comparison secret, and writes ask/vec/ids.json + ask/vec/vecs.bin (copied to public/vec/ by hand, so the site serves them; one row of
-// signed bytes per clause, in the order of ids.json). Also embeds the test questions in ask/embed_q.json and writes, for
+// signed bytes per piece, in the order of ids.json, where a clause's id repeats for each of its pieces). Also embeds the test questions in ask/embed_q.json and writes, for
 // each, the clauses nearest by meaning: ask/results_<tag>.json. The secret goes only as a header and is never printed.
 import fs from 'node:fs';
 const CODE = process.env.BENCH_CODE || '';
@@ -44,7 +45,10 @@ for (let i = 0; i < qs.length; i += B) {
   part.forEach((x, k) => {
     const bb = Buffer.from(j.vs[k], 'base64'), v = new Int8Array(bb.buffer, bb.byteOffset, bb.length), sc = i8.map((r, n) => { let s = 0; for (let d = 0; d < r.length; d++) s += r[d] * v[d]; return [n, s]; });
     sc.sort((a, b) => b[1] - a[1]);
-    out.q.push({ id: x.id, q: x.q, want: x.want || null, top: sc.slice(0, 10).map(([n, s]) => [ids[n], Math.round(s / 161.29) / 100]) });
+    // a clause is as near as its nearest piece
+    const seen = new Set(), top = [];
+    for (const [n, s] of sc) { if (seen.has(ids[n])) continue; seen.add(ids[n]); top.push([ids[n], Math.round(s / 161.29) / 100]); if (top.length >= 60) break; }
+    out.q.push({ id: x.id, q: x.q, want: x.want || null, top });
   });
 }
 fs.writeFileSync('ask/results_' + tag + '.json', JSON.stringify(out));

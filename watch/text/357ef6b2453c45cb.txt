@@ -1,4 +1,28 @@
 דילוג לתוכן העיקרי
+הפקולטה למשפטים
+האוניברסיטה העברית בירושלים
+טופס חיפוש
+חיפוש
+English
+הפקולטה למשפטים האוניברסיטה העברית בירושלים
+accessibility הגדלת גופן
+text_fields
+גווני אפור
+format_color_reset
+היפוך צבעים
+invert_colors
+ניגודיות גבוהה
+contrast
+ניגודיות בהירה
+light_mode
+הדגשת קישורים
+links
+גופן קריא
+title
+איתחול
+restart_alt
+check
+LLM Program Regulations
 LLM Program Regulations
 ( PDF Version )
 1. Admissions
@@ -124,3 +148,5 @@ Students required to take supplementary studies will also be required to take th
 10.1.2. Studies for the LL.M. program with a specialization for 32 credits pursuant to section 4.3.
 * The committee decided that “Candidates who did not previously study at an educational institution where the language of instruction is English must submit official TOEFL scores or IELTS. The minimum TOEFL score required is 600 on the paper-based test, 250 on the computer-based test or 89 on the Internet-based test. The minimum IELTS score is 7”
 באתרי האוניברסיטה העברית נעשה שימוש בקבצי Cookies. הגלישה באתרים אלו מהווים הסכמה לשימוש זה.
+ביטול
+אישור

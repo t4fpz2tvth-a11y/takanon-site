@@ -1,4 +1,24 @@
 דילוג לתוכן העיקרי
+בית הספר לחינוך
+ע"ש שלמה (סימור) פוקס
+accessibility הגדלת גופן
+text_fields
+גווני אפור
+format_color_reset
+היפוך צבעים
+invert_colors
+ניגודיות גבוהה
+contrast
+ניגודיות בהירה
+light_mode
+הדגשת קישורים
+links
+גופן קריא
+title
+איתחול
+restart_alt
+check
+סטודנטים לתואר ראשון
 > לכל המידע לסטודנטים
 קישורים שימושיים
 הנפקת אישורים: גיליונות ציונים, אישור לימודים ועוד
@@ -18,23 +38,28 @@ Service Package for International Students
 למי לפנות?
 יש לפנות לטללית גנץ ליצירת קשר ראשוני בכל הנוגע לתואר ראשון.
 חברי סגל הרלוונטיים עבור סטודנטים בתואר ראשון בחינוך
+גב' טללית גנץ
 רכזת תואר ראשון | הרשמה לתואר שני
 02-5881190
 tlalitg@savion.huji.ac.il
 בית הספר לחינוך, חדר 325
+גב' אושרה פנחסי
 ראש תחום הוראה ותלמידים
 02-5881192
 oshrap@savion.huji.ac.il
 בית הספר לחינוך, חדר 324
+גב' טלי הראל
 עוזרת לענייני הוראה, רכזת בחינות ומילואים
 02-5882020
 talh@savion.huji.ac.il
 בית הספר לחינוך, חדר 328
+גב' אורי סטרסר
 יועצת לתלמידי תואר ראשון
 02-5881197
 eduba@savion.huji.ac.il
 בית הספר לחינוך, חדר 354
 בתיאום מראש
+פרופ' יהודה פולק
 ראש החוג למדעי החינוך
 התוכנית ללקויות למידה
 תחומי מחקר: הפרעת קשב ופעלתנות יתר (ADHD), קבלת החלטות, התנהגות סיכונית, שליטה עצמית
@@ -43,6 +68,7 @@ Research fields: attention-deficit/hyperactivity disorder, decision-making, risk
 yehuda.pollak@mail.huji.ac.il
 בית הספר לחינוך, חדר 340
 יום ג', 14:00
+ד"ר אביב כהן
 ייעוץ אקדמי תואר ראשון בחינוך
 תחומי מחקר: חינוך פוליטי, חינוך לאזרחות דמוקרטית, חינוך רב תרבותי, הכשרת מורים, שיטות מחקר איכותניות
 Research fields: Political education, democratic civic education, multicultural education, teacher education, qualitative research methods
@@ -51,3 +77,5 @@ aviv.cohen@mail.huji.ac.il
 בית הספר לחינוך, חדר 573
 https://huji.academia.edu/AvivCohen
 באתרי האוניברסיטה העברית נעשה שימוש בקבצי Cookies. הגלישה באתרים אלו מהווים הסכמה לשימוש זה.
+ביטול
+אישור

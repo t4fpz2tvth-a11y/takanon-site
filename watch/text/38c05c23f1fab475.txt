@@ -1,4 +1,26 @@
 דילוג לתוכן העיקרי
+האגף למנהל סטודנטים
+Student Administration Division
+טופס חיפוש
+חיפוש
+accessibility הגדלת גופן
+text_fields
+גווני אפור
+format_color_reset
+היפוך צבעים
+invert_colors
+ניגודיות גבוהה
+contrast
+ניגודיות בהירה
+light_mode
+הדגשת קישורים
+links
+גופן קריא
+title
+איתחול
+restart_alt
+check
+נהלי הוראה ולימודים
 תוכן עיניינים
 1. סטודנט/ית
 1.1 הגדרה
@@ -192,3 +214,5 @@ Teaching Policy and Procedures
 Pause
 Play
 באתרי האוניברסיטה העברית נעשה שימוש בקבצי Cookies. הגלישה באתרים אלו מהווים הסכמה לשימוש זה.
+ביטול
+אישור

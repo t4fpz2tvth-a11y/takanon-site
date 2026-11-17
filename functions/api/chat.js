@@ -123,13 +123,14 @@ export async function onRequestPost({ request, env }) {
       // 5.11.2026 (the blind review): the preview copies (/next/, /coord-next/, the header X-Preview) always ask for providers that keep nothing
       env.PRIVACY === '1' || request.headers.get('X-Preview') === '1' || (test && url.searchParams.has('private')) ? { provider: { data_collection: 'deny' } } : {}));
   const orCall = () => fetch('https://openrouter.ai/api/v1/chat/completions', { method: 'POST', headers: orHeaders, body: orBody });
-  // 17.11.2026: Cloudflare's AI Gateway between this function and OpenRouter (the project's binding AI). For now only a
-  // comparison call that asks for it (?test=1&aig=url) goes through it, to learn whether it passes the answer as it is
-  // (status, streaming); the live bots go straight to OpenRouter as before. The prompt and the answer are never kept in
+  // 17.11.2026: Cloudflare's AI Gateway between this function and OpenRouter (the project's binding AI). The prompt and the answer are never kept in
   // the gateway's log (cf-aig-collect-log-payload: false): only the count, the model, the cost and the time. Any failure
   // of the gateway itself (not the model's own answer) falls back to the straight call, and X-Via says which way it went
   let r = null, via = 'direct', logNote = '';
-  const aig = test ? url.searchParams.get('aig') : '';
+  // 17.11.2026 12:10: checked on the live site (ask/results_cftest3.json): the answer passes as it is, streamed too, and the
+  // gateway's log of the call holds no request and no response. So the live bots go through it; AIG=0 (a setting) turns it off.
+  // A comparison run goes straight unless it asks (?aig=1), so its numbers stay comparable
+  const aig = test ? (url.searchParams.get('aig') || (exp.has('aig') ? '1' : '')) : env.AIG === '0' ? '' : '1';
   if (aig && env.AI && typeof env.AI.gateway === 'function') {
     try {
       // through the binding (already identified to the gateway; a plain call to the gateway's address is refused, 401)

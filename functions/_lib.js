@@ -109,3 +109,20 @@ export function allowed(u, path, write, op) {
   if (s[0] === 'miss') return u.admin;   // 16.11.2026: the questions that were not found, for the head only
   return false;
 }
+
+// 17.11.2026: the human check's pass (Cloudflare Turnstile, /api/human): a cookie "tkh" = <expiry>.<signature>, signed with the
+// widget's secret; twelve hours. It says only that a check passed on this browser, nothing about who
+export const HUMAN_COOKIE = 'tkh';
+async function humanSig(env, exp) {
+  const key = await crypto.subtle.importKey('raw', new TextEncoder().encode(String(env.TURNSTILE_SECRET || '')), { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']);
+  const b = new Uint8Array(await crypto.subtle.sign('HMAC', key, new TextEncoder().encode('human|' + exp)));
+  return [...b.slice(0, 16)].map(x => x.toString(16).padStart(2, '0')).join('');
+}
+export async function humanPass(env) { const exp = Date.now() + 12 * 3600e3; return exp + '.' + await humanSig(env, exp); }
+export async function humanOk(request, env) {
+  try {
+    const m = /(?:^|;\s*)tkh=(\d{13})\.([0-9a-f]{32})(?:;|$)/.exec(request.headers.get('Cookie') || '');
+    if (!m || Number(m[1]) < Date.now()) return false;
+    return (await humanSig(env, m[1])) === m[2];
+  } catch (_) { return false; }
+}

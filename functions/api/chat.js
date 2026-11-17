@@ -1,4 +1,4 @@
-import { who, setup, sha } from '../_lib.js';
+import { who, setup, sha, humanOk } from '../_lib.js';
 // "מה אומר התקנון?" — the site's own small server function (Cloudflare Pages Function, 3.11.2026), at /api/chat.
 // It keeps the OpenRouter key (the secret OPENROUTER_KEY, set in the Cloudflare project's settings, never in this code),
 // answers only the site itself, limits each visitor's questions, and passes the model's answer back as it is written.
@@ -44,6 +44,15 @@ export async function onRequestPost({ request, env }) {
   // counts by their own code, not by the shared office address, with room for a shift of cases (COORD_PER_HOUR, default 200)
   const me = test ? null : (request.headers.get('X-Code') || request.headers.get('Cookie')) ? await who(request, env) : null;
   const own = me && !me.bench && !me.notify;
+  // 17.11.2026 (Yoni: "תבנה את 3 ההצעות"): the human check of the public bot (Cloudflare Turnstile, /api/human). A visitor who is
+  // not signed in should carry the pass the page got after the check. For now it is only counted (table hits, by the day:
+  // h:ok / h:no), so the share of real visitors without a pass is known before anything is blocked; TURNSTILE_ENFORCE=1
+  // (a setting) turns the block on. Off altogether until TURNSTILE_SECRET is set. A storage error never blocks
+  if (!test && !own && env.TURNSTILE_SECRET) {
+    const pass = await humanOk(request, env);
+    if (env.DB) try { await setup(env); await env.DB.prepare('INSERT INTO hits (k, h, n) VALUES (?, ?, 1) ON CONFLICT (k, h) DO UPDATE SET n = n + 1').bind(pass ? 'h:ok' : 'h:no', Math.floor(Date.now() / 864e5) + 10000000).run(); } catch (_) {}
+    if (!pass && env.TURNSTILE_ENFORCE === '1') return json('human check', 403);
+  }
   if (!test) {
     const perB = Number(env.PER_HOUR || 40), perIp = Number(env.IP_PER_HOUR || 300), perC = Number(env.COORD_PER_HOUR || 200);
     const cid = String(request.headers.get('X-Client') || '');
@@ -106,9 +115,10 @@ export async function onRequestPost({ request, env }) {
   // noask (comparison only): the answer is asked not to stop at a clarifying question, appended to the answer's own prompt
   if (exp.has('noask') && body.stream) { const m = messages[messages.length - 1]; if (m && typeof m.content === 'string') m.content += '\n\nDo not reply with a clarifying question or [[ASK]] alone: answer now, for each case the excerpts settle, and put at most one short question about a missing fact at the end.'; }
   const big = test && !exp.has('live');
-  const r = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+  const orHeaders = { 'Authorization': 'Bearer ' + (test && env.OPENROUTER_KEY_TEST ? env.OPENROUTER_KEY_TEST : env.OPENROUTER_KEY), 'Content-Type': 'application/json', 'HTTP-Referer': url.origin, 'X-Title': 'Ma Omer HaTakanon' };
+  const orCall = (to, extra) => fetch(to, {
     method: 'POST',
-    headers: { 'Authorization': 'Bearer ' + (test && env.OPENROUTER_KEY_TEST ? env.OPENROUTER_KEY_TEST : env.OPENROUTER_KEY), 'Content-Type': 'application/json', 'HTTP-Referer': url.origin, 'X-Title': 'Ma Omer HaTakanon' },
+    headers: Object.assign({}, orHeaders, extra || {}),
     // 4.11.2026 (security review): answers are a few thousand tokens; the comparison keeps its larger room. 6.11.2026 (the QA round):
     // a streamed answer may ask for up to 12,000 (the coordinators' answer on a long, garbled faculty text), never more PRIVACY=1 (a setting)
     // asks OpenRouter for providers that keep no data; ?private=1 on a comparison call tries it before the setting is turned on
@@ -116,5 +126,21 @@ export async function onRequestPost({ request, env }) {
       // 5.11.2026 (the blind review): the preview copies (/next/, /coord-next/, the header X-Preview) always ask for providers that keep nothing
       env.PRIVACY === '1' || request.headers.get('X-Preview') === '1' || (test && url.searchParams.has('private')) ? { provider: { data_collection: 'deny' } } : {}))
   });
-  return new Response(r.body, { status: r.status, headers: { 'Content-Type': r.headers.get('Content-Type') || 'application/json', 'Cache-Control': 'no-store' } });
+  // 17.11.2026: Cloudflare's AI Gateway between this function and OpenRouter (the project's binding AI). For now only a
+  // comparison call that asks for it (?test=1&aig=url) goes through it, to learn whether it passes the answer as it is
+  // (status, streaming); the live bots go straight to OpenRouter as before. The prompt and the answer are never kept in
+  // the gateway's log (cf-aig-collect-log-payload: false): only the count, the model, the cost and the time. Any failure
+  // of the gateway itself (not the model's own answer) falls back to the straight call, and X-Via says which way it went
+  let r = null, via = 'direct';
+  const aig = test ? url.searchParams.get('aig') : '';
+  if (aig && env.AI && typeof env.AI.gateway === 'function') {
+    try {
+      const base = String(await env.AI.gateway(env.AIG_ID || 'default').getUrl('openrouter')).replace(/\/$/, '');
+      const g = await orCall(base + '/chat/completions', { 'cf-aig-collect-log-payload': 'false' });
+      if ([401, 403, 404, 500, 502, 503, 504].includes(g.status)) via = 'direct (the gateway answered ' + g.status + ': ' + (await g.text()).replace(/\s+/g, ' ').slice(0, 160) + ')';
+      else { r = g; via = 'gateway'; }
+    } catch (e) { via = 'direct (the gateway failed: ' + String(e && e.message || e).replace(/\s+/g, ' ').slice(0, 120) + ')'; }
+  }
+  if (!r) r = await orCall('https://openrouter.ai/api/v1/chat/completions');
+  return new Response(r.body, { status: r.status, headers: { 'Content-Type': r.headers.get('Content-Type') || 'application/json', 'Cache-Control': 'no-store', 'X-Via': via.replace(/[^\x20-\x7e]/g, '?') } });
 }

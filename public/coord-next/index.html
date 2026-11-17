@@ -427,6 +427,13 @@
     var h1 = PV4 && document.querySelector('header.hero h1');
     if (h1) { var row = document.createElement('div'); row.className = 'pv-title-row'; h1.parentNode.insertBefore(row, h1); row.appendChild(h1); bar.style.padding = '0'; bar.style.marginInlineStart = 'auto'; row.appendChild(bar); }
     else document.body.prepend(bar);
+    // 17.11.2026 (Yoni: "כן"): on an iPhone, the road from WhatsApp is an Apple Shortcut with a personal inbox key (/api/inbox)
+    if (!BENCH && (/iPhone|iPad|iPod/.test(navigator.userAgent) || (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1) || /[?&]voice=1/.test(location.search))) {
+      var vb = document.createElement('button'); vb.type = 'button'; vb.id = 'tk-voice'; vb.textContent = 'הודעות קוליות';
+      vb.setAttribute('style', bar.querySelector('#tk-out').getAttribute('style'));
+      bar.insertBefore(vb, bar.querySelector('#tk-out'));
+      vb.addEventListener('click', function () { voiceSetup(vb); });
+    }
     bar.querySelector('#tk-out').addEventListener('click', async function () { if (await askIn('לצאת מהמכשיר הזה? בכניסה הבאה יידרש הקוד שוב.', 'יציאה', 'ביטול')) { try { localStorage.removeItem(KEY); } catch (_) {} code = ''; fetch('/api/db', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{"op":"logout"}' }).catch(function () {}).then(function () { location.reload(); }); } });
     if (!me.admin) return;
     var msB = bar.querySelector('#tk-miss');
@@ -606,6 +613,72 @@
   // shared files aside on this device). Once the coordinator is signed in and files can be attached, they are attached as
   // if chosen with "צירוף קבצים" (a voice message is transcribed), a shared text goes into the empty question box, and
   // what was put aside is removed. Older than an hour: removed unread
+  // 17.11.2026: the voice inbox. What the coordinator's Shortcut sent (already transcribed on the server; the recording is not
+  // kept) is taken when the page opens, when it comes back to the front, and right after the Shortcut opens it (?inbox=1),
+  // and attached like a transcribed voice file
+  var inboxAt = 0;
+  async function inboxTake(tries) {
+    if (BENCH || Date.now() - inboxAt < 3000) return; inboxAt = Date.now();
+    try { await meReady; } catch (_) { return; }
+    if (!me) return;
+    for (var t = 0; t < (tries || 1); t++) {
+      var items = [];
+      try { var r = await fetch('/api/inbox', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{"op":"take"}' }); if (r.ok) items = (await r.json()).items || []; else return; } catch (_) { return; }
+      if (items.length) {
+        for (var n = 0; n < 120 && !(typeof attachments !== 'undefined' && typeof renderAttach === 'function' && document.getElementById('attach-row') && !document.getElementById('attach-row').hidden); n++) await new Promise(function (z) { setTimeout(z, 500); });
+        if (typeof attachments === 'undefined' || typeof renderAttach !== 'function') return;
+        items.forEach(function (it, i) {
+          if (attachments.length >= 10) return;
+          var d = new Date(it.t || Date.now()), nm = (it.name && it.name !== 'הודעה קולית' ? it.name : 'הודעה קולית ' + ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2) + (items.length > 1 ? ' (' + (i + 1) + ')' : ''));
+          attachments.push({ name: nm, kind: 'doc', label: 'תמלול הקלטה', approx: true, blobs: [], pages: 0, urls: [],
+            text: '[תמלול אוטומטי של הודעה קולית. ייתכנו בו טעויות בשמות, במספרים ובתאריכים]\n\n' + String(it.text || '') });
+        });
+        try { attachErr = (items.length === 1 ? 'הודעה קולית אחת תומללה וצורפה' : items.length + ' הודעות קוליות תומללו וצורפו') + ': כדאי לפתוח את התמלול ולוודא שמות, מספרים ותאריכים.'; } catch (_) {}
+        renderAttach();
+        try { document.getElementById('attach-list').scrollIntoView({ block: 'center' }); } catch (_) {}
+        return;
+      }
+      if (t + 1 < (tries || 1)) await new Promise(function (z) { setTimeout(z, 2500); });
+    }
+  }
+  if (/[?&]inbox=1/.test(location.search)) { try { history.replaceState(null, '', location.pathname); } catch (_) {} inboxTake(6); } else inboxTake(1);
+  document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') inboxTake(2); });
+  function voiceSetup(btn) {
+    var dk = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches, back = document.activeElement;
+    var d = document.createElement('div'); d.setAttribute('role', 'dialog'); d.setAttribute('aria-modal', 'true'); d.setAttribute('aria-labelledby', 'tk-vo-t');
+    d.setAttribute('style', 'position:fixed;inset:0;z-index:120;background:rgba(14,19,30,.45);display:grid;place-items:center;padding:16px;font:16px/1.6 inherit;overflow:auto');
+    var bs = 'font:inherit;min-height:44px;padding:.4rem 1rem;border-radius:10px;cursor:pointer;', pri = bs + 'border:0;background:' + (dk ? '#9DB2FF' : '#2747B8') + ';color:' + (dk ? '#0E131E' : '#fff'), sec = bs + 'border:1px solid #8A93A6;background:none;color:inherit';
+    d.innerHTML = '<div dir="rtl" style="background:' + (dk ? '#161D2B' : '#fff') + ';color:' + (dk ? '#E6EAF2' : '#141B2D') + ';max-width:460px;width:100%;box-sizing:border-box;padding:1.2rem;border-radius:14px;display:grid;gap:.8rem;box-shadow:0 12px 40px rgba(0,0,0,.25)">' +
+      '<h2 id="tk-vo-t" style="margin:0;font-size:1.15rem">הודעות קוליות מוואטסאפ באייפון</h2>' +
+      '<p style="margin:0">אחרי הגדרה חד־פעמית אפשר לשלוח הודעה קולית מוואטסאפ ישר לכאן: בוואטסאפ לוחצים לחיצה ארוכה על ההודעה, ״העברה״, סמל השיתוף, ובוחרים ״לבוט הרכזים״. ההודעה מתומללת ומצורפת לשאלה. ההקלטה עצמה לא נשמרת.</p>' +
+      '<ol style="margin:0;padding-inline-start:1.2rem;display:grid;gap:.3rem"><li>יוצרים כאן מפתח אישי ומעתיקים אותו.</li><li>מתקינים את קיצור הדרך, ומדביקים בו את המפתח כשהוא מבקש.</li></ol>' +
+      '<p id="tk-vo-s" role="status" style="margin:0;color:' + (dk ? '#9BA5BA' : '#566079') + '">בודק…</p>' +
+      '<div id="tk-vo-k" hidden style="display:grid;gap:.4rem"><input id="tk-vo-key" readonly dir="ltr" aria-label="המפתח האישי" style="font:14px ui-monospace,monospace;padding:.5rem;border:1px solid #8A93A6;border-radius:8px;background:none;color:inherit;width:100%;box-sizing:border-box"><span style="font-size:.9rem">המפתח מוצג פעם אחת בלבד. הוא מאפשר רק להכניס תמלול לתיבה שלך, ולא נותן גישה לשום דבר.</span></div>' +
+      '<div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" id="tk-vo-new" style="' + pri + '">יצירת מפתח אישי</button><button type="button" id="tk-vo-copy" hidden style="' + pri + '">העתקת המפתח</button><a id="tk-vo-sc" hidden target="_blank" rel="noopener" style="' + sec + ';display:inline-flex;align-items:center;text-decoration:none">התקנת קיצור הדרך</a><button type="button" id="tk-vo-off" hidden style="' + sec + '">ביטול המפתח</button><button type="button" id="tk-vo-x" style="' + sec + '">סגירה</button></div></div>';
+    var others = [].filter.call(document.body.children, function (x) { return !x.inert; }); others.forEach(function (x) { x.inert = true; });
+    var $d = function (id) { return d.querySelector('#' + id); }, st = $d('tk-vo-s');
+    var end = function () { document.removeEventListener('keydown', key, true); others.forEach(function (x) { x.inert = false; }); d.remove(); try { (btn || back).focus(); } catch (_) {} };
+    var key = function (e) { if (e.key === 'Escape') { e.preventDefault(); end(); } };
+    var api = async function (op) { var r = await fetch('/api/inbox', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ op: op }) }); if (!r.ok) throw new Error('x'); return r.json(); };
+    var show = function (j) {
+      st.textContent = j.hasKey ? 'יש לך מפתח פעיל. מפתח חדש יחליף אותו, ואז צריך לעדכן גם את קיצור הדרך.' : 'עדיין אין לך מפתח.';
+      $d('tk-vo-new').textContent = j.hasKey ? 'מפתח חדש' : 'יצירת מפתח אישי'; $d('tk-vo-off').hidden = !j.hasKey;
+      if (j.shortcut && /^https:\/\/www\.icloud\.com\/shortcuts\//.test(j.shortcut)) { $d('tk-vo-sc').href = j.shortcut; $d('tk-vo-sc').hidden = false; }
+    };
+    api('state').then(show).catch(function () { st.textContent = 'לא הצלחנו לבדוק את מצב המפתח. נסו שוב.'; });
+    $d('tk-vo-new').addEventListener('click', async function () {
+      try { var j = await api('key'); $d('tk-vo-key').value = j.key; $d('tk-vo-k').hidden = false; $d('tk-vo-copy').hidden = false; $d('tk-vo-off').hidden = false; $d('tk-vo-new').hidden = true; st.textContent = 'המפתח נוצר. העתיקו אותו והדביקו בקיצור הדרך.'; $d('tk-vo-copy').focus(); }
+      catch (_) { st.textContent = 'לא הצלחנו ליצור מפתח. נסו שוב.'; }
+    });
+    $d('tk-vo-copy').addEventListener('click', async function () {
+      var v = $d('tk-vo-key').value;
+      try { await navigator.clipboard.writeText(v); st.textContent = 'המפתח הועתק.'; } catch (_) { $d('tk-vo-key').focus(); $d('tk-vo-key').select(); st.textContent = 'סמנו את המפתח והעתיקו אותו.'; }
+    });
+    $d('tk-vo-off').addEventListener('click', async function () { try { await api('unkey'); $d('tk-vo-k').hidden = true; $d('tk-vo-copy').hidden = true; $d('tk-vo-new').hidden = false; show({ hasKey: false }); st.textContent = 'המפתח בוטל. קיצור הדרך לא יעבוד עד שייווצר מפתח חדש.'; } catch (_) { st.textContent = 'לא הצלחנו לבטל. נסו שוב.'; } });
+    $d('tk-vo-x').addEventListener('click', end);
+    document.addEventListener('keydown', key, true);
+    document.body.appendChild(d); $d('tk-vo-new').focus();
+  }
   (async function takeShared() {
     if (!/[?&]shared=1/.test(location.search) || !window.caches) return;
     try { history.replaceState(null, '', location.pathname); } catch (_) {}

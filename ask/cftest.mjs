@@ -10,7 +10,7 @@ const req = JSON.parse(fs.readFileSync('ask/request.json', 'utf8'));
 const tag = String(req.tag || 'cftest').replace(/[^A-Za-z0-9_-]/g, '');
 const SITE = 'https://takanon-site.pages.dev', H = { 'X-Code': encodeURIComponent(CODE) };
 const out = { tag, at: new Date().toISOString(), chat: [], audio: [], human: null };
-for (const aig of ['', '1', 'log']) for (const stream of [false, true]) {
+for (const aig of req.chat === false ? [] : ['', '1', 'log']) for (const stream of [false, true]) {
   const t0 = Date.now(), row = { aig: !!aig, stream };
   try {
     const r = await fetch(SITE + '/api/chat?test=1' + (aig ? '&aig=' + aig : ''), { method: 'POST', headers: Object.assign({ 'Content-Type': 'application/json' }, H),
@@ -22,7 +22,7 @@ for (const aig of ['', '1', 'log']) for (const stream of [false, true]) {
   row.ms = Date.now() - t0; out.chat.push(row); console.log('chat', JSON.stringify(row).slice(0, 300));
 }
 // the live road, as the public page calls it (no test mode, no code): it should say X-Via: gateway
-for (const stream of [false, true]) {
+for (const stream of req.chat === false ? [] : [false, true]) {
   const t0 = Date.now(), row = { live: true, stream };
   try {
     const r = await fetch(SITE + '/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Origin': SITE, 'X-Preview': '1', 'X-Client': 'cftest0cftest0cftest0' },
@@ -39,6 +39,20 @@ for (const f of req.audio === false ? [] : fs.readdirSync('ask/audio').sort()) f
   } catch (e) { row.error = String(e && e.message || e).slice(0, 200); }
   row.ms = Date.now() - t0; out.audio.push(row); console.log('audio', JSON.stringify(row).slice(0, 300));
 }
+// the voice inbox: a key for the comparison's own user, a synthetic recording sent with it, taken once, the key removed.
+// The key is never written to the results
+if (req.inbox) { out.inbox = {}; try {
+  const J = { 'Content-Type': 'application/json' }, op = async o => { const r = await fetch(SITE + '/api/inbox', { method: 'POST', headers: Object.assign({}, J, H), body: JSON.stringify({ op: o }) }); return { status: r.status, j: r.ok ? await r.json() : null }; };
+  const k = await op('key'); out.inbox.key = { status: k.status, len: k.j && k.j.key ? k.j.key.length : 0 };
+  const key = k.j && k.j.key || '';
+  const bad = await fetch(SITE + '/api/inbox', { method: 'POST', headers: { 'X-Inbox-Key': '0'.repeat(40), 'Content-Type': 'audio/ogg' }, body: fs.readFileSync('ask/audio/s.ogg') }); out.inbox.wrong = bad.status;
+  const t0 = Date.now(), s1 = await fetch(SITE + '/api/inbox', { method: 'POST', headers: { 'X-Inbox-Key': key, 'Content-Type': 'audio/ogg' }, body: fs.readFileSync('ask/audio/s.ogg') });
+  out.inbox.send = { status: s1.status, text: (await s1.text()).slice(0, 200), ms: Date.now() - t0 };
+  const t1 = await op('take'); out.inbox.take = { status: t1.status, items: (t1.j && t1.j.items || []).map(x => ({ name: x.name, text: String(x.text).slice(0, 200) })) };
+  const t2 = await op('take'); out.inbox.again = (t2.j && t2.j.items || []).length;
+  out.inbox.state = (await op('state')).j; out.inbox.unkey = (await op('unkey')).status;
+  const after = await fetch(SITE + '/api/inbox', { method: 'POST', headers: { 'X-Inbox-Key': key, 'Content-Type': 'audio/ogg' }, body: fs.readFileSync('ask/audio/s.ogg') }); out.inbox.afterUnkey = after.status;
+} catch (e) { out.inbox.error = String(e && e.message || e).slice(0, 200); } console.log('inbox', JSON.stringify(out.inbox)); }
 try { const r = await fetch(SITE + '/api/human', { headers: H }); out.human = { status: r.status, body: (await r.text()).slice(0, 600) }; } catch (e) { out.human = { error: String(e).slice(0, 200) }; }
 try { const r = await fetch(SITE + '/api/transcribe', { method: 'POST', body: 'x' }); out.noCode = r.status; } catch (_) {}
 fs.writeFileSync('ask/results_' + tag + '.json', JSON.stringify(out, null, 1));

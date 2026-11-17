@@ -1,1 +1,1 @@
-{"mode": "cftest", "tag": "cftest17", "audio": false, "chat": false, "shared": true, "docs": true, "cal": true, "run": 18}
+{"prompt": "ideas_prompt.md", "tag": "ideas2", "models": ["openai/gpt-6.1-sol", "openai/gpt-6-astra", "google/gemini-4-carbon"], "run": 19}

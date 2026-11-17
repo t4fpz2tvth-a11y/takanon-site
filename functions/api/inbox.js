@@ -6,7 +6,7 @@
 //   POST the recording, header X-Inbox-Key (from the Shortcut)       -> a short line of text for the Shortcut to show
 //   POST { op: 'state' | 'key' | 'unkey' | 'take' } (the signed-in page) -> { hasKey, shortcut } | { key } | { ok } | { items }
 import { json, text, who, sha } from '../_lib.js';
-import { transcribe } from '../_voice.js';
+import { transcribe, kindOf, readImage } from '../_voice.js';
 // the iCloud link of the Apple Shortcut "לבוט הרכזים" (not a secret); the setting SHORTCUT_URL overrides it
 const SHORTCUT = 'https://www.icloud.com/shortcuts/b4651da468e84c5dbf6cf4616e6576e6';   // 17.11.2026 13:49, from Yoni
 const MAX = 12 * 1048576, KEEP = 30 * 60e3, KEY = /^[a-f0-9]{40}$/;
@@ -55,15 +55,21 @@ export async function onRequestPost({ request, env }) {
     } catch (_) {}
     if (!buf || !buf.length) return ticketRoad ? back('err-none') : text('לא התקבלה הקלטה.', 400);
     if (buf.length > MAX) return ticketRoad ? back('err-long') : text('ההקלטה ארוכה מדי לתמלול (עד 12 מ"ב).', 413);
-    let said = '';
-    try { said = (await transcribe(env, buf, request.headers.get('Content-Type') || '', url.searchParams.get('lang') || 'he')).text; }
-    catch (_) { return ticketRoad ? back('err-fail') : text('לא הצלחנו לתמלל את ההקלטה. נסו שוב.', 502); }
+    // 17.11.2026 15:35 (Yoni: "תעשה את 1"): not only a voice message. A written message that was shared goes in as it is; a
+    // picture (a screenshot of a chat) is read into text; a recording is transcribed. v| i| t| before the text says which
+    let said = '', what = kindOf(buf, request.headers.get('Content-Type') || '');
+    try {
+      if (what.kind === 'text') said = what.text.replace(/\r/g, '').replace(/[ \t]+/g, ' ').replace(/\n{3,}/g, '\n\n').trim().slice(0, 20000);
+      else if (what.kind === 'image') said = (await readImage(env, buf, what.mime)).text;
+      else said = (await transcribe(env, buf, request.headers.get('Content-Type') || '', url.searchParams.get('lang') || 'he')).text;
+    } catch (_) { return ticketRoad ? back('err-fail') : text('לא הצלחנו לתמלל את ההקלטה. נסו שוב.', 502); }
+    if (!said && what.kind !== 'voice') return ticketRoad ? back(what.kind === 'image' ? 'err-notext' : 'err-none') : text('לא נמצא טקסט.', 422);
     if (!said) return ticketRoad ? back('err-quiet') : text('לא נשמע דיבור בהקלטה.', 422);
     name = String(name || url.searchParams.get('name') || 'הודעה קולית').replace(/[\u0000-\u001f<>]/g, '').slice(0, 120);
     if (ticketRoad) {
       const a = new Uint8Array(16); crypto.getRandomValues(a);
       const id = [...a].map(x => x.toString(16).padStart(2, '0')).join('');
-      await env.DB.prepare('INSERT INTO inbox_t (id, body, t) VALUES (?, ?, ?)').bind(id, said.slice(0, 60000), Date.now()).run();
+      await env.DB.prepare('INSERT INTO inbox_t (id, body, t) VALUES (?, ?, ?)').bind(id, what.kind[0] + '|' + said.slice(0, 60000), Date.now()).run();
       return back(id);
     }
     await env.DB.prepare('INSERT INTO inbox (uid, name, body, t) VALUES (?, ?, ?, ?)').bind(owner.uid, name, said.slice(0, 60000), Date.now()).run();
@@ -101,7 +107,8 @@ export async function onRequestPost({ request, env }) {
     // 17.11.2026 14:00 (Yoni: the iPhone button goes away once the coordinator is connected): a first transcript that
     // arrived means the Shortcut is installed and works; the head can reset it (voice-reset), and the button comes back
     if (r) await env.DB.prepare('INSERT INTO inbox_done (uid, t, last, n) VALUES (?, ?, ?, 1) ON CONFLICT (uid) DO UPDATE SET last = excluded.last, n = n + 1').bind(w.uid, Date.now(), Date.now()).run();
-    return json({ text: r ? r.body : '', gone: !r });
+    const m = r ? /^([vit])\|([\s\S]*)$/.exec(r.body) : null;
+    return json({ text: r ? (m ? m[2] : r.body) : '', kind: m ? { v: 'voice', i: 'image', t: 'text' }[m[1]] : 'voice', gone: !r });
   }
   if (b.op === 'take') {
     const rs = await env.DB.prepare('SELECT id, name, body, t FROM inbox WHERE uid = ? ORDER BY id LIMIT 10').bind(w.uid).all(), items = rs.results || [];

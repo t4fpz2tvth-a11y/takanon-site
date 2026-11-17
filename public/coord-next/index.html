@@ -641,9 +641,55 @@
       if (t + 1 < (tries || 1)) await new Promise(function (z) { setTimeout(z, 2500); });
     }
   }
+  // 17.11.2026 15:31 (Yoni: "אני רוצה שיהיה אופציה להוסיף לתיק קיים ולא רק לשאלה חדשה"): what was shared from another app (a voice
+  // message, a written one, a screenshot) can open a new question or go into one of the coordinator's open cases: the
+  // case is taken up as "המשך במקרה" does, and the text lands in its follow-up box. With no open case, a new question at once.
+  // Returns the chosen case's id, or '' for a new question
+  async function shareChoose(preview, kindWord) {
+    for (var n = 0; n < 40 && !(typeof logDb !== 'undefined' && logDb && typeof logUid !== 'undefined' && logUid); n++) await new Promise(function (z) { setTimeout(z, 250); });
+    try { if (typeof myCases !== 'undefined' && !myCases.length && typeof loadMyCases === 'function') await loadMyCases(); } catch (_) {}
+    var open = []; try { open = myCases.filter(function (c) { return !c.general && c.status !== 'closed'; }).slice(0, 8); } catch (_) {}
+    if (!open.length || typeof continueCase !== 'function') return '';
+    var dk = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches, soft = dk ? '#9BA5BA' : '#566079';
+    var esc = function (x) { return String(x == null ? '' : x).replace(/[<>&"]/g, function (c) { return { '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;' }[c]; }); };
+    var bs = 'font:inherit;min-height:48px;padding:.5rem .9rem;border-radius:10px;cursor:pointer;text-align:start;width:100%;', pri = bs + 'border:0;background:' + (dk ? '#9DB2FF' : '#2747B8') + ';color:' + (dk ? '#0E131E' : '#fff') + ';font-weight:600', sec = bs + 'border:1px solid #8A93A6;background:none;color:inherit';
+    var label = function (c) {
+      var first = (c.items || []).find(function (x) { return x.type === 'question'; }), nm = c.student && c.student.name ? (typeof maskDetail === 'function' ? maskDetail(c.student.name) : c.student.name) : '';
+      var d = new Date(c.t1 || c.t0 || Date.now());
+      return '<strong>' + esc(nm || 'מקרה') + '</strong> <span style="color:' + soft + ';font-size:.9rem">· ' + d.getDate() + '.' + (d.getMonth() + 1) + '</span><br><span style="font-size:.92rem">' + esc(String((first && (first.q || first.label)) || '').replace(/\s+/g, ' ').slice(0, 70)) + '</span>';
+    };
+    return new Promise(function (done) {
+      var d = document.createElement('div'); d.setAttribute('role', 'dialog'); d.setAttribute('aria-modal', 'true'); d.setAttribute('aria-labelledby', 'tk-sh-t');
+      d.setAttribute('style', 'position:fixed;inset:0;z-index:120;background:rgba(14,19,30,.45);display:grid;place-items:center;padding:16px;font:16px/1.5 inherit;overflow:auto');
+      d.innerHTML = '<div dir="rtl" style="background:' + (dk ? '#161D2B' : '#fff') + ';color:' + (dk ? '#E6EAF2' : '#141B2D') + ';max-width:460px;width:100%;box-sizing:border-box;padding:1.1rem;border-radius:14px;display:grid;gap:.6rem;max-height:92vh;overflow:auto;box-shadow:0 12px 40px rgba(0,0,0,.25)">' +
+        '<h2 id="tk-sh-t" style="margin:0;font-size:1.15rem">לאן להוסיף את ' + esc(kindWord) + '?</h2>' +
+        '<p style="margin:0;color:' + soft + ';font-size:.92rem;border-inline-start:3px solid #8A93A6;padding-inline-start:.6rem">' + esc(String(preview).replace(/\s+/g, ' ').slice(0, 160)) + (String(preview).length > 160 ? '…' : '') + '</p>' +
+        '<button type="button" data-id="" style="' + pri + '">שאלה חדשה</button>' +
+        '<p style="margin:.3rem 0 0;font-size:.92rem;color:' + soft + '">או הוספה למקרה פתוח:</p>' +
+        open.map(function (c) { return '<button type="button" data-id="' + esc(c.id) + '" style="' + sec + '">' + label(c) + '</button>'; }).join('') + '</div>';
+      var others = [].filter.call(document.body.children, function (x) { return !x.inert; }); others.forEach(function (x) { x.inert = true; });
+      var end = function (id) { document.removeEventListener('keydown', key, true); others.forEach(function (x) { x.inert = false; }); d.remove(); done(id); };
+      var key = function (e) { if (e.key === 'Escape') { e.preventDefault(); end(''); } };
+      d.addEventListener('click', function (e) { var b = e.target.closest('button[data-id]'); if (b) end(b.dataset.id); });
+      document.addEventListener('keydown', key, true);
+      document.body.appendChild(d); d.querySelector('button').focus();
+    });
+  }
+  // the shared text into the right box: the chosen case is taken up first, and then the box is its follow-up box
+  async function shareInto(said, kindWord) {
+    for (var n = 0; n < 120 && typeof voiceToBox !== 'function'; n++) await new Promise(function (z) { setTimeout(z, 500); });
+    if (typeof voiceToBox !== 'function') return false;
+    var id = ''; try { id = await shareChoose(said, kindWord); } catch (_) {}
+    if (id) {
+      try { await continueCase(id, null); } catch (_) {}
+      for (var k = 0; k < 40 && !(document.getElementById('fq') && document.getElementById('fq').offsetParent !== null); k++) await new Promise(function (z) { setTimeout(z, 250); });
+    }
+    voiceToBox(said);
+    return id ? 'case' : 'new';
+  }
   // 17.11.2026 13:17 (Yoni: "תחתוך את התיווך"): no personal key. The Shortcut opens this page with a one-time ticket
   // (?inbox=<ticket>) it got for the recording it sent; the signed-in page claims it and the text goes into the question box
-  var INBOX_ERR = { 'err-quiet': 'לא נשמע דיבור בהקלטה ששותפה.', 'err-long': 'ההקלטה ששותפה ארוכה מדי לתמלול (עד 12 מ״ב).', 'err-many': 'תומללו הרבה הקלטות בשעה האחרונה. נסו שוב מאוחר יותר.', 'err-none': 'לא התקבלה הקלטה. שתפו הודעה קולית אחת.', 'err-app': 'קיצור הדרך לא מעודכן. התקינו אותו מחדש מהכפתור ״הודעות קוליות״.' };
+  var INBOX_ERR = { 'err-quiet': 'לא נשמע דיבור בהקלטה ששותפה.', 'err-long': 'ההקלטה ששותפה ארוכה מדי לתמלול (עד 12 מ״ב).', 'err-many': 'תומללו הרבה הקלטות בשעה האחרונה. נסו שוב מאוחר יותר.', 'err-none': 'לא התקבלה הקלטה. שתפו הודעה קולית אחת.', 'err-notext': 'לא נמצא טקסט בתמונה ששותפה.', 'err-app': 'קיצור הדרך לא מעודכן. התקינו אותו מחדש מהכפתור ״הודעות קוליות״.' };
   var inboxSay = async function (msg) {
     for (var n = 0; n < 120 && typeof renderAttach !== 'function'; n++) await new Promise(function (z) { setTimeout(z, 500); });
     try { attachErr = msg; renderAttach(); } catch (_) {}
@@ -652,18 +698,18 @@
   if (tk) {
     try { history.replaceState(null, '', location.pathname); } catch (_) {}
     if (tk[1] === '1') inboxTake(6);
-    else if (/^err-/.test(tk[1])) inboxSay(INBOX_ERR[tk[1]] || 'לא הצלחנו לתמלל את ההקלטה ששותפה. נסו שוב.');
+    else if (/^err-/.test(tk[1])) inboxSay(INBOX_ERR[tk[1]] || 'לא הצלחנו לקרוא את מה ששותף. נסו שוב.');
     else (async function () {
       try { await meReady; } catch (_) { return; }
       if (!me) return;
-      var said = '', gone = false;
-      try { var r = await fetch('/api/inbox', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ op: 'claim', id: tk[1] }) }); if (r.ok) { var j = await r.json(); said = String(j.text || '').trim(); gone = !!j.gone; } } catch (_) {}
-      if (!said) { inboxSay(gone ? 'התמלול של ההודעה הזו כבר נלקח או שפג תוקפו (30 דקות). שתפו אותה שוב מוואטסאפ.' : 'לא הצלחנו להביא את התמלול. שתפו את ההודעה שוב.'); return; }
-      for (var n = 0; n < 120 && typeof voiceToBox !== 'function'; n++) await new Promise(function (z) { setTimeout(z, 500); });
-      if (typeof voiceToBox !== 'function') return;
-      voiceToBox(said);
+      var said = '', gone = false, kind = 'voice';
+      try { var r = await fetch('/api/inbox', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ op: 'claim', id: tk[1] }) }); if (r.ok) { var j = await r.json(); said = String(j.text || '').trim(); gone = !!j.gone; kind = j.kind || 'voice'; } } catch (_) {}
+      if (!said) { inboxSay(gone ? 'מה ששותף כבר נלקח או שפג תוקפו (30 דקות). שתפו שוב מוואטסאפ.' : 'לא הצלחנו להביא את מה ששותף. שתפו שוב.'); return; }
+      var W = { voice: ['ההודעה הקולית', 'ההודעה הקולית תומללה'], image: ['צילום המסך', 'הטקסט שבתמונה נקרא'], text: ['ההודעה', 'ההודעה התקבלה'] }[kind] || ['ההודעה', 'ההודעה התקבלה'];
+      var where = await shareInto(said, W[0]);
+      if (!where) return;
       try { var vb0 = document.getElementById('tk-voice'); if (vb0) vb0.remove(); } catch (_) {}   // connected: the setup button is no longer needed
-      inboxSay('ההודעה הקולית תומללה, והטקסט נוסף לתיבת השאלה: כדאי לוודא שמות, מספרים ותאריכים לפני השליחה.');
+      inboxSay(W[1] + ', והטקסט נוסף ' + (where === 'case' ? 'לתיבת ההמשך של המקרה' : 'לתיבת השאלה') + (kind === 'text' ? '.' : ': כדאי לוודא שמות, מספרים ותאריכים לפני השליחה.'));
     })();
   } else inboxTake(1);
   document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') inboxTake(2); });
@@ -715,9 +761,9 @@
     d.setAttribute('style', 'position:fixed;inset:0;z-index:120;background:rgba(14,19,30,.45);display:grid;place-items:center;padding:16px;font:16px/1.6 inherit;overflow:auto');
     var bs = 'font:inherit;min-height:44px;padding:.4rem 1rem;border-radius:10px;cursor:pointer;', pri = bs + 'border:0;background:' + (dk ? '#9DB2FF' : '#2747B8') + ';color:' + (dk ? '#0E131E' : '#fff'), sec = bs + 'border:1px solid #8A93A6;background:none;color:inherit';
     d.innerHTML = '<div dir="rtl" style="background:' + (dk ? '#161D2B' : '#fff') + ';color:' + (dk ? '#E6EAF2' : '#141B2D') + ';max-width:460px;width:100%;box-sizing:border-box;padding:1.2rem;border-radius:14px;display:grid;gap:.8rem;box-shadow:0 12px 40px rgba(0,0,0,.25)">' +
-      '<h2 id="tk-vo-t" style="margin:0;font-size:1.15rem">הודעות קוליות מוואטסאפ באייפון</h2>' +
-      '<p style="margin:0">מתקינים פעם אחת קיצור דרך, ומאז אפשר לשלוח הודעה קולית מוואטסאפ ישר לכאן:</p>' +
-      '<ol style="margin:0;padding-inline-start:1.2rem;display:grid;gap:.3rem"><li>בוואטסאפ: לחיצה ארוכה על ההודעה, ואז ״העברה״.</li><li>סמל השיתוף, ואז ״לבוט הרכזים״.</li><li>הבוט נפתח, והתמלול כבר בתיבת השאלה.</li></ol>' +
+      '<h2 id="tk-vo-t" style="margin:0;font-size:1.15rem">הודעות מוואטסאפ ישר לבוט (אייפון)</h2>' +
+      '<p style="margin:0">מתקינים פעם אחת קיצור דרך, ומאז אפשר לשלוח מוואטסאפ ישר לכאן הודעה קולית, הודעה כתובה או צילום מסך של שיחה:</p>' +
+      '<ol style="margin:0;padding-inline-start:1.2rem;display:grid;gap:.3rem"><li>בוואטסאפ: לחיצה ארוכה על ההודעה, ואז ״העברה״.</li><li>סמל השיתוף, ואז ״לבוט הרכזים״.</li><li>הבוט נפתח, והטקסט כבר בתיבת השאלה (או במקרה פתוח שבוחרים).</li></ol>' +
       '<p style="margin:0;font-size:.92rem;color:' + (dk ? '#9BA5BA' : '#566079') + '">ההקלטה עצמה לא נשמרת. בפעם הראשונה האייפון יבקש אישור לשלוח לאתר: בוחרים ״Allow״. צריך להיות מחוברים לבוט בספארי.</p>' +
       '<p id="tk-vo-s" role="status" style="margin:0"></p>' +
       '<div style="display:flex;gap:8px;flex-wrap:wrap"><a id="tk-vo-sc" hidden target="_blank" rel="noopener" style="' + pri + ';display:inline-flex;align-items:center;text-decoration:none">התקנת קיצור הדרך</a><button type="button" id="tk-vo-x" style="' + sec + '">סגירה</button></div></div>';
@@ -755,8 +801,22 @@
       await new Promise(function (z) { setTimeout(z, 500); });
     }
     var q = document.getElementById('q');
+    // 17.11.2026 15:31 (Yoni: also into an existing case): a share of words only (a written message, voice messages) may go
+    // into an open case; a share with pictures or documents opens a new question, as before
+    var isAudio = function (f) { return /^audio\//.test(f.type || '') || /\.(mp3|m4a|wav|ogg|oga|opus|aac|flac)$/i.test(f.name || ''); };
+    var caption = files.length && text.length < 80, wordsOnly = files.every(isAudio) && (files.length || (text && !caption));
+    if (wordsOnly) {
+      var id = ''; try { id = await shareChoose(text && !caption ? text : 'הודעה קולית (' + files.length + ')', files.length ? (files.length > 1 ? 'ההודעות הקוליות' : 'ההודעה הקולית') : 'ההודעה'); } catch (_) {}
+      if (id) {
+        try { await continueCase(id, null); } catch (_) {}
+        for (var k = 0; k < 40 && !(document.getElementById('fq') && document.getElementById('fq').offsetParent !== null); k++) await new Promise(function (z) { setTimeout(z, 250); });
+        if (text && !caption && typeof voiceToBox === 'function') voiceToBox(text);
+        if (files.length && typeof addFiles === 'function') addFiles(files);
+        return;
+      }
+    }
     // a share that is only a file's own caption (WhatsApp sends the file's name as text) is not a question
-    if (text && q && !q.value.trim() && !(files.length && text.length < 80)) { q.value = text; q.dispatchEvent(new Event('input', { bubbles: true })); }
+    if (text && q && !q.value.trim() && !caption) { q.value = text; q.dispatchEvent(new Event('input', { bubbles: true })); }
     if (files.length && typeof addFiles === 'function') { addFiles(files); try { document.getElementById('attach-list').scrollIntoView({ block: 'center' }); } catch (_) {} }
   })();
 })();

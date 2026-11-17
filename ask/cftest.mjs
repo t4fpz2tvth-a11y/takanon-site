@@ -64,6 +64,14 @@ if (req.ticket) { out.ticket = {}; try {
   const bad = await fetch(SITE + '/api/inbox', { method: 'POST', headers: { 'X-Inbox-App': 'other', 'Content-Type': 'audio/x-m4a' }, body: fs.readFileSync('ask/audio/s.m4a') }); out.ticket.otherApp = (await bad.text()).slice(-20);
 } catch (e) { out.ticket.error = String(e && e.message || e).slice(0, 200); } console.log('ticket', JSON.stringify(out.ticket)); }
 if (req.state) { try { const r = await fetch(SITE + '/api/inbox', { method: 'POST', headers: Object.assign({ 'Content-Type': 'application/json' }, H), body: '{"op":"state"}' }); out.state = { status: r.status, j: r.ok ? await r.json() : null }; } catch (e) { out.state = { error: String(e).slice(0, 200) }; } }
+// 17.11.2026: a written message and a picture (an invented chat) through the Shortcut's road
+if (req.shared) { out.shared = {}; try {
+  const go = async (body, ct) => { const s1 = await fetch(SITE + '/api/inbox', { method: 'POST', headers: { 'X-Inbox-App': 'takanon', 'Content-Type': ct }, body }); const u = await s1.text(); const id = (/inbox=([a-f0-9]{32})/.exec(u) || [])[1] || '';
+    if (!id) return { status: s1.status, shape: u.slice(-40) }; const r = await fetch(SITE + '/api/inbox', { method: 'POST', headers: Object.assign({ 'Content-Type': 'application/json' }, H), body: JSON.stringify({ op: 'claim', id }) }); return r.ok ? await r.json() : { status: r.status }; };
+  out.shared.text = await go(Buffer.from('היי, לא נתנו לי מועד מיוחד אחרי המילואים. מה עושים?'), 'text/plain');
+  out.shared.image = await go(fs.readFileSync('ask/img/chat.png'), 'image/png');
+  out.shared.voice = await go(fs.readFileSync('ask/audio/s.m4a'), 'audio/x-m4a');
+} catch (e) { out.shared.error = String(e && e.message || e).slice(0, 200); } console.log('shared', JSON.stringify(out.shared)); }
 if (req.dbg) { try { const r = await fetch(SITE + '/api/inbox', { method: 'POST', headers: Object.assign({ 'Content-Type': 'application/json' }, H), body: '{"op":"dbg"}' }); out.dbg = { status: r.status, j: r.ok ? await r.json() : null }; } catch (e) { out.dbg = { error: String(e).slice(0, 200) }; } }
 try { const r = await fetch(SITE + '/api/human', { headers: H }); out.human = { status: r.status, body: (await r.text()).slice(0, 600) }; } catch (e) { out.human = { error: String(e).slice(0, 200) }; }
 try { const r = await fetch(SITE + '/api/transcribe', { method: 'POST', body: 'x' }); out.noCode = r.status; } catch (_) {}

@@ -1,0 +1,75 @@
+{
+ "tag": "cftest11",
+ "at": "2026-11-17T11:22:26.684Z",
+ "chat": [],
+ "audio": [],
+ "human": {
+  "status": 200,
+  "body": "{\"sitekey\":\"0x4AAAAAAGE7c5H8f2E5hAzv\",\"ok\":false,\"enforce\":false,\"days\":[{\"day\":\"2026-11-17\",\"pass\":false,\"n\":2}]}"
+ },
+ "dbg": {
+  "status": 200,
+  "j": {
+   "t": 1794914451197,
+   "meta": {
+    "bytes": 151067,
+    "type": "audio/x-m4a",
+    "name": "",
+    "magic": "0000001c667479704d344120000000004d3441206d70343269736f6d00000bef6d6f6f760000006c",
+    "ua": "BackgroundShortcutRunner/5203.0.1 CFNetwork/3896.300.31 Darwin/27.3.0",
+    "a": {
+     "text": "היי, קוראים לי דני, אני סטודנט שונה בית במשפטים. הייתי ממילואים שלושה שבועת בדצום, ולפיסטרסית מועד א' ובדיני חוזים. רציתי לדעת אם נביאה למועדים אחד.",
+     "info": {
+      "language": "he",
+      "language_probability": 1,
+      "duration": 11.4333125,
+      "duration_after_vad": 11.1933125
+     },
+     "segs": 4
+    },
+    "or:openai/gpt-audio-mini": {
+     "status": 400,
+     "error": "{\"error\":{\"message\":\"Provider returned error\",\"code\":400,\"metadata\":{\"raw\":\"{\\n  \\\"error\\\": {\\n    \\\"message\\\": \\\"Invalid value: 'm4a'. Supported values are: 'wav' and 'mp3'.\\\",\\n    \\\"type\\\": \\\"invalid_request_error\\\",\\n    \\\"param\\\": \\\"messages[0].content[1].input_audio.format\\\",\\n    \\\"code\\\": \\\""
+    },
+    "tr:openai/gpt-4o-transcribe": {
+     "status": 200,
+     "body": "{\"text\":\"היי, קוראים לי דן, אני סטודנט שנה ב' למשפטים. חייתי במילואים שלושה שבועות בדצמבר ופספסתי את מועד א' בבחינות חוזים. רציתי לדעת אם מגיע לי מועד מיוחד.\",\"usage\":{\"total_tokens\":175,\"input_tokens\":114,\"output_tokens\":61,\"cost\":0.000895}}",
+     "ms": 1860
+    },
+    "or:mistralai/voxtral-small-24b-2507": {
+     "status": 400,
+     "error": "{\"error\":{\"message\":\"Provider returned error\",\"code\":400,\"metadata\":{\"raw\":\"{\\\"object\\\":\\\"error\\\",\\\"message\\\":\\\"Failed to load audio file. Verify that the given file is valid mp3 or wav.\\\",\\\"type\\\":\\\"invalid_request_audio\\\",\\\"param\\\":null,\\\"code\\\":\\\"3291\\\",\\\"raw_status_code\\\":400}\",\"provider_name\":\""
+    },
+    "or:google/gemini-2.5-flash": {
+     "text": "היי, קוראים לי דדי. אני סטודנט שנה ב' למשפטים. הייתי במילואים שלושה שבועות בדצמבר בפיסתי תמ\"א 38 בנייני קוזים. רציתי לדעת אם מגיע לי מועד מיוחד.",
+     "cost": 0.0005651,
+     "ms": 2061,
+     "provider": "Google AI Studio"
+    },
+    "or:google/gemini-2.5-flash-lite": {
+     "text": "היי, קוראים לי דוד. אני סטודנט שנה ב' למשפטים. הייתי במילואים שלושה שבועות בדצמבר, ופיספסתי מודלף וביניינים. רציתי לדעת אם מגיע לי מודלף.",
+     "cost": 0.0001433,
+     "ms": 2261,
+     "provider": "Google AI Studio"
+    },
+    "or:google/gemini-3-flash-preview": {
+     "text": "היי, קוראים לי דני. אני סטודנט שנה ב' למשפטים. הייתי במילואים שלושה שבועות בדצמבר ופספסתי את מועד א' בדיני חוזים. רציתי לדעת אם מגיע לי מועד מיוחד.",
+     "cost": 0.000521,
+     "ms": 2907,
+     "provider": "Google"
+    },
+    "tr:openai/gpt-4o-mini-transcribe": {
+     "status": 200,
+     "body": "{\"text\":\"היי, קוראים לי דור, אני סטודנט שלמדת משפטים, חייתי במילואים שלושה שבועות לפני חזרה, והיסתכלתי את מועד א' בבניין 1. רציתי לדעת אם מגיע למועד מיוחד.\",\"usage\":{\"total_tokens\":174,\"input_tokens\":114,\"output_tokens\":60,\"cost\":0.0004425}}",
+     "ms": 3137
+    },
+    "tr:openai/whisper-large-v3": {
+     "status": 200,
+     "body": "{\"text\":\" היי, קוראים לי דני, אני סטודנט שונה בית המשפטים.  חייתי במילואים של שש שבועות בדצמבר, ופסקסתי את מועד א' בפני חוזים.  רציתי לידי, כי נגיע לי מועד מ-1.\",\"usage\":{\"seconds\":11.432,\"cost\":0.00008574}}",
+     "ms": 6051
+    }
+   }
+  }
+ },
+ "noCode": 403
+}

@@ -6,6 +6,8 @@ if (!CODE) { console.log('BENCH_CODE secret is missing'); process.exit(1); }
 const req = JSON.parse(fs.readFileSync('ask/request.json', 'utf8'));
 // 16.11.2026: mode "enrich" = everyday search words for the clauses (ask/enrich.mjs), through the same route and secret
 if (req.mode === 'enrich') { await import('./enrich.mjs'); process.exit(0); }
+// 17.11.2026: mode "embed" = the meaning search's clause vectors (ask/embed.mjs)
+if (req.mode === 'embed') { await import('./embed.mjs'); process.exit(0); }
 const prompt = fs.readFileSync('ask/' + String(req.prompt).replace(/[^A-Za-z0-9_.-]/g, ''), 'utf8');
 const SITE = 'https://takanon-site.pages.dev';
 const out = { tag: req.tag, at: new Date().toISOString(), answers: {} };

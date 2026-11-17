@@ -477,19 +477,15 @@ function resize(){
 window.addEventListener('resize',resize);
 
 // 17.11.2026 (יוני: "החצים לא עובדים בדפדפן במחשב"): עכבר שנח מעל המגרש שלח אירועי תזוזה, וכל אחד מהם החזיר את השליטה לעכבר ומשך את
-// עברי בחזרה אליו. מעכשיו, אחרי לחיצה על מקש, העכבר חוזר לשלוט רק בלחיצה או בתזוזה מכוונת (24 פיקסלים ומעלה). מגע לא השתנה
-let mLast=null,mAnchor=null; // איפה העכבר עכשיו, ואיפה הוא היה כשהמקלדת לקחה את השליטה
+// עברי בחזרה אליו. מעכשיו, אחרי לחיצה על מקש, העכבר חוזר לשלוט רק בלחיצה. מגע לא השתנה
+let lastDir=0;               // כששני החצים לחוצים יחד, האחרון שנלחץ קובע (כדי שמעבר מהיר מצד לצד לא ייעצר)
 let tapT=0,tapDir=0;         // כל הקשה על חץ מזיזה לפחות 0.12 שנייה, גם אם המקש שוחרר מיד
 function setTarget(e,press){
-  if(useKeys&&!press&&e.pointerType==='mouse'){
-    if(keys.l||keys.r)return;                                          // מקש לחוץ: העכבר לא מזיז
-    if(!mAnchor){mAnchor={x:e.clientX,y:e.clientY};return}
-    if(Math.hypot(e.clientX-mAnchor.x,e.clientY-mAnchor.y)<24)return;  // רעד קטן, או אירוע בלי תזוזה אמיתית
-  }
-  mAnchor=null;const r=stage.getBoundingClientRect();target=e.clientX-r.left;useKeys=false;
+  if(useKeys&&!press&&e.pointerType==='mouse')return; // המקלדת שולטת: עכבר שמרחף לא מזיז, רק לחיצה
+  const r=stage.getBoundingClientRect();target=e.clientX-r.left;useKeys=false;
 }
 stage.addEventListener('pointerdown',e=>{if(mode==='play'&&!paused)setTarget(e,true)});
-stage.addEventListener('pointermove',e=>{if(e.pointerType==='mouse')mLast={x:e.clientX,y:e.clientY};if(mode==='play'&&!paused)setTarget(e,false)});
+stage.addEventListener('pointermove',e=>{if(mode==='play'&&!paused)setTarget(e,false)});
 function key(e,down){
   const k=e.key;
   if(down&&(k==='Escape'||k==='p'||k==='P'||k==='פ')&&mode==='play'){paused?resume():pause();e.preventDefault();return}
@@ -497,7 +493,8 @@ function key(e,down){
   if(k==='ArrowLeft'||k==='a'||k==='A'||k==='ש')keys.l=down;
   else if(k==='ArrowRight'||k==='d'||k==='D'||k==='ג')keys.r=down;
   else hit=false;
-  if(hit&&mode==='play'&&!paused){if(!useKeys)mAnchor=mLast;useKeys=true;if(down&&!e.repeat){tapT=.12;tapDir=keys.r&&!keys.l?1:keys.l&&!keys.r?-1:k==='ArrowRight'||k==='d'||k==='D'||k==='ג'?1:-1}e.preventDefault()}
+  if(hit&&down)lastDir=k==='ArrowRight'||k==='d'||k==='D'||k==='ג'?1:-1;
+  if(hit&&mode==='play'&&!paused){useKeys=true;if(down&&!e.repeat){tapT=.12;tapDir=lastDir}e.preventDefault()}
 }
 window.addEventListener('keydown',e=>key(e,true));
 window.addEventListener('keyup',e=>key(e,false));
@@ -787,7 +784,7 @@ function update(rdt){
   // תנועה
   if(mode==='idle'){let n=null;for(const it of items)if(!it.done&&it.type!=='haz'&&(!n||it.y>n.y))n=it;if(n)target=n.x;useKeys=false}
   if(mode!=='over'){
-    let dir=(keys.r?1:0)-(keys.l?1:0);if(tapT>0){tapT-=rdt;if(!dir&&useKeys)dir=tapDir}
+    let dir=keys.r&&keys.l?lastDir:(keys.r?1:0)-(keys.l?1:0);if(tapT>0){tapT-=rdt;if(!dir&&useKeys)dir=tapDir}
     let tx=useKeys?(dir?px+dir*FW:px):target;
     if(eff.rev>0)tx=useKeys?(dir?px-dir*FW:px):FX+FW-(target-FX);
     const lo=FX+PW,hi=FX+FW-PW,old=px;

@@ -116,16 +116,13 @@ export async function onRequestPost({ request, env }) {
   if (exp.has('noask') && body.stream) { const m = messages[messages.length - 1]; if (m && typeof m.content === 'string') m.content += '\n\nDo not reply with a clarifying question or [[ASK]] alone: answer now, for each case the excerpts settle, and put at most one short question about a missing fact at the end.'; }
   const big = test && !exp.has('live');
   const orHeaders = { 'Authorization': 'Bearer ' + (test && env.OPENROUTER_KEY_TEST ? env.OPENROUTER_KEY_TEST : env.OPENROUTER_KEY), 'Content-Type': 'application/json', 'HTTP-Referer': url.origin, 'X-Title': 'Ma Omer HaTakanon' };
-  const orCall = (to, extra) => fetch(to, {
-    method: 'POST',
-    headers: Object.assign({}, orHeaders, extra || {}),
     // 4.11.2026 (security review): answers are a few thousand tokens; the comparison keeps its larger room. 6.11.2026 (the QA round):
     // a streamed answer may ask for up to 12,000 (the coordinators' answer on a long, garbled faculty text), never more PRIVACY=1 (a setting)
     // asks OpenRouter for providers that keep no data; ?private=1 on a comparison call tries it before the setting is turned on
-    body: JSON.stringify(Object.assign(test && Array.isArray(body.tools) ? { tools: body.tools, tool_choice: body.tool_choice || 'auto' } : {}, { model, messages, stream: !!body.stream, max_tokens: big ? Math.min(32000, Math.max(body.stream ? 16000 : 8000, body.max_tokens | 0)) : (body.stream ? Math.min(12000, Math.max(6000, body.max_tokens | 0)) : 2000), temperature: 0.2, usage: { include: true } }, exp.has('noreason') ? {} : exp.has('reasonoff') ? { reasoning: { enabled: false } } : exp.has('reasonmin') ? { reasoning: { effort: 'minimal', exclude: true } } : { reasoning: { effort: 'low', exclude: true } },
+  const orBody = JSON.stringify(Object.assign(test && Array.isArray(body.tools) ? { tools: body.tools, tool_choice: body.tool_choice || 'auto' } : {}, { model, messages, stream: !!body.stream, max_tokens: big ? Math.min(32000, Math.max(body.stream ? 16000 : 8000, body.max_tokens | 0)) : (body.stream ? Math.min(12000, Math.max(6000, body.max_tokens | 0)) : 2000), temperature: 0.2, usage: { include: true } }, exp.has('noreason') ? {} : exp.has('reasonoff') ? { reasoning: { enabled: false } } : exp.has('reasonmin') ? { reasoning: { effort: 'minimal', exclude: true } } : { reasoning: { effort: 'low', exclude: true } },
       // 5.11.2026 (the blind review): the preview copies (/next/, /coord-next/, the header X-Preview) always ask for providers that keep nothing
-      env.PRIVACY === '1' || request.headers.get('X-Preview') === '1' || (test && url.searchParams.has('private')) ? { provider: { data_collection: 'deny' } } : {}))
-  });
+      env.PRIVACY === '1' || request.headers.get('X-Preview') === '1' || (test && url.searchParams.has('private')) ? { provider: { data_collection: 'deny' } } : {}));
+  const orCall = () => fetch('https://openrouter.ai/api/v1/chat/completions', { method: 'POST', headers: orHeaders, body: orBody });
   // 17.11.2026: Cloudflare's AI Gateway between this function and OpenRouter (the project's binding AI). For now only a
   // comparison call that asks for it (?test=1&aig=url) goes through it, to learn whether it passes the answer as it is
   // (status, streaming); the live bots go straight to OpenRouter as before. The prompt and the answer are never kept in
@@ -135,12 +132,13 @@ export async function onRequestPost({ request, env }) {
   const aig = test ? url.searchParams.get('aig') : '';
   if (aig && env.AI && typeof env.AI.gateway === 'function') {
     try {
-      const base = String(await env.AI.gateway(env.AIG_ID || 'default').getUrl('openrouter')).replace(/\/$/, '');
-      const g = await orCall(base + '/chat/completions', { 'cf-aig-collect-log-payload': 'false' });
+      // through the binding (already identified to the gateway; a plain call to the gateway's address is refused, 401)
+      const g = await env.AI.gateway(env.AIG_ID || 'default').run({ provider: 'openrouter', endpoint: 'chat/completions',
+        headers: { 'authorization': orHeaders.Authorization, 'content-type': 'application/json', 'HTTP-Referer': url.origin, 'X-Title': 'Ma Omer HaTakanon', 'cf-aig-collect-log-payload': 'false' }, query: JSON.parse(orBody) });
       if ([401, 403, 404, 500, 502, 503, 504].includes(g.status)) via = 'direct (the gateway answered ' + g.status + ': ' + (await g.text()).replace(/\s+/g, ' ').slice(0, 160) + ')';
       else { r = g; via = 'gateway'; }
     } catch (e) { via = 'direct (the gateway failed: ' + String(e && e.message || e).replace(/\s+/g, ' ').slice(0, 120) + ')'; }
   }
-  if (!r) r = await orCall('https://openrouter.ai/api/v1/chat/completions');
+  if (!r) r = await orCall();
   return new Response(r.body, { status: r.status, headers: { 'Content-Type': r.headers.get('Content-Type') || 'application/json', 'Cache-Control': 'no-store', 'X-Via': via.replace(/[^\x20-\x7e]/g, '?') } });
 }

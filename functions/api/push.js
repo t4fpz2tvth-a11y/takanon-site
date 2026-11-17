@@ -121,6 +121,13 @@ export async function onRequestPost({ request, env }) {
     const fresh = m && Date.now() - m.t < 36 * 3600e3;
     return json({ title: 'בוט הרכזים', body: fresh ? m.body : 'יש עדכון בבוט הרכזים', url: fresh ? m.url : origin + '/coord/' });
   }
+  if (b.op === 'test') {   // 17.11.2026 23:30: a check notification to one's own devices; says what each push service answered
+    const subs = (await env.DB.prepare('SELECT endpoint FROM push_subs WHERE uid = ?').bind(u.uid).all()).results || [];
+    await env.DB.prepare('INSERT INTO push_msg (uid, body, url, t) VALUES (?, ?, ?, ?) ON CONFLICT (uid) DO UPDATE SET body = excluded.body, url = excluded.url, t = excluded.t').bind(u.uid, 'בדיקה: ההתראות פועלות', origin + '/coord/', Date.now()).run();
+    const k = await keys(env), got = [];
+    for (const x of subs.slice(0, 8)) { try { got.push({ host: new URL(x.endpoint).hostname, status: await sendOne(env, k, x.endpoint) }); } catch (e) { got.push({ host: new URL(x.endpoint).hostname, error: String(e && e.message || e).slice(0, 80) }); } }
+    return json({ subs: subs.length, got });
+  }
   if (b.op === 'note') {
     if (!u.admin) return json({ error: 'not allowed' }, 403);
     const uid = String(b.uid || '').replace(/[^A-Za-z0-9_-]/g, '').slice(0, 60); if (!uid || uid === u.uid) return json({ sent: 0 });

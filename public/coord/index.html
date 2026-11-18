@@ -440,6 +440,65 @@
         vb.addEventListener('click', function () { voiceSetup(vb); });
       }).catch(function () {});
     }
+    // 18.11.2026 05:45 (Yoni: "תכין לי סיור אינטראקטיבי רק עבורי לכל הדברים החדשים שעשינו היום", "כאילו אני רכז"): a guided walk
+    // through what was added on 17.11, for the head alone, at /coord/?tour=new. He does each thing himself, as a coordinator
+    // would, on an example case that he makes at the start and closes at the end (invented words; nothing of a real student).
+    // A panel at the foot of the screen says what to try; "הראו לי" marks the place on the page; nothing is done for him
+    // except filling the example words into a box, which he then sends himself
+    (function newTour() {
+      if (!me.admin || !/[?&]tour=new\b/.test(location.search)) return;
+      var EX = 'דוגמה לסיור: סטודנט בשם דני היה במילואים שלושה שבועות ופספס את מועד א׳ בקורס מבוא. מגיע לו מועד מיוחד?';
+      var S = [
+        { t: 'ברוך הבא לסיור', d: 'נעבור על מה שנוסף אתמול, כמו שרכז/ת רואה אותו. תיצור מקרה לדוגמה, תנסה עליו כל דבר, ובסוף תסגור אותו. שום דבר לא נעשה במקומך: בכל שלב כתוב מה לנסות, ו״הראו לי״ מסמן איפה זה בדף.' },
+        { t: 'הגדרה ראשונה', d: 'רכז/ת חדש/ה רואה קודם את חלון הפרטים (שם, סוג רכז, יחידות, מייל), ומיד אחריו כרטיס ״מצטיידים״ עם ארבע שורות. לחיצה על שורה פותחת את החיבור עצמו. אם הכרטיס לא מופיע אצלך: כבר חיברת הכול.', q: '#setup-card' },
+        { t: 'יוצרים מקרה לדוגמה', d: 'לחץ ״מילוי שאלה לדוגמה״ ואז ״חיפוש״. נפתח מקרה אמיתי ביומן שלך; נסגור אותו בסוף הסיור.', q: '#q', fill: ['q', EX], need: function () { return typeof caseDoc !== 'undefined' && !!caseDoc && thread.length > 0; }, wait: 'מחכה שהמקרה ייפתח (אחרי התשובה)…' },
+        { t: 'מה עשית עכשיו?', d: 'מעל ״סימון המקרה״ יש שורת כפתורים לפי מצב המקרה. נסה: ״פניתי לפקולטה״. הסטטוס משתנה ונקבע מעקב בעוד שבוע, בלחיצה אחת.', q: '.act-row' },
+        { t: 'פקולטה מסומנת מראש', d: 'אצל רכז/ת עם יחידה אחת, הפקולטה של הסטודנט/ית מסומנת לבד בכל מקרה חדש (״ברירת המחדל שלך״); עם כמה יחידות הן מופיעות ככפתורים. אצלך כרמ״ח השדה ריק. פתח את ״פרטי המקרה״ כדי לראות.', q: '.case-details' },
+        { t: 'הטיוטה נשמרת', d: 'כתוב חצי משפט בתיבת ההמשך ואל תשלח. מתחת מופיע ״הטיוטה נשמרה במכשיר הזה״. אם תצא לווטסאפ ותחזור (או תסגור ותפתח את הבוט), תחזור לאותו מקרה והטקסט יחכה.', q: '#fq' },
+        { t: 'הצעת סטטוס מהודעה', d: 'לחץ ״מילוי עדכון לדוגמה״ ושלח. מעל התשובה תופיע הצעה: לעדכן ל״התקבלה תשובה״ ו״נדחתה״. ״עדכון״ מעדכן בלחיצה.', q: '#fq', fill: ['fq', 'עדכון: הפקולטה ענתה שאין זכאות למועד מיוחד. מה אפשר לעשות?'], need: function () { return !!document.querySelector('.status-hint'); }, wait: 'מחכה להצעה (אחרי התשובה)…' },
+        { t: 'מקרים דומים וקישור למקרה', d: 'מתחת לתשובה: ״מקרים דומים ביומן״ (מקרים אחרים שנשענו על אותם סעיפים, ואיך הסתיימו) ו״קישור למקרה״ (מעתיק קישור שנפתח רק לבעל/ת המקרה ולך). נסה את שניהם.', q: '.case-link-btn, .sim-btn' },
+        { t: 'תשובה לסטודנט בוואטסאפ', d: 'בתפריט ״תשובה לסטודנט/ית״ נוסף ״מספר הסטודנט/ית לוואטסאפ״. מי שמזין מספר (נשמר רק במכשיר שלו), ״שליחה בוואטסאפ״ נפתחת ישר על השיחה. בלי מספר: כמו קודם.', q: '.pv-reply-phone, .pv-reply-wa' },
+        { t: 'הערות בספר הכתובות', d: 'כשמנסחים פנייה לפקולטה (״פנייה״ בתפריט המקרה), ליד כל כתובת יש ״הוספת הערה לרכזים״. כל הרכזים רואים אותה, עם שם הכותב.', q: '.dir-note-add' },
+        { t: 'מחכים לך, וסגירה קלה', d: 'פתח את ״המקרים שלי״. ליד כל מקרה פתוח יש ״סגירת המקרה״: לחיצה אחת שואלת איך הסתיים, השנייה סוגרת. סגור עכשיו את מקרה הדוגמה (״בלי תוצאה״). בכניסה הבאה: מקרים שהיעד שלהם היום, או שנפתחו לפני שלושה ימים בלי עדכון, מופיעים בראש המסך עם ״סגירה״ לידם.', q: '#my-cases', open: 'my-cases' },
+        { t: 'יומן והתראות', d: 'ב״המקרים שלי״: ״חיבור ליומן בטלפון״. כל יעד של מקרה פתוח מופיע ביומן לבד. ההתראות בטלפון: אחת ביום על מקרים למעקב, ומיד כשאתה מוסיף הערה למקרה.', q: '#tk-cal' },
+        { t: 'העברה מווטסאפ', d: 'מחוץ לבוט: בוואטסאפ, שיתוף הודעה, הקלטה, צילום מסך, מסמך או ״ייצוא צ׳אט״ אל הבוט. נפתח ״לאן להוסיף?״, והמקרה ששם הסטודנט שלו מופיע בהודעה מוצע ראשון. גם בהקלדה: שאלה שמזכירה שם של סטודנט עם מקרה פתוח מקבלת שורה ״יש מקרה פתוח של…״.' },
+        { t: 'משהו הפריע לך בבוט?', d: 'בתחתית הדף. רכז/ת כותב/ת משפט, והוא מגיע אליך ביומן הרכזים עם כפתור ״טופל״; אחרי שסימנת, הרכז/ת רואה שההערה טופלה.', q: '#gripe-line' },
+        { t: 'ומה שרק אתה רואה', d: 'ביומן הרכזים: ״הערות רכזים על הבוט״, ״מי חיבר מה״, ״תוצאות לפי פקולטה״ ו״הרשאות צפייה: אחראים על רכזים״. בתוך מקרה של רכז/ת: ״הערה לרכז/ת על המקרה״ ו״שיתוף המקרה״. זהו, סיימנו. אם משהו לא עבד כמו שכתוב, תכתוב לי איזה שלב.' }
+      ];
+      var i = 0, mark = null, timer = 0;
+      var box = document.createElement('div'); box.id = 'tk-tour'; box.setAttribute('role', 'region'); box.setAttribute('aria-label', 'סיור במה שחדש'); box.dir = 'rtl';
+      var dk = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches;
+      box.setAttribute('style', 'position:fixed;inset-inline:8px;bottom:8px;z-index:110;max-width:560px;margin-inline:auto;background:' + (dk ? '#161D2B' : '#fff') + ';color:' + (dk ? '#E6EAF2' : '#141B2D') + ';border:2px solid ' + (dk ? '#9DB2FF' : '#2747B8') + ';border-radius:14px;padding:.7rem .9rem;box-shadow:0 10px 30px rgba(0,0,0,.25);font:15px/1.5 inherit;max-height:46vh;overflow:auto');
+      document.body.appendChild(box);
+      var bs = 'font:inherit;min-height:40px;padding:.3rem .8rem;border-radius:10px;cursor:pointer;border:1px solid #8A93A6;background:none;color:inherit';
+      function unmark() { if (mark) { mark.style.outline = mark.dataset.tkOut || ''; mark.style.outlineOffset = ''; mark = null; } }
+      function show() {
+        var st = S[i]; if (st.open) { var o = document.getElementById(st.open); if (o) { o.hidden = false; o.open = true; } }
+        var el = st.q ? [].filter.call(document.querySelectorAll(st.q), function (x) { return x.offsetParent !== null; })[0] : null, say = box.querySelector('#tk-tour-say');
+        unmark();
+        if (!el) { say.textContent = st.q ? 'זה עוד לא על המסך. ' + (i < 3 ? '' : 'אם אין מקרה פתוח: ״המקרים שלי״ ← ״המשך במקרה״.') : ''; return; }
+        mark = el; el.dataset.tkOut = el.style.outline || ''; el.style.outline = '3px solid #E0A100'; el.style.outlineOffset = '3px';
+        try { el.scrollIntoView({ block: 'center', behavior: 'smooth' }); } catch (_) {}
+        say.textContent = 'מסומן בצהוב.';
+      }
+      function draw() {
+        var st = S[i]; clearInterval(timer); unmark();
+        box.innerHTML = '<div style="display:flex;justify-content:space-between;gap:8px;align-items:baseline"><b>' + (i + 1) + ' מתוך ' + S.length + ' · ' + st.t + '</b><button type="button" id="tk-tour-x" style="' + bs + ';min-height:32px;padding:0 .6rem" aria-label="סגירת הסיור">✕</button></div><p style="margin:.3rem 0">' + st.d + '</p><p id="tk-tour-say" role="status" style="margin:.2rem 0;font-size:.92em;color:' + (dk ? '#9BA5BA' : '#566079') + '"></p><div style="display:flex;gap:6px;flex-wrap:wrap">' +
+          (i > 0 ? '<button type="button" id="tk-tour-b" style="' + bs + '">הקודם</button>' : '') + (st.q ? '<button type="button" id="tk-tour-s" style="' + bs + '">הראו לי</button>' : '') + (st.fill ? '<button type="button" id="tk-tour-f" style="' + bs + '">' + (st.fill[0] === 'q' ? 'מילוי שאלה לדוגמה' : 'מילוי עדכון לדוגמה') + '</button>' : '') +
+          (i < S.length - 1 ? '<button type="button" id="tk-tour-n" style="' + bs + ';background:' + (dk ? '#9DB2FF' : '#2747B8') + ';color:' + (dk ? '#0E131E' : '#fff') + ';border:0">הבא</button>' : '<button type="button" id="tk-tour-e" style="' + bs + '">סיום</button>') + '</div>';
+        var g = function (id) { return box.querySelector('#' + id); };
+        g('tk-tour-x').addEventListener('click', end); if (g('tk-tour-e')) g('tk-tour-e').addEventListener('click', end);
+        if (g('tk-tour-b')) g('tk-tour-b').addEventListener('click', function () { i--; draw(); });
+        if (g('tk-tour-n')) g('tk-tour-n').addEventListener('click', function () { i++; draw(); });
+        if (g('tk-tour-s')) g('tk-tour-s').addEventListener('click', show);
+        if (g('tk-tour-f')) g('tk-tour-f').addEventListener('click', function () { var f = document.getElementById(st.fill[0]); if (!f || f.offsetParent === null) { g('tk-tour-say').textContent = 'התיבה לא על המסך כרגע.'; return; } f.value = st.fill[1]; f.dispatchEvent(new Event('input', { bubbles: true })); try { f.focus(); } catch (_) {} g('tk-tour-say').textContent = 'מולא. עכשיו שלח בעצמך.'; });
+        if (st.need) { var ok0 = false; try { ok0 = st.need(); } catch (_) {} if (!ok0) { g('tk-tour-say').textContent = st.wait || ''; timer = setInterval(function () { var ok = false; try { ok = st.need(); } catch (_) {} if (ok) { clearInterval(timer); var s2 = g('tk-tour-say'); if (s2) s2.textContent = 'מעולה, זה קרה. אפשר להמשיך.'; } }, 1000); } }
+        try { sessionStorage.setItem('tk-tour-step', String(i)); } catch (_) {}
+      }
+      function end() { clearInterval(timer); unmark(); box.remove(); try { sessionStorage.removeItem('tk-tour-step'); history.replaceState(null, '', location.pathname); } catch (_) {} }
+      try { var kept = Number(sessionStorage.getItem('tk-tour-step')); if (kept > 0 && kept < S.length) i = kept; } catch (_) {}
+      draw();
+    })();
     // 17.11.2026 22:55 (Yoni approved notifications; the first-setup screen opens each connection in one tap): what the page
     // may ask of this layer
     window.__tkCalSetup = function (btn) { calSetup(btn || null); };

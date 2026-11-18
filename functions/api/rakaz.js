@@ -41,7 +41,20 @@ async function setup(env) {
   await env.DB.prepare('CREATE TABLE IF NOT EXISTS rakaz_scores (cid TEXT PRIMARY KEY, best INTEGER NOT NULL, plays INTEGER NOT NULL, t INTEGER NOT NULL)').run();
   await env.DB.prepare('CREATE TABLE IF NOT EXISTS rakaz_visits (cid TEXT PRIMARY KEY, n INTEGER NOT NULL, first INTEGER NOT NULL, last INTEGER NOT NULL, own INTEGER NOT NULL DEFAULT 0)').run();
   await env.DB.prepare('CREATE TABLE IF NOT EXISTS rakaz_names (cid TEXT PRIMARY KEY, name TEXT NOT NULL, t INTEGER NOT NULL)').run();
+  // 18.11.2026 (Yoni: the game is choppy in the phone's browser): how smoothly the last round ran in each browser. Technical only:
+  // frame counts, screen size and how the round was played (touch, mouse or keys). No names, no device model
+  await env.DB.prepare('CREATE TABLE IF NOT EXISTS rakaz_perf (cid TEXT PRIMARY KEY, t INTEGER NOT NULL, frames INTEGER NOT NULL, ms INTEGER NOT NULL, slow INTEGER NOT NULL, vslow INTEGER NOT NULL, dpr REAL, w INTEGER, h INTEGER, ctl TEXT)').run();
   ready = true;
+}
+// the smoothness of the round that just ended: frames drawn, their total time, and how many took over 25 ms and over 45 ms
+async function savePerf(env, cid, p, now) {
+  if (!p || typeof p !== 'object') return;
+  const int = (v, max) => { const n = Math.floor(Number(v)); return Number.isFinite(n) && n >= 0 && n <= max ? n : null; };
+  const frames = int(p.n, 2000000), ms = int(p.ms, 7200000), slow = int(p.s, 2000000), vslow = int(p.v, 2000000);
+  if (frames === null || ms === null || slow === null || vslow === null || frames < 120 || ms < 2000 || slow > frames || vslow > slow) return;
+  const dpr = Number(p.d), w = int(p.w, 10000), h = int(p.h, 10000), ctl = /^[tmpk]$/.test(String(p.c || '')) ? String(p.c) : null;
+  await env.DB.prepare('INSERT INTO rakaz_perf (cid, t, frames, ms, slow, vslow, dpr, w, h, ctl) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (cid) DO UPDATE SET t = excluded.t, frames = excluded.frames, ms = excluded.ms, slow = excluded.slow, vslow = excluded.vslow, dpr = excluded.dpr, w = excluded.w, h = excluded.h, ctl = excluded.ctl')
+    .bind(cid, now, frames, ms, slow, vslow, Number.isFinite(dpr) && dpr > 0 && dpr < 10 ? Math.round(dpr * 100) / 100 : null, w, h, ctl).run();
 }
 export async function onRequestPost({ request, env }) {
   // as in /api/feedback: only the site's own page may send
@@ -88,6 +101,7 @@ export async function onRequestPost({ request, env }) {
     if (n && n.c >= MAX_ROWS) return text('the list is full', 503);
     await env.DB.prepare('INSERT INTO rakaz_scores (cid, best, plays, t) VALUES (?, ?, 1, ?)').bind(cid, score, now).run();
   }
+  try { await savePerf(env, cid, b.perf, now); } catch (_) { /* a measurement must never cost a player the score */ }
   return json(await place(env, cid) || { rank: 1, total: 1, best: Math.max(score, row ? row.best : 0), named: false });
 }
 export async function onRequestGet({ request, env }) {

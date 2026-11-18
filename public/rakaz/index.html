@@ -481,7 +481,7 @@ window.addEventListener('resize',resize);
 // אלפיות שנייה, מה שאצבע לא עושה), הראשונה גולשת לאט, וכשהחזרות מגיעות עוברים למהירות מלאה. במקלדת רגילה שום דבר מזה לא מופעל,
 // והעכבר והמקלדת מתנהגים בדיוק כמו בגרסאות שלפני 17.11
 const downAt={l:0,r:0};let pairAt=0,pairDir=0,creepT=0,creepDir=0,tapT=0,tapDir=0;
-function setTarget(e){const r=stage.getBoundingClientRect();target=e.clientX-r.left;useKeys=false}
+function setTarget(e){const r=stage.getBoundingClientRect();target=e.clientX-r.left;useKeys=false;perf.c=(e.pointerType||'m')[0]}
 stage.addEventListener('pointerdown',e=>{if(mode==='play'&&!paused)setTarget(e)});
 stage.addEventListener('pointermove',e=>{if(mode==='play'&&!paused)setTarget(e)});
 function key(e,down){
@@ -500,7 +500,7 @@ function key(e,down){
       pairAt=ms;pairDir=d;
     }
   }
-  if(hit&&mode==='play'&&!paused){useKeys=true;e.preventDefault()}
+  if(hit&&mode==='play'&&!paused){useKeys=true;perf.c='k';e.preventDefault()}
 }
 window.addEventListener('keydown',e=>key(e,true));
 window.addEventListener('keyup',e=>key(e,false));
@@ -675,7 +675,7 @@ function start(){
   const mk=(th,quota,facts,broadAt,sp)=>({th,quota,facts,broadAt,sprint:sp});
   const order=THEMES.slice().sort(()=>Math.random()-.5); // ארבע כותרות עד 18:00, והבאות בתור בזמן הפגישה
   stages=[mk(BASE,CFG.introCount,[3],-1)].concat(order.slice(0,4).map(th=>mk(th,CFG.stageCount,[3,9,15],12)),[mk(FINAL,CFG.stageCount,[4,11,17],8,true)],order.slice(4,4+CFG.otStages).map(th=>Object.assign(mk(th,CFG.stageCount,[3,9,15],12),{ot:true})));
-  arrived=false;$('dest').textContent='גבעת רם, 18:00';streak=0;goldAt=-1;bonusPts=0;
+  arrived=false;$('dest').textContent='גבעת רם, 18:00';streak=0;goldAt=-1;bonusPts=0;perf.n=perf.ms=perf.s=perf.v=0;perf.c='';
   roundId++;px=target=FX+FW/2;vx=0;facing=0;useKeys=false;keys.l=keys.r=false;tapT=0;creepT=0;
   mode='play';paused=false;t=0;helped=0;pile=0;spawnT=.9;coffee=0;bot=0;hold=0;drain=0;ending=0;camp=0;revDone=false;revStage=1+(Math.random()*3|0);botsDue=[.42,.74];botAnswered=0;botSecs=0;sprint=false;banner=null;
   items=[];fx=[];pileSpots=[];farFrom=null;healedRound=0;seenQ=[];learned=[];fresh=[];bag={};effKind='';
@@ -743,7 +743,7 @@ async function postScore(score){
   if(!LB)return null;
   try{
     const cid=getCid();
-    const r=await fetch(LB,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({cid,score})});
+    const r=await fetch(LB,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({cid,score,perf:{n:perf.n,ms:Math.round(perf.ms),s:perf.s,v:perf.v,c:perf.c,d:dpr,w:Math.round(W),h:Math.round(H)}})});
     if(!r.ok)return null;const j=await r.json();return j&&j.rank?j:null;
   }catch(e){return null}
 }
@@ -965,7 +965,9 @@ function draw(){
     ctx.globalAlpha=Math.max(0,Math.min(1,f.life*1.6));ctx.font='800 '+(f.big?21:16)*S+'px '+BODY;const tw=ctx.measureText(f.text).width,x=Math.max(FX+tw/2+6,Math.min(FX+FW-tw/2-6,f.x));ctx.lineWidth=4;ctx.strokeStyle=C.paper;ctx.strokeText(f.text,x,f.y);ctx.fillStyle=f.color;ctx.fillText(f.text,x,f.y)}
   ctx.globalAlpha=1;ctx.restore();
 }
+const perf={n:0,ms:0,s:0,v:0,c:''}; // פריימים בסיבוב, הזמן הכולל שלהם, כמה היו איטיים (מעל 25 ומעל 45 אלפיות שנייה), ובמה שיחקו
 function frame(now){
+  const raw=now-last||0;if(mode==='play'&&!paused&&raw>0&&raw<1000){perf.n++;perf.ms+=raw;if(raw>25)perf.s++;if(raw>45)perf.v++}
   const dt=Math.min(.034,(now-last)/1000||0);last=now;
   if(!paused){
     if(DEV){for(let i=0;i<DEV.speed;i++){if(mode==='play')DEV.tick({t,p:P(),items,px,trayY,FX,FW,PW,S,H,eff,set:x=>{target=x;useKeys=false}});update(1/60)}}

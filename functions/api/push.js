@@ -130,6 +130,18 @@ export async function onRequestPost({ request, env }) {
     for (const x of subs.slice(0, 8)) { try { got.push({ host: new URL(x.endpoint).hostname, status: await sendOne(env, k, x.endpoint) }); } catch (e) { got.push({ host: new URL(x.endpoint).hostname, error: String(e && e.message || e).slice(0, 80) }); } }
     return json({ subs: subs.length, got });
   }
+  if (b.op === 'mailtest') {   // 18.11.2026: after the sheet's script was replaced: one check mail, head only, always to the department's own mailbox and nowhere else; says what the script answered
+    if (!u.admin) return json({ error: 'not allowed' }, 403);
+    try {
+      const row = await env.DB.prepare('SELECT data FROM docs WHERE path = ?').bind('config/sheet').first(), cfg = row ? JSON.parse(row.data) : {};
+      const secret = (env.SHEET_SECRET && String(env.SHEET_SECRET).length >= 24) ? String(env.SHEET_SECRET) : cfg.secret || '';
+      if (!cfg.url || secret.length < 24) return json({ ok: false, why: 'not connected' });
+      const call = async (tool, args) => { const r = await fetch(cfg.url, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ tool, args, secret }), redirect: 'follow' }); const t = await r.text(); let j = null; try { j = JSON.parse(t); } catch (_) {} return { status: r.status, ok: !!(j && (j.ok || j.values)), error: j && j.error ? String(j.error).slice(0, 160) : (j ? '' : t.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').slice(0, 160)) }; };
+      const ping = await call('ping', {});
+      const mail = await call('send_mail', { to: 'r_academy@aguda.org.il', label: 'בדיקה (מקרה לדוגמה, לא אמיתי)', text: 'זו הודעת בדיקה אחרי עדכון הסקריפט. אין צורך לעשות דבר.', link: origin + '/coord/' });
+      return json({ ping, mail });
+    } catch (e) { return json({ ok: false, why: String(e && e.message || e).slice(0, 160) }); }
+  }
   if (b.op === 'note') {
     if (!u.admin) return json({ error: 'not allowed' }, 403);
     const uid = String(b.uid || '').replace(/[^A-Za-z0-9_-]/g, '').slice(0, 60); if (!uid || uid === u.uid) return json({ sent: 0 });

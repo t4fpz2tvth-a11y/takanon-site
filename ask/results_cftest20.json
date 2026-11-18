@@ -1,0 +1,38 @@
+{
+ "tag": "cftest20",
+ "at": "2026-11-18T09:14:04.102Z",
+ "chat": [],
+ "audio": [],
+ "human": {
+  "status": 200,
+  "body": "{\"sitekey\":\"0x4AAAAAAGE7c5H8f2E5hAzv\",\"ok\":false,\"enforce\":false,\"days\":[{\"day\":\"2026-11-17\",\"pass\":false,\"n\":2}]}"
+ },
+ "noCode": 403,
+ "mailtest": {
+  "status": 200,
+  "j": {
+   "ping": {
+    "status": 200,
+    "ok": true,
+    "error": ""
+   },
+   "mail": {
+    "status": 200,
+    "ok": true,
+    "error": ""
+   }
+  }
+ },
+ "sheet": {
+  "status": 200,
+  "connected": true
+ },
+ "pushKey": {
+  "status": 200,
+  "len": 87
+ },
+ "tick": {
+  "status": 200,
+  "body": "{\"sent\":0}"
+ }
+}

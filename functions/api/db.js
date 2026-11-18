@@ -1,6 +1,7 @@
 // The coordinators' storage (3.11.2026): the same calls the page makes inside Claude (doc get/set/update/delete,
 // collection add/orderBy/limit/get), kept in Cloudflare D1. POST { op, path, data?, order?, dir?, limit? } with X-Code.
 import { text, json, setup, who, allowed, codeCookie, setCookie, newSession, endSession, locked } from '../_lib.js';
+import { newCase } from './push.js';
 const segs = p => String(p).split('/').filter(Boolean);
 // 4.11.2026 (Yoni's decision): a closed case is kept for one year from its closing, then removed with its steps and its
 // private record. Checked at most every six hours by each server copy, on the next call
@@ -22,13 +23,15 @@ async function sweep(env) {
     await env.DB.prepare("DELETE FROM docs WHERE coll = 'miss' AND t < ?").bind(now - 365 * 864e5).run();
   } catch (_) {}
 }
-export async function onRequestPost({ request, env }) {
+export async function onRequestPost({ request, env, waitUntil }) {
   const origin = request.headers.get('Origin');
   if (origin && origin !== new URL(request.url).origin) return text('forbidden', 403);
   if (!env.DB) return text('the storage is not connected yet (binding DB)', 503);
   let b; try { b = await request.json(); } catch (_) { return text('bad request', 400); }
   // signing out on this device clears its sign-in cookie (4.11.2026)
   if (b && b.op === 'logout') { await endSession(env, codeCookie(request)); const r = json({ ok: true }); r.headers.append('Set-Cookie', setCookie('')); return r; }
+  // work that should not hold the answer back (telling the head of a new case): after the answer when the platform allows, else before it
+  const tell = async p => { if (typeof waitUntil === 'function') { try { waitUntil(p); return; } catch (_) {} } try { await p; } catch (_) {} };
   const u = await who(request, env);
   // 10.11.2026: while the address is held back for wrong codes, a device's older cookie (the code itself) is not cleared: it works again when the hour passes
   if (!u) { const r = text('sign in', 401); if (codeCookie(request) && !(await locked(request, env))) r.headers.append('Set-Cookie', setCookie('')); return r; }
@@ -81,7 +84,14 @@ export async function onRequestPost({ request, env }) {
     const data = b.data && typeof b.data === 'object' ? b.data : {};
     const s = JSON.stringify(data); if (s.length > 900000) return text('too large', 413);
     const coll = segs(path).slice(0, -1).join('/');
-    if (op === 'set') { await env.DB.prepare('INSERT OR REPLACE INTO docs (path, coll, data, t) VALUES (?, ?, ?, ?)').bind(path, coll, s, now).run(); return json({ ok: true }); }
+    if (op === 'set') {
+      // 18.11.2026 23:30 (Yoni): a coordinator's case saved for the first time tells the head (a notification and a mail, to the head alone)
+      const sg = segs(path), mine = sg.length === 4 && sg[0] === 'log' && sg[2] === 'cases' && sg[1] === u.uid && !u.admin;
+      const fresh = mine && !(await env.DB.prepare('SELECT 1 FROM docs WHERE path = ?').bind(path).first());
+      await env.DB.prepare('INSERT OR REPLACE INTO docs (path, coll, data, t) VALUES (?, ?, ?, ?)').bind(path, coll, s, now).run();
+      if (fresh) await tell(newCase(env, new URL(request.url).origin, u, sg[3]));
+      return json({ ok: true });
+    }
     const r = await env.DB.prepare('SELECT data FROM docs WHERE path = ?').bind(path).first();
     if (!r) return json({ code: 'invalid_argument', message: 'missing' }, 404);
     const merged = Object.assign(JSON.parse(r.data), data);
@@ -112,6 +122,7 @@ export async function onRequestPost({ request, env }) {
     }
     const s = JSON.stringify(rec); if (s.length > 900000) return text('too large', 413);
     await env.DB.prepare('INSERT INTO docs (path, coll, data, t) VALUES (?, ?, ?, ?)').bind(path + '/' + id, path, s, now).run();
+    { const sg = segs(path); if (sg.length === 3 && sg[0] === 'log' && sg[2] === 'cases' && sg[1] === u.uid && !u.admin) await tell(newCase(env, new URL(request.url).origin, u, id)); }
     return json({ id });
   }
   if (op === 'list') {

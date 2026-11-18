@@ -1,7 +1,10 @@
 // 17.11.2026 22:45 (Yoni approved 26: notifications from the icon, in three cases): Web Push for the coordinators' app.
 // Three cases, by his decision: (1) a case that was opened three days ago and not updated, (2) the head added a remark to a
 // coordinator's case (sent at once), (3) the morning of a case's target date. (1) and (3) are joined into one notification
-// a day. A notification never holds a name or anything of a case.
+// a day. A notification never holds a student's name or anything of a case.
+// 18.11.2026 23:30 (Yoni: "כשיש מקרה חדש... גם במייל וגם בהתראה, שניהם רק לי, ושיהיה שם האדם שהכניס את המקרה"): (4) a new
+// case: a notification and a mail to the head alone, at once, with the name of the coordinator who opened it (their own
+// name, as the head wrote it in the codes list) and a link to the case; still nothing of the student or of the case itself.
 //   GET                          -> { key }: the public key a browser subscribes with
 //   POST { op: 'sub', sub }      (signed in) keeps this device's subscription for this coordinator
 //   POST { op: 'unsub', endpoint } (signed in) removes it
@@ -69,6 +72,28 @@ async function mailNote(env, uid, more) {
     await env.DB.prepare('INSERT INTO push_cfg (k, v) VALUES (?, ?) ON CONFLICT (k) DO UPDATE SET v = excluded.v').bind('mail:' + uid, String(Date.now())).run();
     return true;
   } catch (_) { return false; }
+}
+// (4) a new case, to the head alone. Called by the log (db.js) when a coordinator's case is saved for the first time. The mail
+// goes through the sheet's script (tool "new_case"), which sends it only to the department's mailbox: the address is fixed
+// inside the script, the site hands over no address. Until the script is updated in the sheet, only the notification goes out
+export async function newCase(env, origin, by, id) {
+  const out = { sent: 0, mailed: false };
+  try {
+    await tables(env);
+    const name = String(by && by.name || '').replace(/[\u0000-\u001f<>]/g, ' ').trim().slice(0, 40) || 'רכז/ת';
+    const cid = String(id || '').replace(/[^A-Za-z0-9_-]/g, '').slice(0, 60), uid = String(by && by.uid || '').replace(/[^A-Za-z0-9_-]/g, '').slice(0, 60);
+    if (!cid || !uid || uid === 'admin') return out;
+    const link = origin + '/coord/?c=' + cid + '&u=' + uid;
+    out.sent = await notify(env, 'admin', 'מקרה חדש מאת ' + name, link);
+    const row = await env.DB.prepare('SELECT data FROM docs WHERE path = ?').bind('config/sheet').first(), cfg = row ? JSON.parse(row.data) : {};
+    const secret = (env.SHEET_SECRET && String(env.SHEET_SECRET).length >= 24) ? String(env.SHEET_SECRET) : cfg.secret || '';
+    if (cfg.url && secret.length >= 24) {
+      const r = await fetch(cfg.url, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ tool: 'new_case', args: { name, link }, secret }), redirect: 'follow' });
+      let j = null; try { j = JSON.parse(await r.text()); } catch (_) {}
+      out.mailed = !!(j && j.ok);
+    }
+  } catch (_) {}
+  return out;
 }
 // what waits for a coordinator today: target dates that fall today, and cases that turn three days old today with no update
 export function dueToday(cases, today, now) {

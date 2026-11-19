@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>בוט התקנון לרכזים: הדגמה (מצגת)</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #000; font-family: Rubik, Arial, sans-serif; }
+  #stage { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; }
+  #stage img { max-width: 100%; max-height: 100%; display: block; }
+  .nav { position: fixed; top: 0; bottom: 56px; width: 50%; background: transparent; border: 0; cursor: pointer; }
+  #next { left: 0; } #prev { right: 0; }
+  #bar { position: fixed; bottom: 0; left: 0; right: 0; height: 56px; display: flex; align-items: center; justify-content: space-between; padding: 0 14px; background: rgba(22,20,43,.92); color: #FFF6DF; }
+  #bar button, #bar a { background: #F2B84B; color: #2A2140; border: 0; border-radius: 999px; font: inherit; font-weight: 700; padding: 9px 16px; text-decoration: none; cursor: pointer; }
+  #bar a { background: transparent; color: #FFF6DF; border: 2px solid #FFF6DF; padding: 7px 14px; }
+  #bar button:disabled { opacity: .35; }
+</style>
+</head>
+<body>
+<div id="stage"><img id="slide" alt=""></div>
+<button class="nav" id="prev" aria-label="השקף הקודם"></button>
+<button class="nav" id="next" aria-label="השקף הבא"></button>
+<div id="bar">
+  <span><button id="b-prev">הקודם</button> <button id="b-next">הבא</button></span>
+  <span id="count" aria-live="polite"></span>
+  <a href="./">חזרה</a>
+</div>
+<script>
+  var ALT = ['מה אומר התקנון? בוט לרכזי האקדמיה, אגודת הסטודנטים. הדגמה על מקרה לדוגמה, שמות בדויים',
+    '1. מדביקים את הודעת הסטודנטית', '2. שולחים לאבחון', '3. הכרעה, והצעד הבא עם המועד', '4. לחיצה על הסעיף: הנוסח המדויק מהתקנון',
+    '5. תשובה קצרה לסטודנטית, מוכנה לשליחה', '6. ניסוח פנייה לוועדת ההוראה: הטופס', '6. ניסוח פנייה לוועדת ההוראה: הטיוטה', '6. הפנייה מוכנה, ונשלחת במייל בלחיצה',
+    '7. המקרה נשמר ביומן של הרכזת', '8. רמ״ח: כל המקרים, וסנכרון לטבלת המעקב', 'פיילוט: 15 עד 20 רכזים וגורמי אגודה. 70 שקלים לחודש. כל העלות היא המודל שעונה; האתר והיומן בחינם'];
+  var n = ALT.length, i = 0, img = document.getElementById('slide');
+  function show(k) {
+    i = Math.max(0, Math.min(n - 1, k));
+    img.src = 's' + String(i + 101).slice(1) + '.jpg'; img.alt = ALT[i];
+    document.getElementById('count').textContent = (i + 1) + ' מתוך ' + n;
+    document.getElementById('b-prev').disabled = i === 0; document.getElementById('b-next').disabled = i === n - 1;
+    try { history.replaceState(null, '', '#' + (i + 1)); } catch (e) {}
+  }
+  function next() { show(i + 1); } function prev() { show(i - 1); }
+  document.getElementById('next').onclick = next; document.getElementById('b-next').onclick = next;
+  document.getElementById('prev').onclick = prev; document.getElementById('b-prev').onclick = prev;
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowLeft' || e.key === ' ' || e.key === 'PageDown' || e.key === 'Enter') { e.preventDefault(); next(); }
+    else if (e.key === 'ArrowRight' || e.key === 'PageUp') { e.preventDefault(); prev(); }
+    else if (e.key === 'Home') show(0); else if (e.key === 'End') show(n - 1);
+  });
+  show((parseInt(location.hash.slice(1), 10) || 1) - 1);
+</script>
+</body>
+</html>

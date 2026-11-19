@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>פורום אקדמיה 19.11: מצגת</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #000; font-family: Rubik, Arial, sans-serif; }
+  #stage { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; }
+  #stage img { max-width: 100%; max-height: 100%; display: block; }
+  .nav { position: fixed; top: 0; bottom: 56px; width: 50%; background: transparent; border: 0; cursor: pointer; }
+  #next { left: 0; } #prev { right: 0; }
+  #bar { position: fixed; bottom: 0; left: 0; right: 0; height: 56px; display: flex; align-items: center; justify-content: space-between; padding: 0 14px; background: rgba(22,20,43,.92); color: #FFF6DF; }
+  #bar button, #bar a { background: #F2B84B; color: #2A2140; border: 0; border-radius: 999px; font: inherit; font-weight: 700; padding: 9px 16px; text-decoration: none; cursor: pointer; }
+  #bar a { background: transparent; color: #FFF6DF; border: 2px solid #FFF6DF; padding: 7px 14px; }
+  #bar button:disabled { opacity: .35; }
+</style>
+</head>
+<body>
+<div id="stage"><img id="slide" alt=""></div>
+<button class="nav" id="prev" aria-label="השקף הקודם"></button>
+<button class="nav" id="next" aria-label="השקף הבא"></button>
+<div id="bar">
+  <span><button id="b-prev">הקודם</button> <button id="b-next">הבא</button></span>
+  <span id="count" aria-live="polite"></span>
+  <a href="./">חזרה</a>
+</div>
+<script>
+  var DECKS = {"forum-intro": {"n": 11, "t": "היכרות ותיאום ציפיות"}, "forum-tools": {"n": 19, "t": "תהליך העבודה, הבוט והכלים"}, "forum-arik": {"n": 4, "t": "ראייה רחבה של תפקיד הרכז ובעיות רוחביות"}, "forum-elad": {"n": 7, "t": "איך פועלים מול המערכת האוניברסיטאית?"}};
+  var q = new URLSearchParams(location.search).get('d');
+  var key = Object.prototype.hasOwnProperty.call(DECKS, q) ? q : 'forum-intro';
+  var D = DECKS[key], n = D.n, i = 0, img = document.getElementById('slide');
+  document.title = 'פורום אקדמיה 19.11: ' + D.t;
+  function show(k) {
+    i = Math.max(0, Math.min(n - 1, k));
+    img.src = key + '/' + String(i + 101).slice(1) + '.jpg'; img.alt = D.t + ', שקף ' + (i + 1);
+    document.getElementById('count').textContent = (i + 1) + ' מתוך ' + n;
+    document.getElementById('b-prev').disabled = i === 0; document.getElementById('b-next').disabled = i === n - 1;
+    try { history.replaceState(null, '', '?d=' + key + '#' + (i + 1)); } catch (e) {}
+  }
+  function next() { show(i + 1); } function prev() { show(i - 1); }
+  document.getElementById('next').onclick = next; document.getElementById('b-next').onclick = next;
+  document.getElementById('prev').onclick = prev; document.getElementById('b-prev').onclick = prev;
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowLeft' || e.key === ' ' || e.key === 'PageDown' || e.key === 'Enter') { e.preventDefault(); next(); }
+    else if (e.key === 'ArrowRight' || e.key === 'PageUp') { e.preventDefault(); prev(); }
+    else if (e.key === 'Home') show(0); else if (e.key === 'End') show(n - 1);
+  });
+  show((parseInt(location.hash.slice(1), 10) || 1) - 1);
+</script>
+</body>
+</html>

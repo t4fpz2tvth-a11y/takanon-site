@@ -1,1 +1,1 @@
-{"models": ["anthropic/claude-haiku-5.5"], "batch": 5, "k": 3, "exp": "live", "run": 107, "tag": "gen_after", "set": "general", "reps": 3, "judge": "anthropic/claude-sonnet-5.5", "target": "coord-next"}
+{"models": ["anthropic/claude-haiku-5.5"], "batch": 5, "k": 3, "exp": "live", "run": 108, "tag": "v13_after", "set": "valid", "reps": 3, "judge": "anthropic/claude-sonnet-5.5", "target": "coord-next"}

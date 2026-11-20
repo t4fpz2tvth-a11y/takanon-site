@@ -1,0 +1,35 @@
+{
+ "out": "bench/results_coord_next_v13_r3.json",
+ "set": "valid",
+ "target": "coord-next",
+ "tag": "v13_r3",
+ "exp": "live",
+ "judge": "anthropic/claude-sonnet-5.5",
+ "judges": null,
+ "reps": 3,
+ "site": "https://takanon-site.pages.dev",
+ "started": "2026-11-20T20:33:59.401Z",
+ "written": "2026-11-20T20:43:59.953Z",
+ "finished": false,
+ "builds": [
+  "99e44491"
+ ],
+ "summary": {
+  "anthropic/claude-haiku-5.5": {
+   "rows": 61,
+   "scored": 61,
+   "infra": 0,
+   "infra_by": {},
+   "unscored": 0,
+   "mean": 1.426,
+   "mean_unseen": 1.408,
+   "scored_unseen": 49,
+   "no_serious": 0.951,
+   "reps": 2,
+   "left_out_share": 0,
+   "builds": [
+    "99e44491"
+   ]
+  }
+ }
+}

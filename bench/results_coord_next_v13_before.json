@@ -17767,5 +17767,175 @@
   "jcost": 0.003612,
   "judge_model": "anthropic/claude-sonnet-5.5",
   "judge_hash": "e9f63089"
+ },
+ {
+  "model": "anthropic/claude-haiku-5.5",
+  "id": "M11-en",
+  "q": "I served 25 days of reserve duty this semester. What reduction of credits am I entitled to, and whom do I ask?",
+  "expect": "R11-11, control. Core of a full answer: (1) for the current year (תשפ\"ז) the national outline of 22.10.2026 (miluim_mlg27, מתווה משרתים תשפ\"ז) applies; it binds the university, which may add to it; (2) 25 days in the semester puts the student in group 2 (21 days or more in the semester, c560), which gives one course of alternative assessment (two if in a frontline role); (3) the outline gives no number of credits for תשפ\"ז; the university's table for תשפ\"ו (miluim_outline c514: 21 days in one semester: 6 credits; cap 10 for a bachelor's) is cited only as the earlier year's arrangement; (4) the faculty's reserve coordinator confirms what the university gives now. Good but not required: that the outline continues the תשפ\"ה–תשפ\"ו outlines with all their components, among them \"מיצוי פטור מנ\"ז\" (c559). Correct and not an error: mentioning separately that reserve service of 21 days or more is a qualifying activity for the once-per-degree 2-credit אבני פינה exemption (נספח ט' 1 and 3), as long as it is presented as a separate exemption. Wrong: presenting the תשפ\"ו table as this year's rule or opening as if 6 credits are the entitlement now; saying there is no outline for תשפ\"ז; giving נספח ט' 1 as THE reservist reduction of credits. The public bot answers in English; the coordinators' version answers in Hebrew by design. This one expectation holds for both versions.",
+  "expect_kind": "main",
+  "set": "valid",
+  "target": "coord-next",
+  "exp": "live",
+  "build": "2dd3cb64",
+  "build_date": "20.11.2026",
+  "ts": "2026-11-20T12:37:50.813Z",
+  "infra": "",
+  "seen": false,
+  "src_set": "",
+  "rmodel": "",
+  "x": "",
+  "ret": {
+   "named": [],
+   "picked": [
+    "c514",
+    "c515",
+    "c516",
+    "c132",
+    "c250",
+    "c131"
+   ],
+   "core": [
+    "c559",
+    "c560"
+   ],
+   "local": [
+    "c362",
+    "c141",
+    "c44",
+    "c486",
+    "c514",
+    "c515"
+   ],
+   "sem": 0,
+   "pinned": [
+    "c514",
+    "c515",
+    "c518",
+    "c519"
+   ],
+   "thread": [],
+   "ids": [
+    "c514",
+    "c515",
+    "c516",
+    "c132",
+    "c250",
+    "c131",
+    "c559",
+    "c560",
+    "c362",
+    "c141",
+    "c44",
+    "c486",
+    "c518",
+    "c519",
+    "c11",
+    "c163",
+    "c164",
+    "c165",
+    "c166",
+    "c485",
+    "c128",
+    "c129",
+    "c130",
+    "c162",
+    "c51",
+    "c536"
+   ],
+   "sent": [
+    "c514",
+    "c515",
+    "c516",
+    "c132",
+    "c250",
+    "c131",
+    "c559",
+    "c560",
+    "c362",
+    "c141",
+    "c44",
+    "c486",
+    "c518",
+    "c519",
+    "c11",
+    "c163",
+    "c164",
+    "c165",
+    "c166",
+    "c485",
+    "c128",
+    "c129",
+    "c130",
+    "c162",
+    "c51",
+    "c536"
+   ],
+   "packs": [],
+   "ctxMax": 60000,
+   "bytes": 128754,
+   "offices": "- ועדת ההוראה של הפקולטה: בקשות חריגות: מועד מיוחד, חזרה על קורס, הארכות. מומלץ לפנות דרך מזכירות הסטודנטים של הפקולטה. (הפנייה דרך המזכירות היא המלצה מעשית, לא כלל מהתקנון)\n- רכז המילואים בפקולטה (לפי רשימת דיקנט הסטודנטים): התאמות למשרתי מילואים ולבני הזוג שלהם · https://studean.huji.ac.il/רשימת-רכזי-מילואים\n- אגף מנהל סטודנטים: שכר לימוד, אישורים, הפסקת לימודים וחידושם (טלפון 02-5882888 · וואטסאפ 054-8820830 · א׳–ה׳ 08:30–16:30) · https://studentsadmin.huji.ac.il/contactheb",
+   "wide": {
+    "more": [
+     "c543",
+     "c133",
+     "c517",
+     "c525",
+     "c513"
+    ],
+    "words": [
+     "שירות מילואים",
+     "משרתי מילואים",
+     "מילואים",
+     "הקלות לסטודנטים",
+     "נקודות זכות",
+     "הפחתת נקודות זכות",
+     "מועד מיוחד",
+     "נוכחות"
+    ],
+    "found": true
+   }
+  },
+  "answer": "בתשפ״ז לא נמצא במאגר סכום הפחתת נ״ז לשירות מילואים. הטבלאות של הפחתת נ״ז שבמאגר הן של תשפ״ו מתווה מילואים · הפחתת נ\"ז… מתווה מילואים · הפחתת נ\"ז… מתווה מילואים · הפחתת נ\"ז…, ואין לראות בהן את הזכאות לשנה הנוכחית.\n\nלתשפ״ז חל המתווה הארצי (22.10.2026), והאוניברסיטה מחויבת לו ורשאית להוסיף עליו. לפיו, סטודנט שמשרת 21 יום ומעלה במהלך הסמסטר נמצא בקבוצה 2, וזכאי להערכה חלופית ב-2 קורסים אם הוא בייעוד קדמי, ובקורס אחד אם לא מתווה משרתים תשפ\"ז · קבוצות 2…. המתווה אינו קובע הפחתת נ״ז. תוספות האוניברסיטה לתשפ״ז טרם פורסמו במאגר מתווה מילואים · התאמות…. בנוסף, נספח ה' קובע שסטודנט שנעדר משיעורים בשל שירות מילואים רשאי לדחות קורס ולחזור עליו בלא תשלום נוסף, בתנאי שעדיין לא נבחן בו נה\"ל · נספח ה' סעיף 2.\n\nשיוך הקבוצה והיקף ההתאמה תלויים בפרטים שטרם נמסרו, ואת קביעתם עורך רכז המילואים בפקולטה מתווה משרתים תשפ\"ז · קבוצות 2….\n\nלשאלה: לאיזה תואר הסטודנט לומד (בוגר, מוסמך או תואר כפול), והאם הוא משרת בייעוד קדמי?\n\nהצעד הבא: להפנות את הסטודנט לרכז המילואים בפקולטה בה הוא לומד, לבירור הקבוצה, ההתאמות שמגיעות לו ואפשרות הפחתת נ״ז לפי תוספות האוניברסיטה לתשפ״ז, לפני סוף הסמסטר נה\"ל · נספח ה' סעיף 1.\n\nמסלול מומלץ: ליווי — הסטודנט פונה לרכז ומגיש את הבקשה, והרכזים מלווים אותו בניסוח הפנייה ובצירוף מסמכי השירות.",
+  "err": "",
+  "seconds": 40.999,
+  "first": 19.9,
+  "tChunk": null,
+  "tText": null,
+  "calls": [
+   [
+    0.1,
+    3.3,
+    4.2
+   ],
+   [
+    0.1,
+    0.9,
+    1.6
+   ],
+   [
+    4.2,
+    4.8,
+    20.9
+   ],
+   [
+    21.2,
+    24.4,
+    24.4
+   ],
+   [
+    24.5,
+    25.1,
+    39.6
+   ]
+  ],
+  "cost": 0.0165202,
+  "tries": 4,
+  "rep": 2,
+  "score": 1,
+  "why": "התשובה מכסה את רוב הליבה (המתווה הארצי של 22.10.2026 מחייב את האוניברסיטה, קבוצה 2 עם 2 קורסים בייעוד קדמי או קורס אחד, ופנייה לרכז הפקולטה, ואינה מציגה את טבלת תשפ\"ו כזכאות נוכחית), אבל היא קובעת שבמאגר לא נמצא סכום ושהמתווה אינו קובע הפחתת נ\"ז בלי להזכיר את טבלת תשפ\"ו (6 נ\"ז, תקרה 10) כהסדר קודם, ואת השאלה על שיוך הקבוצה היא מציגה כבלתי ידועה אף ש-25 ימים כבר מציבים אותו בקבוצה 2, ולכן היא חלקית.",
+  "jcost": 0.007118,
+  "judge_model": "anthropic/claude-sonnet-5.5",
+  "judge_hash": "e9f63089"
  }
 ]

@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>פורום אקדמיה 19.11.2026: ההקלטות</title>
+<style>
+@font-face{font-family:"Frank Ruhl Libre";font-style:normal;font-weight:700 900;font-display:swap;src:url(/fonts/frank-ruhl-libre-v1.woff) format("woff")}
+@font-face{font-family:"IBM Plex Sans Hebrew";font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/ibm-plex-sans-hebrew-400-v1.woff) format("woff")}
+@font-face{font-family:"IBM Plex Sans Hebrew";font-style:normal;font-weight:500;font-display:swap;src:url(/fonts/ibm-plex-sans-hebrew-500-v1.woff) format("woff")}
+:root{--bg:#F4F1E6;--ink:#1D2A22;--soft:#5B665E;--card:#FFFDF6;--line:#DDD8C6;--green:#1F5A34;--gold:#B88A1E;--bad:#A3341F}
+*{box-sizing:border-box}
+body{margin:0;font-family:"IBM Plex Sans Hebrew",Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.55}
+main{max-width:860px;margin:0 auto;padding:28px 18px 70px}
+.kicker{color:var(--gold);font-weight:500;font-size:.95rem;margin:0}
+h1{font-family:"Frank Ruhl Libre",serif;font-weight:800;font-size:clamp(1.7rem,5vw,2.4rem);line-height:1.15;margin:.15em 0 .3em;text-wrap:balance}
+h2{font-family:"Frank Ruhl Libre",serif;font-weight:800;font-size:1.3rem;margin:0 0 .15em;line-height:1.25}
+p{margin:0 0 .8em}
+.soft{color:var(--soft)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin:14px 0}
+a.part{display:flex;gap:14px;align-items:center;text-decoration:none;color:inherit}
+a.part:hover h2,a.part:focus-visible h2{text-decoration:underline}
+.num{flex:none;width:46px;height:46px;border-radius:50%;background:var(--green);color:#F6F3E7;display:grid;place-items:center;font-family:"Frank Ruhl Libre",serif;font-weight:800;font-size:1.3rem}
+.meta{color:var(--soft);font-size:.95rem;margin:0}
+label{display:block;font-weight:500;margin-bottom:6px}
+input[type=text]{width:100%;font:inherit;padding:12px 14px;border:1.5px solid var(--line);border-radius:10px;background:#fff;color:var(--ink)}
+input[type=text]:focus-visible,button:focus-visible,a:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+button{font:inherit;font-weight:500;background:var(--green);color:#F6F3E7;border:0;border-radius:999px;padding:12px 26px;cursor:pointer;margin-top:12px}
+button.quiet{background:transparent;color:var(--green);padding:6px 0;margin:0;text-decoration:underline;border-radius:4px}
+.err{color:var(--bad);font-weight:500;min-height:1.5em;margin:.5em 0 0}
+video{width:100%;border-radius:12px;background:#000;display:block;aspect-ratio:16/9}
+.row{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:baseline}
+.note{font-size:.9rem;color:var(--soft);border-top:1px solid var(--line);padding-top:10px;margin-top:14px}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<main>
+  <p class="kicker">אגודת הסטודנטים · מחלקת אקדמיה</p>
+  <h1>פורום אקדמיה 19.11.2026: ההקלטות</h1>
+
+  <section id="gate" class="card" hidden>
+    <h2>לפני שמתחילים: מי צופה?</h2>
+    <p class="soft">הסרטונים מיועדים לרכזי האקדמיה וליו"רים. מבקשים שם מלא פעם אחת בכל דפדפן.</p>
+    <form id="hello" novalidate>
+      <label for="name">שם מלא (שם פרטי ושם משפחה)</label>
+      <input id="name" type="text" autocomplete="name" maxlength="60" required aria-describedby="nameErr">
+      <p id="nameErr" class="err" role="alert"></p>
+      <button type="submit">כניסה לסרטונים</button>
+    </form>
+    <p class="note">הצפייה נרשמת: השם שהקלדתם, באיזה סרטון צפיתם וכמה זמן. הנתונים גלויים לרמ"ח אקדמיה בלבד.</p>
+  </section>
+
+  <section id="list" hidden>
+    <div class="row"><p class="soft" id="hi"></p><button class="quiet" id="bye" type="button">זה לא אני</button></div>
+    <p>ארבעה חלקים, כשעה ורבע בסך הכול. ההתארגנות, התקלות וההפסקה ירדו בעריכה.</p>
+    <div id="parts"></div>
+  </section>
+
+  <section id="watch" hidden>
+    <p><a href="/forum/">→ לכל ארבעת החלקים</a></p>
+    <p class="kicker" id="wk"></p>
+    <h2 id="wt"></h2>
+    <p class="meta" id="wb"></p>
+    <div style="margin:14px 0"><video id="vid" controls playsinline preload="metadata"></video></div>
+    <p class="err" id="werr" role="alert"></p>
+    <p id="next"></p>
+    <p class="note">הצפייה נרשמת (שם, סרטון וזמן צפייה) וגלויה לרמ"ח אקדמיה בלבד.</p>
+  </section>
+
+  <p id="load" class="soft">רגע…</p>
+</main>
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var V = Number(new URLSearchParams(location.search).get('v') || 0), state = null;
+  var fmt = function (s) { var m = Math.round(s / 60); return m + ' דקות'; };
+  function api(body) { return fetch('/api/forum', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), credentials: 'same-origin' }); }
+  function show() {
+    $('load').hidden = true;
+    var named = !!state.name;
+    $('gate').hidden = named; $('list').hidden = !named || !!V; $('watch').hidden = !named || !V;
+    if (!named) { $('name').focus(); return; }
+    if (!V) {
+      $('hi').textContent = 'שלום, ' + state.name + '.';
+      $('parts').innerHTML = '';
+      state.videos.forEach(function (x) {
+        var a = document.createElement('a'); a.className = 'part card'; a.href = '/forum/?v=' + x.v;
+        var n = document.createElement('span'); n.className = 'num'; n.textContent = x.v; n.setAttribute('aria-hidden', 'true');
+        var d = document.createElement('span'), h = document.createElement('h2'), p = document.createElement('p');
+        h.textContent = x.title; p.className = 'meta'; p.textContent = x.by + ' · ' + fmt(x.secs);
+        d.appendChild(h); d.appendChild(p); a.appendChild(n); a.appendChild(d); $('parts').appendChild(a);
+      });
+      return;
+    }
+    var it = state.videos.filter(function (x) { return x.v === V; })[0];
+    if (!it) { location.replace('/forum/'); return; }
+    document.title = 'חלק ' + it.v + ': ' + it.title;
+    $('wk').textContent = 'חלק ' + it.v + ' מתוך ' + state.videos.length;
+    $('wt').textContent = it.title; $('wb').textContent = it.by + ' · ' + fmt(it.secs);
+    var nx = state.videos.filter(function (x) { return x.v === V + 1; })[0];
+    $('next').innerHTML = ''; if (nx) { var a = document.createElement('a'); a.href = '/forum/?v=' + nx.v; a.textContent = 'לחלק הבא: ' + nx.title + ' ←'; $('next').appendChild(a); }
+    if (!state.ready) { $('werr').textContent = 'הסרטון עוד לא עלה לאתר. נסו שוב מאוחר יותר.'; $('vid').hidden = true; return; }
+    player(it);
+  }
+  function player(it) {
+    var v = $('vid'), played = 0, last = 0, opened = false, timer = null;
+    v.src = '/api/forum?v=' + it.v;
+    v.addEventListener('error', function () { $('werr').textContent = 'הסרטון לא נטען. רעננו את הדף, ואם זה חוזר פנו לרמ"ח אקדמיה.'; });
+    function tick() { var now = Date.now(); if (!v.paused && !v.ended && last) played += Math.min(2, (now - last) / 1000); last = now; }
+    function send(final) {
+      tick();
+      var n = Math.floor(played), open = !opened && (n > 0 || final === 'play');
+      if (!n && !open) return;
+      played -= n; if (open) opened = true;
+      var body = JSON.stringify({ op: 'beat', v: it.v, played: n, pos: Math.floor(v.currentTime || 0), open: open });
+      if (final === true && navigator.sendBeacon) navigator.sendBeacon('/api/forum', new Blob([body], { type: 'application/json' }));
+      else fetch('/api/forum', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: body, credentials: 'same-origin', keepalive: true }).catch(function () {});
+    }
+    v.addEventListener('play', function () { last = Date.now(); send('play'); if (!timer) timer = setInterval(function () { tick(); if (played >= 10) send(); }, 1000); });
+    v.addEventListener('pause', function () { send(); });
+    v.addEventListener('ended', function () { send(); });
+    document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') send(true); });
+    window.addEventListener('pagehide', function () { send(true); });
+  }
+  $('hello').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var name = $('name').value.replace(/\s+/g, ' ').trim();
+    if (name.split(' ').length < 2 || name.length < 5) { $('nameErr').textContent = 'צריך שם מלא: שם פרטי ושם משפחה.'; $('name').focus(); return; }
+    $('nameErr').textContent = '';
+    api({ op: 'hello', name: name }).then(function (r) {
+      if (r.ok) return r.json().then(function (j) { state.name = j.name; show(); });
+      $('nameErr').textContent = r.status === 429 ? 'יותר מדי ניסיונות מהרשת הזו. נסו שוב בעוד שעה.' : 'צריך שם מלא: שם פרטי ושם משפחה, באותיות בלבד.';
+      $('name').focus();
+    }).catch(function () { $('nameErr').textContent = 'אין חיבור. נסו שוב.'; });
+  });
+  $('bye').addEventListener('click', function () { api({ op: 'bye' }).then(function () { state.name = ''; show(); }); });
+  fetch('/api/forum?op=me', { credentials: 'same-origin', cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (j) { state = j; show(); })
+    .catch(function () { $('load').textContent = 'הדף לא נטען. בדקו את החיבור ורעננו.'; });
+})();
+</script>
+</body>
+</html>

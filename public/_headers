@@ -13,3 +13,5 @@
   Cache-Control: public, max-age=604800
 /show/*
   X-Robots-Tag: noindex, nofollow
+/forum/*
+  X-Robots-Tag: noindex, nofollow

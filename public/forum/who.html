@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>פורום אקדמיה: מי צפה</title>
+<style>
+@font-face{font-family:"Frank Ruhl Libre";font-style:normal;font-weight:700 900;font-display:swap;src:url(/fonts/frank-ruhl-libre-v1.woff) format("woff")}
+@font-face{font-family:"IBM Plex Sans Hebrew";font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/ibm-plex-sans-hebrew-400-v1.woff) format("woff")}
+@font-face{font-family:"IBM Plex Sans Hebrew";font-style:normal;font-weight:500;font-display:swap;src:url(/fonts/ibm-plex-sans-hebrew-500-v1.woff) format("woff")}
+:root{--bg:#F4F1E6;--ink:#1D2A22;--soft:#5B665E;--card:#FFFDF6;--line:#DDD8C6;--green:#1F5A34;--gold:#B88A1E}
+*{box-sizing:border-box}
+body{margin:0;font-family:"IBM Plex Sans Hebrew",Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5}
+main{max-width:1000px;margin:0 auto;padding:28px 18px 70px}
+h1{font-family:"Frank Ruhl Libre",serif;font-weight:800;font-size:clamp(1.6rem,4.5vw,2.2rem);margin:.1em 0 .3em}
+.soft{color:var(--soft)}
+.wrap{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:14px}
+table{border-collapse:collapse;width:100%;min-width:640px}
+th,td{padding:11px 12px;text-align:right;border-bottom:1px solid var(--line);vertical-align:top}
+thead th{font-weight:500;font-size:.9rem;color:var(--soft)}
+tbody tr:last-child td,tbody tr:last-child th{border-bottom:0}
+tbody th{font-weight:500;min-width:170px}
+td{min-width:150px}
+td small,th small{display:block;color:var(--soft);font-size:.82rem}
+.bar{height:6px;border-radius:3px;background:var(--line);margin-top:5px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--green)}
+.none{color:var(--soft)}
+button{font:inherit;font-weight:500;background:var(--green);color:#F6F3E7;border:0;border-radius:999px;padding:9px 20px;cursor:pointer}
+button:focus-visible,a:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.sum{display:flex;gap:10px;flex-wrap:wrap;margin:14px 0}
+.sum div{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 14px;flex:1 1 150px}
+.sum b{font-family:"Frank Ruhl Libre",serif;font-size:1.5rem;display:block;font-variant-numeric:tabular-nums}
+</style>
+</head>
+<body>
+<main>
+  <p><a href="/forum/">→ לדף הסרטונים</a></p>
+  <h1>פורום אקדמיה: מי צפה, ובמה</h1>
+  <p class="soft" id="msg">טוען…</p>
+  <div class="sum" id="sum" hidden></div>
+  <div class="wrap" id="wrap" hidden><table>
+    <thead><tr id="head"></tr></thead><tbody id="body"></tbody>
+  </table></div>
+  <p style="margin-top:14px"><button id="again" type="button" hidden>רענון</button></p>
+  <p class="soft" id="foot" hidden>זמן הצפייה נספר רק כשהסרטון מתנגן. "הגיע עד" הוא הנקודה הרחוקה ביותר שנצפתה, גם אם דילגו אליה. השם הוא מה שהצופה הקליד, ואותו אדם בשני דפדפנים מוצג בשורה אחת עם מספר הדפדפנים.</p>
+</main>
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var mmss = function (s) { s = Math.max(0, Math.round(s)); return Math.floor(s / 60) + ':' + ('0' + s % 60).slice(-2); };
+  var when = function (t) { return t ? new Date(t).toLocaleString('he-IL', { day: 'numeric', month: 'numeric', hour: '2-digit', minute: '2-digit' }) : ''; };
+  var el = function (tag, text, cls) { var e = document.createElement(tag); if (text != null) e.textContent = text; if (cls) e.className = cls; return e; };
+  function load() {
+    fetch('/api/forum', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ op: 'report' }), credentials: 'same-origin' }).then(function (r) {
+      if (r.status === 403) { $('msg').textContent = 'הדף הזה פתוח לרמ"ח אקדמיה בלבד. היכנסו קודם לבוט הרכזים עם הקוד שלכם, ואז חזרו לכאן.'; return null; }
+      if (!r.ok) { $('msg').textContent = 'הנתונים לא נטענו (שגיאה ' + r.status + ').'; return null; }
+      return r.json();
+    }).then(function (j) { if (j) draw(j); }).catch(function () { $('msg').textContent = 'אין חיבור. נסו שוב.'; });
+  }
+  function draw(j) {
+    var people = {}, order = [];
+    j.rows.forEach(function (r) {
+      var key = r.name.replace(/\s+/g, ' ').trim().toLowerCase();
+      if (!people[key]) { people[key] = { name: r.name, ids: {}, created: r.created, v: {} }; order.push(key); }
+      var p = people[key]; p.ids[r.id] = 1; p.created = Math.min(p.created, r.created);
+      if (r.v) { var x = p.v[r.v] || (p.v[r.v] = { secs: 0, maxpos: 0, opens: 0, last: 0 }); x.secs += r.secs; x.maxpos = Math.max(x.maxpos, r.maxpos); x.opens += r.opens; x.last = Math.max(x.last, r.last); }
+    });
+    $('head').innerHTML = ''; $('body').innerHTML = ''; $('sum').innerHTML = '';
+    $('head').appendChild(el('th', 'שם'));
+    j.videos.forEach(function (v) { var th = el('th', 'חלק ' + v.v); th.appendChild(el('small', v.title + ' · ' + mmss(v.secs))); $('head').appendChild(th); });
+    var watched = j.videos.map(function () { return 0; });
+    order.forEach(function (k) {
+      var p = people[k], tr = el('tr'), th = el('th', p.name); th.scope = 'row';
+      var n = Object.keys(p.ids).length;
+      th.appendChild(el('small', 'נכנס לראשונה ' + when(p.created) + (n > 1 ? ' · ' + n + ' דפדפנים' : '')));
+      tr.appendChild(th);
+      j.videos.forEach(function (v, i) {
+        var x = p.v[v.v], td = el('td');
+        if (!x || (!x.secs && !x.opens)) { td.appendChild(el('span', 'לא נכנס', 'none')); }
+        else {
+          var pct = Math.min(100, Math.round(100 * Math.min(x.secs, v.secs) / v.secs));
+          watched[i]++;
+          td.appendChild(el('span', mmss(Math.min(x.secs, v.secs * 5)) + ' (' + pct + '%)'));
+          var bar = el('div', null, 'bar'), fill = el('i'); fill.style.width = pct + '%'; bar.appendChild(fill); td.appendChild(bar);
+          td.appendChild(el('small', 'הגיע עד ' + mmss(x.maxpos) + ' · ' + x.opens + ' כניסות · ' + when(x.last)));
+        }
+        tr.appendChild(td);
+      });
+      $('body').appendChild(tr);
+    });
+    var box = function (n, label) { var d = el('div'); d.appendChild(el('b', String(n))); d.appendChild(document.createTextNode(label)); $('sum').appendChild(d); };
+    box(order.length, 'הזדהו בשם');
+    j.videos.forEach(function (v, i) { box(watched[i], 'התחילו את חלק ' + v.v); });
+    $('msg').textContent = order.length ? 'מעודכן ל-' + when(Date.now()) + '.' : 'עדיין אף אחד לא נכנס.';
+    $('sum').hidden = false; $('wrap').hidden = !order.length; $('again').hidden = false; $('foot').hidden = false;
+  }
+  $('again').addEventListener('click', load);
+  load();
+})();
+</script>
+</body>
+</html>

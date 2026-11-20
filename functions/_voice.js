@@ -38,6 +38,33 @@ export async function transcribe(env, buf, contentType, lang) {
   return { text: clean(out && out.text), via: 'cloudflare-whisper', tried };
 }
 
+// TEMPORARY, 20.11.2026 16:05 (Yoni: "תחזיר לבוט הרכזים את ההשוואה הזמנית בין מודלי התמלול, רק כשאני (רמ"ח) מעלה הקלטה"): the same
+// recording through both speech models, each on its own, with the time each took. For /api/transcribe when the head uploads;
+// removed again when the comparison of the six clips of the coordinators' meeting is done.
+export async function transcribeBoth(env, buf, contentType, lang) {
+  let b64 = ''; for (let i = 0; i < buf.length; i += 0x6000) b64 += btoa(String.fromCharCode.apply(null, buf.subarray(i, i + 0x6000)));
+  const fmt = sniff(buf) || fmtOf(contentType);
+  const H = { 'Authorization': 'Bearer ' + env.OPENROUTER_KEY, 'Content-Type': 'application/json', 'X-Title': 'Ma Omer HaTakanon' };
+  const limit = ms => { const c = new AbortController(); setTimeout(() => c.abort(), ms); return c.signal; };
+  const run = async (fn) => { const t0 = Date.now(); try { return Object.assign(await fn(), { ms: Date.now() - t0 }); } catch (e) { return { text: '', err: String(e && e.message || e).slice(0, 200), ms: Date.now() - t0 }; } };
+  const [gemini, gpt] = await Promise.all([
+    run(async () => {
+      const r = await fetch('https://openrouter.ai/api/v1/chat/completions', { method: 'POST', headers: H, signal: limit(80000),
+        body: JSON.stringify({ model: 'google/gemini-3-flash-preview', temperature: 0, max_tokens: 6000, provider: { data_collection: 'deny' }, usage: { include: true },
+          messages: [{ role: 'user', content: [{ type: 'text', text: ASK }, { type: 'input_audio', input_audio: { data: b64, format: fmt } }] }] }) });
+      if (!r.ok) return { text: '', err: r.status + ' ' + (await r.text()).replace(/\s+/g, ' ').slice(0, 200) };
+      const j = await r.json(); return { text: clean(j.choices && j.choices[0] && j.choices[0].message && j.choices[0].message.content), cost: j.usage && j.usage.cost };
+    }),
+    run(async () => {
+      const r = await fetch('https://openrouter.ai/api/v1/audio/transcriptions', { method: 'POST', headers: H, signal: limit(80000),
+        body: JSON.stringify(Object.assign({ model: 'openai/gpt-4o-transcribe', input_audio: { data: b64, format: fmt } }, lang === 'auto' ? {} : { language: lang || 'he' })) });
+      if (!r.ok) return { text: '', err: r.status + ' ' + (await r.text()).replace(/\s+/g, ' ').slice(0, 200) };
+      const j = await r.json(); return { text: clean(j.text), cost: j.usage && j.usage.cost };
+    }),
+  ]);
+  return { fmt, gemini, gpt };
+}
+
 // 17.11.2026 15:35 (Yoni: "תעשה את 1": the Shortcut also takes a written message or a screenshot of a chat, not only a voice
 // message). What kind of thing arrived, by its first bytes: a picture, a recording, or plain text.
 export function kindOf(buf, contentType) {

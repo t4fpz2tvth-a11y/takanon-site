@@ -4,7 +4,7 @@
 // Signed-in coordinators and the head only (and the comparison token, for the format tests); 60 an hour each; up to 12 MB.
 // POST the recording itself as the body (?lang=he by default, or auto) -> { text }
 import { json, text, who, setup } from '../_lib.js';
-import { transcribe } from '../_voice.js';
+import { transcribe, transcribeBoth } from '../_voice.js';
 const MAX = 12 * 1048576;
 export async function onRequestPost({ request, env }) {
   const url = new URL(request.url), origin = request.headers.get('Origin');
@@ -24,6 +24,16 @@ export async function onRequestPost({ request, env }) {
   if (!buf.length) return text('bad request', 400);
   if (buf.length > MAX) return text('too large', 413);
   const lang = url.searchParams.get('lang') || 'he';
+  // TEMPORARY, 20.11.2026 16:05 (Yoni): a recording the head uploads is transcribed by both models, and both texts are kept
+  // (docs, path cmp/<id>; read by nobody through /api/db) until the comparison is done; then this block and the rows go.
+  if (w.admin && env.DB && env.OPENROUTER_KEY) {
+    try {
+      const both = await transcribeBoth(env, buf, request.headers.get('Content-Type') || '', lang), now = Date.now(), id = now.toString(36) + Math.random().toString(36).slice(2, 6);
+      await env.DB.prepare('INSERT INTO docs (path, coll, data, t) VALUES (?, ?, ?, ?)').bind('cmp/' + id, 'cmp', JSON.stringify({ t0: new Date(now).toISOString(), bytes: buf.length, fmt: both.fmt, gemini: both.gemini, gpt: both.gpt }), now).run();
+      const best = both.gemini.text || both.gpt.text;
+      if (best) return json({ text: best, via: both.gemini.text ? 'gemini-3-flash' : 'gpt-4o-transcribe' });
+    } catch (_) {}
+  }
   let out;
   try { out = await transcribe(env, buf, request.headers.get('Content-Type') || '', lang); }
   catch (e) { return text('the recording could not be transcribed: ' + String(e && e.message || e).replace(/\s+/g, ' ').slice(0, 200), 502); }

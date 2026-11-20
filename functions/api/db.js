@@ -16,6 +16,7 @@ async function sweep(env) {
     for (const r of rows) {
       const [, uid, , id] = segs(r.path), priv = 'data/users/' + uid + '/priv/cases/' + id;
       await env.DB.prepare('DELETE FROM docs WHERE path = ? OR path LIKE ? OR path = ? OR path LIKE ?').bind(r.path, r.path + '/%', priv, priv + '/%').run();
+      await env.DB.prepare('DELETE FROM docs WHERE path = ?').bind('log/' + uid + '/orig/' + id).run();   // 20.11.2026: the pasted message kept for the head goes with its case
     }
     // 5.11.2026: the public bot's feedback is kept for one year
     await env.DB.prepare("DELETE FROM docs WHERE coll = 'fb' AND t < ?").bind(now - 365 * 864e5).run();
@@ -103,6 +104,8 @@ export async function onRequestPost({ request, env, waitUntil }) {
     // 5.11.2026 (the blind review: a case the head deleted left the student's message in its private record): from the preview
     // copy (X-Preview), a deleted case takes its private record with it, as the yearly sweep already does
     const sg = segs(path);
+    // 20.11.2026: the pasted message kept for the head (log/<uid>/orig/<case>) is deleted with its case, from every copy
+    if (sg.length === 4 && sg[0] === 'log' && sg[2] === 'cases') await env.DB.prepare('DELETE FROM docs WHERE path = ?').bind('log/' + sg[1] + '/orig/' + sg[3]).run();
     if (request.headers.get('X-Preview') === '1' && sg.length === 4 && sg[0] === 'log' && sg[2] === 'cases') {
       const priv = 'data/users/' + sg[1] + '/priv/cases/' + sg[3];
       await env.DB.prepare('DELETE FROM docs WHERE path = ? OR path LIKE ?').bind(priv, priv + '/%').run();

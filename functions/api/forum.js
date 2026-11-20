@@ -5,7 +5,7 @@
 // are read from a private R2 bucket (binding VIDEOS, objects forum-1.mp4 ... forum-4.mp4) and only for a browser that
 // gave a name. While a video plays the page reports, about every ten seconds, how many seconds were played and how far
 // the viewer got; the head (signed in to the coordinators' bot with his own code) reads the totals.
-//   GET  ?op=me                        -> { name, ready, videos: [{ v, title, by, secs }] }   (name is '' before the first visit)
+//   GET  ?op=me                        -> { name, ready, videos: [{ v, title, by, secs, about }] }   (name is '' before the first visit)
 //   GET  ?v=1..4                       -> the video (Range supported), for a browser that gave a name
 //   POST { op: 'hello', name }         -> { name } and the cookie
 //   POST { op: 'bye' }                 -> the cookie removed ("זה לא אני")
@@ -13,10 +13,10 @@
 //   POST { op: 'report' } (the head)   -> { videos, rows: [{ id, name, created, v, secs, maxpos, opens, first, last }] }
 import { json, text, who, setup, sha } from '../_lib.js';
 const VIDEOS = [
-  { v: 1, title: 'היכרות ותיאום ציפיות', by: 'יוני רעם, רמ"ח אקדמיה', secs: 663 },
-  { v: 2, title: 'ראייה רחבה של תפקיד הרכז ובעיות רוחביות', by: 'אריק, יו"ר האגודה', secs: 1299 },
-  { v: 3, title: 'איך פועלים מול המערכת האוניברסיטאית', by: 'אלעד, רכז אקדמי לשעבר', secs: 1496 },
-  { v: 4, title: 'תהליך העבודה, הבוט והכלים', by: 'יוני רעם, רמ"ח אקדמיה', secs: 1636 }
+  { v: 1, title: 'היכרות ותיאום ציפיות', by: 'יוני רעם, רמ"ח אקדמיה', secs: 663, about: 'מה זה רכז אקדמיה, ייצוג מול ליווי, מה מצפים מכם, מתי מטפלים לבד ומתי יחד, תרגול קצר ואיך נשארים בקשר.' },
+  { v: 2, title: 'ראייה רחבה של תפקיד הרכז ובעיות רוחביות', by: 'אריק, יו"ר האגודה', secs: 1299, about: 'הגופים הארציים (ור״ה, מל״ג, ות״ת), מבנה האקדמיה באוניברסיטה, מתי בעיה היא רוחבית ואיך מקדמים מדיניות.' },
+  { v: 3, title: 'איך פועלים מול המערכת האוניברסיטאית', by: 'אלעד, רכז אקדמי לשעבר', secs: 1451, about: 'מול מי עובדים באוניברסיטה, שבע טעויות נפוצות, מה חשוב להכיר בנה״ל, ושני תרגולים: בוחן עם ממוצע נמוך וחשד להעתקה.' },
+  { v: 4, title: 'תהליך העבודה, הבוט והכלים', by: 'יוני רעם, רמ"ח אקדמיה', secs: 1636, about: 'למה בוט, הדגמה חיה, כללי העבודה איתו, שאלות הרכזים על פרטיות והרשאות, והמשימות לשבוע הקרוב.' }
 ];
 const TOKEN = /^v\.[0-9a-f]{64}$/, YEAR = 31536000;
 // Lax, not Strict: a link opened from WhatsApp or an e-mail must carry the cookie, or the name would be asked every time

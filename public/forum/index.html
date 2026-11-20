@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>פורום אקדמיה 19.11.2026: ההקלטות</title>
+<title>חפיפת רכזים</title>
 <style>
 @font-face{font-family:"Frank Ruhl Libre";font-style:normal;font-weight:700 900;font-display:swap;src:url(/fonts/frank-ruhl-libre-v1.woff) format("woff")}
 @font-face{font-family:"IBM Plex Sans Hebrew";font-style:normal;font-weight:400;font-display:swap;src:url(/fonts/ibm-plex-sans-hebrew-400-v1.woff) format("woff")}
@@ -23,6 +23,10 @@ a.part{display:flex;gap:14px;align-items:center;text-decoration:none;color:inher
 a.part:hover h2,a.part:focus-visible h2{text-decoration:underline}
 .num{flex:none;width:46px;height:46px;border-radius:50%;background:var(--green);color:#F6F3E7;display:grid;place-items:center;font-family:"Frank Ruhl Libre",serif;font-weight:800;font-size:1.3rem}
 .meta{color:var(--soft);font-size:.95rem;margin:0}
+.about{margin:.35em 0 .3em}
+h1.second{margin-top:1.4em}
+h1 a{color:inherit;text-decoration:none}
+h1 a:hover{text-decoration:underline}
 label{display:block;font-weight:500;margin-bottom:6px}
 input[type=text]{width:100%;font:inherit;padding:12px 14px;border:1.5px solid var(--line);border-radius:10px;background:#fff;color:var(--ink)}
 input[type=text]:focus-visible,button:focus-visible,a:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
@@ -38,24 +42,24 @@ video{width:100%;border-radius:12px;background:#000;display:block;aspect-ratio:1
 <body>
 <main>
   <p class="kicker">אגודת הסטודנטים · מחלקת אקדמיה</p>
-  <h1>פורום אקדמיה 19.11.2026: ההקלטות</h1>
+  <h1 id="h1">חפיפת רכזים</h1>
 
   <section id="gate" class="card" hidden>
     <h2>לפני שמתחילים: מי צופה?</h2>
-    <p class="soft">הסרטונים מיועדים לרכזי האקדמיה וליו"רים. מבקשים שם מלא פעם אחת בכל דפדפן.</p>
     <form id="hello" novalidate>
       <label for="name">שם מלא (שם פרטי ושם משפחה)</label>
       <input id="name" type="text" autocomplete="name" maxlength="60" required aria-describedby="nameErr">
       <p id="nameErr" class="err" role="alert"></p>
       <button type="submit">כניסה לסרטונים</button>
     </form>
-    <p class="note">הצפייה נרשמת: השם שהקלדתם, באיזה סרטון צפיתם וכמה זמן. הנתונים גלויים לרמ"ח אקדמיה בלבד.</p>
   </section>
 
   <section id="list" hidden>
-    <div class="row"><p class="soft" id="hi"></p><button class="quiet" id="bye" type="button">זה לא אני</button></div>
-    <p>ארבעה חלקים, כשעה ורבע בסך הכול. ההתארגנות, התקלות וההפסקה ירדו בעריכה.</p>
+    <p class="soft">ההקלטות של פורום אקדמיה, 19.11.2026, בארבעה חלקים.</p>
     <div id="parts"></div>
+    <div class="row" id="me" hidden><p class="soft" id="hi"></p><button class="quiet" id="bye" type="button">זה לא אני</button></div>
+    <h1 class="second"><a href="/forum/connect/">איך מתחברים</a></h1>
+    <a class="part card" href="/forum/connect/"><span class="num" aria-hidden="true">←</span><span><h2>סרטונים קצרים: לאייפון ולאנדרואיד</h2><p class="meta">הבוט כאפליקציה במסך הבית, התראות ויומן, ובאייפון גם שליחת הודעות מוואטסאפ ישר לבוט.</p></span></a>
   </section>
 
   <section id="watch" hidden>
@@ -66,7 +70,6 @@ video{width:100%;border-radius:12px;background:#000;display:block;aspect-ratio:1
     <div style="margin:14px 0"><video id="vid" controls playsinline preload="metadata"></video></div>
     <p class="err" id="werr" role="alert"></p>
     <p id="next"></p>
-    <p class="note">הצפייה נרשמת (שם, סרטון וזמן צפייה) וגלויה לרמ"ח אקדמיה בלבד.</p>
   </section>
 
   <p id="load" class="soft">רגע…</p>
@@ -80,17 +83,19 @@ video{width:100%;border-radius:12px;background:#000;display:block;aspect-ratio:1
   function show() {
     $('load').hidden = true;
     var named = !!state.name;
-    $('gate').hidden = named; $('list').hidden = !named || !!V; $('watch').hidden = !named || !V;
-    if (!named) { $('name').focus(); return; }
+    $('gate').hidden = named || !V; $('list').hidden = !!V; $('watch').hidden = !named || !V;
+    $('h1').textContent = V ? 'חפיפת רכזים: הסרטונים' : 'חפיפת רכזים';
+    if (!named && V) { $('name').focus(); return; }
     if (!V) {
-      $('hi').textContent = 'שלום, ' + state.name + '.';
+      $('me').hidden = !named; $('hi').textContent = named ? 'מחוברים בשם ' + state.name + '.' : '';
       $('parts').innerHTML = '';
       state.videos.forEach(function (x) {
         var a = document.createElement('a'); a.className = 'part card'; a.href = '/forum/?v=' + x.v;
         var n = document.createElement('span'); n.className = 'num'; n.textContent = x.v; n.setAttribute('aria-hidden', 'true');
         var d = document.createElement('span'), h = document.createElement('h2'), p = document.createElement('p');
         h.textContent = x.title; p.className = 'meta'; p.textContent = x.by + ' · ' + fmt(x.secs);
-        d.appendChild(h); d.appendChild(p); a.appendChild(n); a.appendChild(d); $('parts').appendChild(a);
+        var ab = document.createElement('p'); ab.className = 'about'; ab.textContent = x.about || '';
+        d.appendChild(h); d.appendChild(ab); d.appendChild(p); a.appendChild(n); a.appendChild(d); $('parts').appendChild(a);
       });
       return;
     }

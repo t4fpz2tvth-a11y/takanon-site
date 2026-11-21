@@ -76,7 +76,8 @@
         d.innerHTML = '<form dir="rtl" style="background:' + (dark ? '#161D2B' : '#fff') + ';color:' + (dark ? '#E6EAF2' : '#141B2D') + ';max-width:380px;width:100%;box-sizing:border-box;padding:1.5rem;border-radius:12px;display:grid;gap:.75rem">' +
           '<h1 id="tk-title" style="font-size:1.2rem;margin:0">מה אומר התקנון? · גרסת רכזים</h1><p style="margin:0" id="tk-help">הכניסו את קוד הגישה האישי שקיבלתם מרמ"ח (ראש מחלקת אקדמיה).</p>' +
           '<label for="tk-code" style="font-weight:600">קוד גישה</label>' +
-          '<input id="tk-code" type="password" autocomplete="current-password" aria-describedby="tk-help tk-msg" style="font:inherit;font-size:16px;padding:.6rem;border:1px solid ' + (dark ? '#66718A' : '#8A93A6') + ';border-radius:8px;background:' + (dark ? '#0E131E' : '#fff') + ';color:inherit" dir="ltr">' +
+          '<span style="position:relative;display:block"><input id="tk-code" type="password" autocomplete="current-password" aria-describedby="tk-help tk-msg" style="font:inherit;font-size:16px;padding:.6rem;padding-right:3rem;width:100%;box-sizing:border-box;border:1px solid ' + (dark ? '#66718A' : '#8A93A6') + ';border-radius:8px;background:' + (dark ? '#0E131E' : '#fff') + ';color:inherit" dir="ltr">' +
+          '<button type="button" id="tk-eye" aria-label="הצגת הקוד" aria-pressed="false" title="הצגת הקוד" style="position:absolute;top:0;bottom:0;right:0;width:44px;min-height:44px;display:grid;place-items:center;border:0;background:transparent;color:inherit;cursor:pointer;border-radius:8px"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/><path class="tk-eye-off" d="M4 4l16 16" style="display:none"/></svg></button></span>' +
           '<button style="font:inherit;padding:.6rem;min-height:44px;border:0;border-radius:8px;background:' + (dark ? '#9DB2FF' : '#2747B8') + ';color:' + (dark ? '#0E131E' : '#fff') + ';cursor:pointer">כניסה</button><p id="tk-msg" role="alert" style="margin:0;min-height:3.2em;color:' + (dark ? '#FCA5A5' : '#B42318') + '"></p></form>';
         var app = document.querySelector('.app'); if (app) app.inert = true;
         // 5.11.2026 (craft round): everything else on the page is inert too (the skip link was reachable with Tab)
@@ -88,10 +89,13 @@
       if (PV2) {   // 5.11.2026 (the UX audit, #37): the sign-in window in the page's own font and colours, in both themes
         d.style.font = 'inherit'; var fm = d.querySelector('form'); if (fm) { fm.style.background = 'var(--sheet, #fff)'; fm.style.color = 'var(--ink, #141B2D)'; fm.style.fontFamily = 'inherit'; }
         var ci = d.querySelector('#tk-code'); if (ci) { ci.style.background = 'var(--paper, #fff)'; ci.style.color = 'var(--ink, #141B2D)'; ci.style.borderColor = 'var(--field-edge, #8A93A6)'; ci.style.fontFamily = 'inherit'; }
-        var cb = d.querySelector('form button'); if (cb) { cb.style.background = 'var(--accent, #2747B8)'; cb.style.color = 'var(--accent-ink, #fff)'; cb.style.fontFamily = 'inherit'; }
+        var cb = d.querySelector('form button:not(#tk-eye)'); if (cb) { cb.style.background = 'var(--accent, #2747B8)'; cb.style.color = 'var(--accent-ink, #fff)'; cb.style.fontFamily = 'inherit'; }
       }
       document.body.appendChild(d);
       var f = d.querySelector('form');
+      // 21.11.2026 (Yoni): an eye button shows or hides the typed code
+      (function () { var eye = d.querySelector('#tk-eye'), inp = d.querySelector('#tk-code'); if (!eye || !inp) return;
+        eye.addEventListener('click', function () { var show = inp.type === 'password'; inp.type = show ? 'text' : 'password'; eye.setAttribute('aria-pressed', show ? 'true' : 'false'); var lb = show ? 'הסתרת הקוד' : 'הצגת הקוד'; eye.setAttribute('aria-label', lb); eye.title = lb; var off = eye.querySelector('.tk-eye-off'); if (off) off.style.display = show ? '' : 'none'; inp.focus(); }); })();
       d.querySelector('#tk-code').focus();
       f.addEventListener('submit', async function (e) {
         e.preventDefault();

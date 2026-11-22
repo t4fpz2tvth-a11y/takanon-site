@@ -107,6 +107,7 @@ export function allowed(u, path, write, op) {
   if (s[0] === 'answers') return u.admin;
   if (s[0] === 'fb') return u.admin;   // 5.11.2026: the public bot's feedback, for the head only
   if (s[0] === 'miss') return u.admin;   // 16.11.2026: the questions that were not found, for the head only
+  if (s[0] === 'fail') return u.admin && op !== 'add' && op !== 'set' && op !== 'update';   // 22.11.2026: the log of the bot's failures; the head reads and deletes, only the server writes
   return false;
 }
 
@@ -125,4 +126,46 @@ export async function humanOk(request, env) {
     if (!m || Number(m[1]) < Date.now()) return false;
     return (await humanSig(env, m[1])) === m[2];
   } catch (_) { return false; }
+}
+
+// 22.11.2026 (Yoni: "צור לי לשונית תחת ניהול בה יהיה כתוב תיעוד של פעמים שהבוט לא מצליח לתפקד", "ושיהיה הסבר למה ופירוט בכל
+// הניתן"): every time a bot could not answer, one row (docs, path fail/<id>; the head alone reads it, in the "תקלות" tab of
+// "ניהול"). What is kept: when, which bot, what kind of failure, the status and the error text the model's service returned,
+// the model, the route (gateway or direct), how long it took, the kind of device, and for a signed-in coordinator the name.
+// Never the question or the answer. Identity numbers, e-mail addresses and keys are scrubbed from the error text.
+// At most 40 rows of one kind in an hour (a credit that ran out fails every question), kept 180 days.
+const failScrub = (s) => String(s == null ? '' : s).replace(/sk-or-[\w-]+/g, '[מפתח הוסר]').replace(/Bearer\s+\S+/gi, '[מפתח הוסר]').replace(/\b\d{9}\b/g, '[ת״ז הוסרה]').replace(/[\w.+-]+@[\w-]+\.[\w.-]+/g, '[מייל הוסר]').replace(/\s+/g, ' ').trim();
+export const botOf = (request) => { try { return /^\/coord/.test(new URL(request.headers.get('Referer') || '').pathname) ? 'coord' : 'public'; } catch (_) { return 'public'; } };
+export const deviceOf = (request) => { const u = request.headers.get('User-Agent') || '';
+  const os = /iPhone|iPad/.test(u) ? 'אייפון' : /Android/.test(u) ? 'אנדרואיד' : /Macintosh/.test(u) ? 'מק' : /Windows/.test(u) ? 'חלונות' : /Linux/.test(u) ? 'לינוקס' : 'לא ידוע';
+  const br = /Edg\//.test(u) ? 'אדג׳' : /CriOS|Chrome\//.test(u) ? 'כרום' : /Firefox|FxiOS/.test(u) ? 'פיירפוקס' : /Safari\//.test(u) ? 'ספארי' : '';
+  return os + (br ? ', ' + br : ''); };
+// which kind of failure a status of the model's service is
+export function failKind(status, body) {
+  const b = String(body || '');
+  if (status === 402) return 'credit';
+  if (/data policy|No endpoints found|no allowed providers|No allowed providers/i.test(b)) return 'policy';
+  if (status === 401) return 'key';
+  if (status === 403) return /moderation|flagged/i.test(b) ? 'moderation' : /limit|credit|quota/i.test(b) ? 'credit' : 'key';
+  if (status === 429) return 'upstream-rate';
+  if (status === 408 || status === 504 || status === 524) return 'timeout';
+  if (status >= 500) return 'provider';
+  return 'other';
+}
+export async function failLog(env, ev) {
+  try {
+    if (!env || !env.DB) return;
+    await setup(env);
+    const now = Date.now(), kind = String(ev.kind || 'other').replace(/[^a-z-]/g, '').slice(0, 24) || 'other';
+    const c = await env.DB.prepare("SELECT COUNT(*) AS n FROM docs WHERE coll = 'fail' AND t > ? AND data LIKE ?").bind(now - 3600e3, '%"kind":"' + kind + '"%').first();
+    if (c && c.n >= 40) return;
+    const at = Number(ev.at) > now - 7 * 864e5 && Number(ev.at) <= now ? Number(ev.at) : now;
+    const data = { t0: new Date(at).toISOString(), src: ev.src === 'page' ? 'page' : 'server', bot: ev.bot === 'coord' ? 'coord' : 'public', kind,
+      status: Number(ev.status) || 0, model: String(ev.model || '').slice(0, 80), via: String(ev.via || '').slice(0, 200), ms: Math.max(0, Math.min(36e5, Number(ev.ms) || 0)),
+      stream: ev.stream === true, got: ev.got === true, online: ev.online !== false, who: failScrub(ev.who).slice(0, 60), device: String(ev.device || '').slice(0, 40),
+      build: String(ev.build || '').replace(/[^0-9a-f]/g, '').slice(0, 8), msg: failScrub(ev.msg).slice(0, 700) };
+    if (at !== now) data.sent = new Date(now).toISOString();
+    await env.DB.prepare('INSERT INTO docs (path, coll, data, t) VALUES (?, ?, ?, ?)').bind('fail/' + now.toString(36) + Math.random().toString(36).slice(2, 6), 'fail', JSON.stringify(data), now).run();
+    if (Math.random() < 0.02) await env.DB.prepare("DELETE FROM docs WHERE coll = 'fail' AND t < ?").bind(now - 180 * 864e5).run();
+  } catch (_) {}
 }

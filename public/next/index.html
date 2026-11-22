@@ -35,7 +35,28 @@
     if (!r.ok) { var t = ''; try { t = await r.text(); } catch (_) {} throw err('error', 'השרת לא ענה (' + r.status + ') ' + t.slice(0, 200)); }
     return r;
   }
+
+  // 22.11.2026 (Yoni: the log of the bot's failures, "ופירוט בכל הניתן"): what the server cannot see is reported from here
+  // (/api/fail): no connection from this device, an answer cut in the middle, an error inside the stream, an empty answer.
+  // Never the question or the answer. A report that cannot be sent (offline) waits in this browser and goes out later.
+  var FAILQ = 'tk-fail-q';
+  function failFlush() { try { var q = JSON.parse(localStorage.getItem(FAILQ) || '[]'); if (!q.length || navigator.onLine === false) return; localStorage.removeItem(FAILQ);
+    q.slice(0, 10).forEach(function (b) { fetch('/api/fail', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(b), keepalive: true }).then(function (r) { if (!r.ok && r.status !== 429 && r.status !== 400 && r.status !== 403) throw 0; }).catch(function () { try { var w = JSON.parse(localStorage.getItem(FAILQ) || '[]'); if (w.length < 10) { w.push(b); localStorage.setItem(FAILQ, JSON.stringify(w)); } } catch (_) {} }); }); } catch (_) {} }
+  function failReport(kind, e, t0, got) { try { if (BENCH_MODEL) return; var bld = ''; try { bld = typeof BUILD !== 'undefined' ? String(BUILD) : ''; } catch (_) {}
+    var q = []; try { q = JSON.parse(localStorage.getItem(FAILQ) || '[]'); } catch (_) {}
+    if (q.length < 10) { q.push({ code: kind, msg: String(e && e.message || '').slice(0, 300), ms: Date.now() - t0, got: !!got, online: navigator.onLine !== false, build: bld, at: Date.now() }); localStorage.setItem(FAILQ, JSON.stringify(q)); }
+    failFlush(); } catch (_) {} }
+  try { addEventListener('online', failFlush); setTimeout(failFlush, 4000); } catch (_) {}
   async function sample(input, opts) {
+    var t0 = Date.now(), got = false, o = Object.assign({}, opts || {}), ot = o.onText;
+    o.onText = function (x) { got = true; if (ot) ot(x); };
+    try { var res = await sample0(input, o); if (!res || !String(res.text || '').trim()) failReport('empty', null, t0, got); return res; }
+    catch (e) { var c = e && e.code;
+      // the server already wrote its own row for an error status it returned
+      if (c !== 'cancelled' && c !== 'rate_limited' && c !== 'service_down' && String(e && e.message || '').indexOf('השרת לא ענה (') !== 0) failReport(c === 'network' ? 'network' : got ? 'cut' : 'stream', e, t0, got);
+      throw e; }
+  }
+  async function sample0(input, opts) {
     opts = opts || {};
     var r = await post(input, opts, true), reader = r.body.getReader(), dec = new TextDecoder(), buf = '', text = '', finish = '';
     try {

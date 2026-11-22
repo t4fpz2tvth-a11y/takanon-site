@@ -1,4 +1,4 @@
-import { who, setup, sha, humanOk } from '../_lib.js';
+import { who, setup, sha, humanOk, failLog, failKind, botOf, deviceOf } from '../_lib.js';
 // "מה אומר התקנון?" — the site's own small server function (Cloudflare Pages Function, 3.11.2026), at /api/chat.
 // It keeps the OpenRouter key (the secret OPENROUTER_KEY, set in the Cloudflare project's settings, never in this code),
 // answers only the site itself, limits each visitor's questions, and passes the model's answer back as it is written.
@@ -31,12 +31,15 @@ async function overLimit(env, keys) {   // keys: [[key, per hour], ...]
   });
 }
 const json = (s, status) => new Response(s, { status, headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' } });
-export async function onRequestPost({ request, env }) {
+export async function onRequestPost(context) {
+  const { request, env } = context, t00 = Date.now();
+  // 22.11.2026 (Yoni: the log of the bot's failures): written after the answer has gone out, never holding it back; not for comparison runs
+  const noteFail = (ev) => { const p = failLog(env, Object.assign({ bot: botOf(request), device: deviceOf(request), ms: Date.now() - t00 }, ev)); try { context.waitUntil(p); } catch (_) {} };
   const url = new URL(request.url), origin = request.headers.get('Origin');
   if (origin && origin !== url.origin) return json('forbidden', 403);   // only the site itself
   // 4.11.2026 (security review): a browser always sends Origin on these calls; a call without one is not the site's page
   if (!origin && request.headers.get('Sec-Fetch-Site') !== 'same-origin' && !url.searchParams.has('test')) return json('forbidden', 403);
-  if (!env.OPENROUTER_KEY || !env.MODEL) return json('the server is not set up yet (OPENROUTER_KEY, MODEL)', 503);
+  if (!env.OPENROUTER_KEY || !env.MODEL) { noteFail({ kind: 'config', status: 503, msg: 'OPENROUTER_KEY or MODEL is not set in the site\'s settings' }); return json('the server is not set up yet (OPENROUTER_KEY, MODEL)', 503); }
   const test = url.searchParams.has('test');
   if ((test || 'model' in Object.fromEntries(url.searchParams)) && !((w => w.admin || w.bench)(await who(request, env) || {}))) return json('the comparison runs for the head only', 403);
   const ip = request.headers.get('CF-Connecting-IP') || 'x';
@@ -64,7 +67,7 @@ export async function onRequestPost({ request, env }) {
       if (!env.DB) throw new Error('no storage');
       over = await overLimit(env, own ? [['u:' + me.uid, perC]] : [['c:' + (await sha(cid + '|hits')).slice(0, 24), perB], ['ip:' + (await sha(ip + '|hits')).slice(0, 24), perIp]]);
     } catch (_) { over = limited(own ? 'u:' + me.uid : ip, own ? perC : perB); }   // the storage did not answer: the count in memory, as before
-    if (over) return json('too many', 429);
+    if (over) { noteFail({ kind: 'limit', status: 429, who: own ? me.name : '', msg: own ? 'the coordinator passed COORD_PER_HOUR (' + perC + ' an hour)' : 'a visitor passed PER_HOUR (' + perB + ' an hour per browser) or IP_PER_HOUR (' + perIp + ' an hour per address)' }); return json('too many', 429); }
     // 10.11.2026 (the Fable review, #3): the page builds the prompt, so this function passes on any text, and a script that
     // changes its browser id is held only by the address cap: the key's credit could be drained and both bots stopped. One
     // count for all visitors who are not signed in, by the day (PUBLIC_PER_DAY, default 2000 calls, about 1,000 questions);
@@ -73,7 +76,7 @@ export async function onRequestPost({ request, env }) {
     if (!own && env.DB) try {
       const day = Math.floor(Date.now() / 864e5) + 10000000;   // above the hours' numbers, so their clean-up leaves it
       const g = await env.DB.prepare("INSERT INTO hits (k, h, n) VALUES ('g:public', ?, 1) ON CONFLICT (k, h) DO UPDATE SET n = n + 1 RETURNING n").bind(day).first();
-      if (g && g.n > Number(env.PUBLIC_PER_DAY || 2000)) return json('the daily budget of the public bot is used up', 503);
+      if (g && g.n > Number(env.PUBLIC_PER_DAY || 2000)) { noteFail({ kind: 'budget', status: 503, msg: 'PUBLIC_PER_DAY (' + Number(env.PUBLIC_PER_DAY || 2000) + ' calls a day) is used up; call number ' + g.n + ' today' }); return json('the daily budget of the public bot is used up', 503); }
     } catch (_) {}
   }
   let body;
@@ -121,7 +124,9 @@ export async function onRequestPost({ request, env }) {
     // asks OpenRouter for providers that keep no data; ?private=1 on a comparison call tries it before the setting is turned on
   const orBody = JSON.stringify(Object.assign(test && Array.isArray(body.tools) ? { tools: body.tools, tool_choice: body.tool_choice || 'auto' } : {}, { model, messages, stream: !!body.stream, max_tokens: big ? Math.min(32000, Math.max(body.stream ? 16000 : 8000, body.max_tokens | 0)) : (body.stream ? Math.min(12000, Math.max(6000, body.max_tokens | 0)) : 2000), temperature: 0.2, usage: { include: true } }, exp.has('noreason') ? {} : exp.has('reasonoff') ? { reasoning: { enabled: false } } : exp.has('reasonmin') ? { reasoning: { effort: 'minimal', exclude: true } } : { reasoning: { effort: 'low', exclude: true } },
       // 5.11.2026 (the blind review): the preview copies (/next/, /coord-next/, the header X-Preview) always ask for providers that keep nothing
-      env.PRIVACY === '1' || request.headers.get('X-Preview') === '1' || (test && url.searchParams.has('private')) ? { provider: { data_collection: 'deny' } } : {}));
+      // 22.11.2026 (Yoni: "מקבל", after OpenRouter's notice that a provider's stored requests were read): every live call, of both
+      // bots, asks for providers that keep nothing; a comparison run stays as it was (its questions are test questions)
+      !test || env.PRIVACY === '1' || request.headers.get('X-Preview') === '1' || (test && url.searchParams.has('private')) ? { provider: { data_collection: 'deny' } } : {}));
   const orCall = () => fetch('https://openrouter.ai/api/v1/chat/completions', { method: 'POST', headers: orHeaders, body: orBody });
   // 17.11.2026: Cloudflare's AI Gateway between this function and OpenRouter (the project's binding AI). The prompt and the answer are never kept in
   // the gateway's log (cf-aig-collect-log-payload: false): only the count, the model, the cost and the time. Any failure
@@ -152,6 +157,11 @@ export async function onRequestPost({ request, env }) {
       }
     } catch (e) { via = 'direct (the gateway failed: ' + String(e && e.message || e).replace(/\s+/g, ' ').slice(0, 120) + ')'; }
   }
-  if (!r) r = await orCall();
+  if (!r) try { r = await orCall(); } catch (e) {
+    if (!test) noteFail({ kind: 'server-network', status: 0, model, via, stream: !!body.stream, who: own ? me.name : '', msg: String(e && e.message || e) });
+    return json('the model\'s service could not be reached', 502);
+  }
+  if (!test && !r.ok) { let et = ''; try { et = await r.clone().text(); } catch (_) {}
+    noteFail({ kind: failKind(r.status, et), status: r.status, model, via, stream: !!body.stream, who: own ? me.name : '', msg: et }); }
   return new Response(r.body, { status: r.status, headers: { 'Content-Type': r.headers.get('Content-Type') || 'application/json', 'Cache-Control': 'no-store', 'X-Via': via.replace(/[^\x20-\x7e]/g, '?'), 'X-Aig-Log': logNote.replace(/[^\x20-\x7e]/g, '?').slice(0, 1500) } });
 }

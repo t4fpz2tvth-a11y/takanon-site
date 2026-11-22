@@ -76,8 +76,7 @@
         d.innerHTML = '<form dir="rtl" style="background:' + (dark ? '#161D2B' : '#fff') + ';color:' + (dark ? '#E6EAF2' : '#141B2D') + ';max-width:380px;width:100%;box-sizing:border-box;padding:1.5rem;border-radius:12px;display:grid;gap:.75rem">' +
           '<h1 id="tk-title" style="font-size:1.2rem;margin:0">מה אומר התקנון? · גרסת רכזים</h1><p style="margin:0" id="tk-help">הכניסו את קוד הגישה האישי שקיבלתם מרמ"ח (ראש מחלקת אקדמיה).</p>' +
           '<label for="tk-code" style="font-weight:600">קוד גישה</label>' +
-          '<span style="position:relative;display:block"><input id="tk-code" type="password" autocomplete="current-password" aria-describedby="tk-help tk-msg" style="font:inherit;font-size:16px;padding:.6rem;padding-right:3rem;width:100%;box-sizing:border-box;border:1px solid ' + (dark ? '#66718A' : '#8A93A6') + ';border-radius:8px;background:' + (dark ? '#0E131E' : '#fff') + ';color:inherit" dir="ltr">' +
-          '<button type="button" id="tk-eye" aria-label="הצגת הקוד" aria-pressed="false" title="הצגת הקוד" style="position:absolute;top:0;bottom:0;right:0;width:44px;min-height:44px;display:grid;place-items:center;border:0;background:transparent;color:inherit;cursor:pointer;border-radius:8px"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/><path class="tk-eye-off" d="M4 4l16 16" style="display:none"/></svg></button></span>' +
+          '<input id="tk-code" type="password" autocomplete="current-password" aria-describedby="tk-help tk-msg" style="font:inherit;font-size:16px;padding:.6rem;border:1px solid ' + (dark ? '#66718A' : '#8A93A6') + ';border-radius:8px;background:' + (dark ? '#0E131E' : '#fff') + ';color:inherit" dir="ltr">' +
           '<button style="font:inherit;padding:.6rem;min-height:44px;border:0;border-radius:8px;background:' + (dark ? '#9DB2FF' : '#2747B8') + ';color:' + (dark ? '#0E131E' : '#fff') + ';cursor:pointer">כניסה</button><p id="tk-msg" role="alert" style="margin:0;min-height:3.2em;color:' + (dark ? '#FCA5A5' : '#B42318') + '"></p></form>';
         var app = document.querySelector('.app'); if (app) app.inert = true;
         // 5.11.2026 (craft round): everything else on the page is inert too (the skip link was reachable with Tab)
@@ -89,13 +88,10 @@
       if (PV2) {   // 5.11.2026 (the UX audit, #37): the sign-in window in the page's own font and colours, in both themes
         d.style.font = 'inherit'; var fm = d.querySelector('form'); if (fm) { fm.style.background = 'var(--sheet, #fff)'; fm.style.color = 'var(--ink, #141B2D)'; fm.style.fontFamily = 'inherit'; }
         var ci = d.querySelector('#tk-code'); if (ci) { ci.style.background = 'var(--paper, #fff)'; ci.style.color = 'var(--ink, #141B2D)'; ci.style.borderColor = 'var(--field-edge, #8A93A6)'; ci.style.fontFamily = 'inherit'; }
-        var cb = d.querySelector('form button:not(#tk-eye)'); if (cb) { cb.style.background = 'var(--accent, #2747B8)'; cb.style.color = 'var(--accent-ink, #fff)'; cb.style.fontFamily = 'inherit'; }
+        var cb = d.querySelector('form button'); if (cb) { cb.style.background = 'var(--accent, #2747B8)'; cb.style.color = 'var(--accent-ink, #fff)'; cb.style.fontFamily = 'inherit'; }
       }
       document.body.appendChild(d);
       var f = d.querySelector('form');
-      // 21.11.2026 (Yoni): an eye button shows or hides the typed code
-      (function () { var eye = d.querySelector('#tk-eye'), inp = d.querySelector('#tk-code'); if (!eye || !inp) return;
-        eye.addEventListener('click', function () { var show = inp.type === 'password'; inp.type = show ? 'text' : 'password'; eye.setAttribute('aria-pressed', show ? 'true' : 'false'); var lb = show ? 'הסתרת הקוד' : 'הצגת הקוד'; eye.setAttribute('aria-label', lb); eye.title = lb; var off = eye.querySelector('.tk-eye-off'); if (off) off.style.display = show ? '' : 'none'; inp.focus(); }); })();
       d.querySelector('#tk-code').focus();
       f.addEventListener('submit', async function (e) {
         e.preventDefault();
@@ -165,7 +161,28 @@
     for (var i = msgs.length - 1; i >= 0; i--) if (msgs[i].role === 'user') { msgs[i].content = typeof msgs[i].content === 'string' ? parts(msgs[i].content) : msgs[i].content; break; }
     return msgs;
   }
+
+  // 22.11.2026 (Yoni: the log of the bot's failures, "ופירוט בכל הניתן"): what the server cannot see is reported from here
+  // (/api/fail): no connection from this device, an answer cut in the middle, an error inside the stream, an empty answer.
+  // Never the question or the answer. A report that cannot be sent (offline) waits in this browser and goes out later.
+  var FAILQ = 'tk-fail-q';
+  function failFlush() { try { var q = JSON.parse(localStorage.getItem(FAILQ) || '[]'); if (!q.length || navigator.onLine === false) return; localStorage.removeItem(FAILQ);
+    q.slice(0, 10).forEach(function (b) { fetch('/api/fail', { method: 'POST', headers: Object.assign({ 'Content-Type': 'application/json' }, code ? { 'X-Code': encodeURIComponent(code) } : {}), body: JSON.stringify(b), keepalive: true }).then(function (r) { if (!r.ok && r.status !== 429 && r.status !== 400 && r.status !== 403) throw 0; }).catch(function () { try { var w = JSON.parse(localStorage.getItem(FAILQ) || '[]'); if (w.length < 10) { w.push(b); localStorage.setItem(FAILQ, JSON.stringify(w)); } } catch (_) {} }); }); } catch (_) {} }
+  function failReport(kind, e, t0, got) { try { if (BENCH) return; var bld = ''; try { bld = typeof BUILD !== 'undefined' ? String(BUILD) : ''; } catch (_) {}
+    var q = []; try { q = JSON.parse(localStorage.getItem(FAILQ) || '[]'); } catch (_) {}
+    if (q.length < 10) { q.push({ code: kind, msg: String(e && e.message || '').slice(0, 300), ms: Date.now() - t0, got: !!got, online: navigator.onLine !== false, build: bld, at: Date.now() }); localStorage.setItem(FAILQ, JSON.stringify(q)); }
+    failFlush(); } catch (_) {} }
+  try { addEventListener('online', failFlush); setTimeout(failFlush, 4000); } catch (_) {}
   async function sample(input, opts) {
+    var t0 = Date.now(), got = false, o = Object.assign({}, opts || {}), ot = o.onText;
+    o.onText = function (x) { got = true; if (ot) ot(x); };
+    try { var res = await sample0(input, o); if (!res || !String(res.text || '').trim()) failReport('empty', null, t0, got); return res; }
+    catch (e) { var c = e && e.code;
+      // the server already wrote its own row for an error status it returned
+      if (c !== 'cancelled' && c !== 'rate_limited' && c !== 'service_down' && String(e && e.message || '').indexOf('השרת לא ענה (') !== 0) failReport(c === 'network' ? 'network' : got ? 'cut' : 'stream', e, t0, got);
+      throw e; }
+  }
+  async function sample0(input, opts) {
     opts = opts || {}; await meReady;
     input = await withImages(input, opts.images);
     var r = await call('/api/chat', Object.assign({ input: input, tier: opts.modelTier || 'default', stream: true }, opts.maxTokens ? { max_tokens: opts.maxTokens | 0 } : {}), opts.signal);   // 6.11.2026: a longer answer's room (the site caps it)
@@ -328,6 +345,95 @@
     tapOut(d, function () { d.querySelector('#tk-ms-close').click(); });
     load(); setTimeout(function () { var h = d.querySelector('#tk-ms-t'); if (h) { h.setAttribute('tabindex', '-1'); h.focus(); } }, 0);
   }
+  // 22.11.2026 (Yoni: "צור לי לשונית תחת ניהול בה יהיה כתוב תיעוד של פעמים שהבוט לא מצליח לתפקד", "ושיהיה הסבר למה ופירוט בכל
+  // הניתן"): the log of the bots' failures, newest first. Each row: when, which bot, what happened, why, what the user saw, what
+  // to do, and every technical detail the server and the page kept (never the question or the answer)
+  var FAIL_KINDS = {
+    credit: ['נגמר הקרדיט למודל', 'החשבון באופן־ראוטר נשאר בלי קרדיט, או שהמפתח של הבוט הגיע לתקרת ההוצאה שהוגדרה לו. עד שמוסיפים קרדיט, שני הבוטים לא עונים לאף אחד.', 'הודעה שהבוט לא זמין כרגע לכולם.', 'להוסיף קרדיט באופן־ראוטר (Credits), או להעלות את תקרת המפתח (Keys).'],
+    key: ['המפתח של הבוט נדחה', 'אופן־ראוטר דחה את המפתח שהבוט משתמש בו: הוא בוטל, הוחלף או נחסם.', 'הודעה שהבוט לא זמין כרגע לכולם.', 'לבדוק את המפתח באופן־ראוטר (Keys), ואם הוחלף, לעדכן את הסוד OPENROUTER_KEY בהגדרות האתר בקלאודפלייר.'],
+    policy: ['אין ספקית שעומדת בדרישת הפרטיות', 'הבוט מבקש מאופן־ראוטר רק ספקיות שלא שומרות את תוכן הבקשות. ברגע הזה לא הייתה ספקית כזו שמגישה את המודל.', 'הודעה שהבוט לא זמין, או שהשרת לא ענה.', 'אם זה חוזר: לבדוק את הגדרות הפרטיות באופן־ראוטר (Settings, Privacy), או להחליף מודל. לעדכן את קלוד.'],
+    moderation: ['הבקשה נחסמה בסינון תוכן', 'אופן־ראוטר או הספקית חסמו את הבקשה בגלל סינון התוכן שלהם.', 'הודעה שהבוט לא זמין, או שהשרת לא ענה.', 'בדרך כלל אין מה לעשות. אם זה חוזר על שאלות רגילות, לעדכן את קלוד.'],
+    'upstream-rate': ['הספקית של המודל עמוסה', 'אופן־ראוטר או הספקית שמריצה את המודל הגבילו את קצב הבקשות (עומס אצלם). בדרך כלל חולף בתוך דקות.', 'הודעה שיש יותר מדי שאלות בזמן קצר, ולנסות שוב בעוד כמה דקות.', 'לחכות. אם זה נמשך יותר משעה, לבדוק באופן־ראוטר אם יש הגבלה על החשבון.'],
+    timeout: ['המודל לא ענה בזמן', 'הספקית שמריצה את המודל לא החזירה תשובה בזמן שהוקצב.', 'הודעה שהבוט לא זמין כרגע.', 'בדרך כלל חולף מעצמו. אם זה חוזר הרבה, לשקול מודל או ספקית אחרים.'],
+    provider: ['תקלה אצל ספקית המודל', 'אופן־ראוטר, או הספקית שמריצה את המודל, החזירו שגיאת שרת. התקלה אצלם, לא באתר.', 'הודעה שהבוט לא זמין כרגע לכולם.', 'לחכות ולנסות שוב. אפשר לבדוק את דף המצב של אופן־ראוטר.'],
+    'server-network': ['השרת של האתר לא הגיע לאופן־ראוטר', 'הקריאה מהשרת של האתר (קלאודפלייר) לאופן־ראוטר נכשלה לפני שהתקבלה תשובה כלשהי.', 'הודעה שהשרת לא ענה.', 'בדרך כלל חולף מעצמו. אם זה נמשך, לבדוק אם יש תקלה בקלאודפלייר או באופן־ראוטר.'],
+    config: ['האתר לא מוגדר', 'בהגדרות האתר בקלאודפלייר חסר המפתח (OPENROUTER_KEY) או שם המודל (MODEL).', 'הודעה שהבוט לא זמין כרגע לכולם.', 'להחזיר את ההגדרות החסרות בקלאודפלייר. לעדכן את קלוד.'],
+    limit: ['משתמש עבר את מכסת השאלות לשעה', 'זו הגנה של הבוט עצמו מפני שימוש חריג: מי ששואל הרבה מאוד בשעה אחת נעצר לזמן קצר. הבוט המשיך לעבוד לכל השאר.', 'הודעה שיש יותר מדי שאלות בזמן קצר, ולנסות שוב בעוד כמה דקות.', 'אם זה רכז בעבודה רגילה, אפשר להעלות את המכסה (COORD_PER_HOUR). אם זה חוזר מהבוט הציבורי, ייתכן שמישהו מנסה לנצל את הבוט.'],
+    budget: ['הבוט הציבורי עבר את המכסה היומית', 'לבוט הציבורי יש תקרה יומית של קריאות למודל, כדי שלא ירוקנו את הקרדיט. היא נוצלה, והוא חוזר לענות למחרת. בוט הרכזים המשיך לעבוד.', 'הודעה שהבוט לא זמין כרגע לכולם.', 'אם זה שימוש אמיתי של סטודנטים, להעלות את התקרה (PUBLIC_PER_DAY). אם לא, לבדוק מי שואל כל כך הרבה.'],
+    network: ['אין חיבור מהמכשיר של המשתמש', 'הדפדפן של המשתמש לא הצליח להגיע לשרת של האתר. כמעט תמיד זו קליטה או אינטרנט אצל המשתמש, לא תקלה בבוט.', 'הודעה שאין חיבור לשרת.', 'אין מה לעשות, אלא אם יש הרבה דיווחים כאלה ממשתמשים שונים באותו זמן: אז ייתכן שהאתר עצמו לא היה זמין.'],
+    cut: ['התשובה נקטעה באמצע', 'התשובה התחילה להיכתב ונעצרה לפני הסוף: ניתוק רשת אצל המשתמש, או שהספקית של המודל ניתקה את התשובה.', 'תשובה חלקית, והודעה שהתשובה נקטעה.', 'אם זה קורה לאותו משתמש, זו כנראה הקליטה שלו. אם זה קורה לרבים באותו זמן, התקלה אצל הספקית.'],
+    stream: ['המודל החזיר שגיאה במקום תשובה', 'השרת קיבל את השאלה, אבל במקום תשובה הגיעה שגיאה מהמודל או מהספקית, לפני שנכתבה מילה.', 'הודעה שהתשובה נקטעה, עם אפשרות לנסות שוב.', 'לנסות שוב. אם זה חוזר, הפירוט הטכני למטה אומר מה הספקית החזירה; לעדכן את קלוד.'],
+    empty: ['המודל החזיר תשובה ריקה', 'הקריאה הצליחה, אבל המודל לא כתב שום דבר.', 'הודעה שלא התקבלה תשובה.', 'לנסות שוב. אם זה חוזר על אותה שאלה, לעדכן את קלוד.'],
+    voice: ['תמלול הקלטה נכשל', 'ההקלטה שרכז צירף לא תומללה: שלושת מודלי התמלול נכשלו, או שהקובץ בפורמט שלא נתמך.', 'הודעה שההקלטה לא תומללה.', 'לנסות שוב, או להמיר את ההקלטה. הפירוט הטכני למטה אומר מה כל מודל החזיר.'],
+    page: ['תקלה בדף', 'הדף דיווח על תקלה מסוג שאין לו עדיין הסבר.', 'לא ידוע.', 'לעדכן את קלוד עם הפירוט הטכני.'],
+    other: ['תקלה אחרת', 'אופן־ראוטר החזיר שגיאה מסוג שאין לו עדיין הסבר כאן.', 'הודעה שהשרת לא ענה.', 'לעדכן את קלוד עם הפירוט הטכני.'] };
+  function failTab(btn) {
+    var dk = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches;
+    var esc = function (s) { return String(s == null ? '' : s).replace(/[<>&"]/g, function (c) { return { '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;' }[c]; }); };
+    var line = 'var(--field-edge, #8A93A6)', soft = dk ? '#9BA5BA' : '#566079', bs = 'font:inherit;min-height:44px;padding:0 1rem;border-radius:10px;border:1px solid ' + line + ';background:transparent;color:inherit;cursor:pointer';
+    var d = document.createElement('div'); d.setAttribute('role', 'dialog'); d.setAttribute('aria-modal', 'true'); d.setAttribute('aria-labelledby', 'tk-fl-t');
+    d.setAttribute('style', 'position:fixed;inset:0;z-index:100;background:rgba(14,19,30,.6);display:grid;place-items:center;padding:16px;font:15px/1.6 inherit');
+    d.innerHTML = '<div dir="rtl" style="background:' + (dk ? '#161D2B' : '#fff') + ';color:' + (dk ? '#E6EAF2' : '#141B2D') + ';max-width:680px;width:100%;box-sizing:border-box;padding:1.2rem;border-radius:14px;display:grid;gap:.7rem;max-height:90vh;overflow:auto">' +
+      '<div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><h2 id="tk-fl-t" style="font-size:1.15rem;margin:0">תקלות: מתי הבוט לא הצליח לענות</h2><button type="button" id="tk-fl-close" style="' + bs + '">סגירה</button></div>' +
+      '<p style="margin:0;color:' + soft + ';font-size:.9rem">כל פעם שאחד הבוטים לא הצליח לענות, מ־22.11.2026: מה קרה, למה, מה המשתמש ראה ומה אפשר לעשות. השאלה והתשובה עצמן לא נשמרות כאן. עד 40 רשומות מאותו סוג בשעה; נשמר חצי שנה.</p>' +
+      '<p id="tk-fl-sum" style="margin:0"></p>' +
+      '<div style="display:flex;gap:6px;flex-wrap:wrap"><button type="button" id="tk-fl-copy" style="' + bs + '">העתקת הרשימה</button><button type="button" id="tk-fl-clear" style="' + bs + '">מחיקת כל מה שמוצג</button></div>' +
+      '<p id="tk-fl-say" role="status" style="margin:0;min-height:1.4em"></p><div id="tk-fl-list">טוען…</div></div>';
+    var app = document.querySelector('.app'), bar = btn.closest('div'); if (app) app.inert = true; if (bar) bar.inert = true;
+    var rows = [];
+    var done = function () { document.removeEventListener('keydown', onKey, true); if (app) app.inert = false; if (bar) bar.inert = false; btn.textContent = rows.length ? 'תקלות (' + rows.length + ')' : 'תקלות'; try { btn.focus(); } catch (_) {} };
+    var onKey = function (e) { if (e.key === 'Escape' && d.isConnected && !document.querySelector('[role="alertdialog"]')) { e.preventDefault(); d.remove(); done(); } };
+    document.addEventListener('keydown', onKey, true);
+    document.body.appendChild(d);
+    var list = d.querySelector('#tk-fl-list'), say = d.querySelector('#tk-fl-say'), sum = d.querySelector('#tk-fl-sum');
+    var when = function (t) { try { return new Date(t).toLocaleString('he-IL', { day: 'numeric', month: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' }); } catch (_) { return String(t || ''); } };
+    var K = function (x) { return FAIL_KINDS[x.kind] || FAIL_KINDS.other; };
+    var botName = function (x) { return x.bot === 'coord' ? 'בוט הרכזים' : 'הבוט הציבורי'; };
+    var secs = function (ms) { return ms ? (ms < 1000 ? ms + ' אלפיות שנייה' : (Math.round(ms / 100) / 10) + ' שניות') : ''; };
+    // every detail that was kept, each with its name
+    function details(x) {
+      var o = [];
+      o.push(['מי זיהה את התקלה', x.src === 'page' ? 'הדף, במכשיר של המשתמש' : 'השרת של האתר']);
+      if (x.status) o.push(['קוד השגיאה שחזר', String(x.status)]);
+      if (x.model) o.push(['המודל', x.model]);
+      if (x.via) o.push(['הדרך לאופן־ראוטר', x.via === 'gateway' ? 'דרך שער הבינה של קלאודפלייר' : x.via === 'direct' ? 'ישירות' : x.via]);
+      if (x.ms) o.push(['כמה זמן עבר עד התקלה', secs(x.ms)]);
+      if (x.src === 'page') o.push(['התחיל להגיע טקסט לפני התקלה', x.got ? 'כן' : 'לא']);
+      if (x.src === 'page') o.push(['המכשיר דיווח שיש לו אינטרנט', x.online ? 'כן' : 'לא']);
+      if (x.who) o.push(['רכז/ת', x.who]);
+      if (x.device) o.push(['מכשיר ודפדפן', x.device]);
+      if (x.build) o.push(['גרסת הדף', x.build]);
+      if (x.sent) o.push(['הדיווח נשלח באיחור (המכשיר היה בלי חיבור)', when(x.sent)]);
+      return o;
+    }
+    function paint() {
+      var now = Date.now(), d1 = rows.filter(function (r) { return now - Date.parse(r.data.t0) < 864e5; }).length, d7 = rows.filter(function (r) { return now - Date.parse(r.data.t0) < 7 * 864e5; }).length;
+      var byKind = {}; rows.forEach(function (r) { var n = K(r.data)[0]; byKind[n] = (byKind[n] || 0) + 1; });
+      sum.innerHTML = rows.length ? '<b>' + d1 + '</b> ביממה האחרונה · <b>' + d7 + '</b> בשבוע האחרון · <b>' + rows.length + '</b> בסך הכול' + '<br><span style="color:' + soft + ';font-size:.9rem">' + Object.keys(byKind).sort(function (a, b) { return byKind[b] - byKind[a]; }).map(function (k) { return esc(k) + ': ' + byKind[k]; }).join(' · ') + '</span>' : '';
+      list.innerHTML = rows.length ? '<ul style="list-style:none;margin:0;padding:0;display:grid;gap:.6rem">' + rows.map(function (r) { var x = r.data, k = K(x);
+        return '<li data-id="' + esc(r.id) + '" style="border:1px solid ' + line + ';border-radius:10px;padding:.7rem .8rem;display:grid;gap:.3rem">' +
+          '<div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;color:' + soft + ';font-size:.85rem"><span>' + esc(when(x.t0)) + ' · ' + botName(x) + '</span><button type="button" class="tk-fl-del" style="font:inherit;min-height:36px;padding:0 .7rem;border-radius:8px;border:1px solid ' + line + ';background:transparent;color:inherit;cursor:pointer">טופל, למחוק</button></div>' +
+          '<b>' + esc(k[0]) + '</b>' +
+          '<span><span style="color:' + soft + '">למה: </span>' + esc(k[1]) + '</span>' +
+          '<span><span style="color:' + soft + '">מה המשתמש ראה: </span>' + esc(k[2]) + '</span>' +
+          '<span><span style="color:' + soft + '">מה אפשר לעשות: </span>' + esc(k[3]) + '</span>' +
+          '<details><summary style="cursor:pointer;min-height:36px;display:flex;align-items:center">פירוט טכני</summary><dl style="margin:.3rem 0 0;display:grid;grid-template-columns:auto 1fr;gap:.15rem .7rem;font-size:.9rem">' + details(x).map(function (p) { return '<dt style="color:' + soft + '">' + esc(p[0]) + '</dt><dd style="margin:0"><bdi>' + esc(p[1]) + '</bdi></dd>'; }).join('') + '</dl>' +
+          (x.msg ? '<p style="margin:.4rem 0 0;color:' + soft + ';font-size:.85rem">ההודעה שחזרה, כלשונה:</p><pre dir="ltr" style="margin:0;white-space:pre-wrap;overflow-wrap:anywhere;font-size:.82rem;text-align:left">' + esc(x.msg) + '</pre>' : '') + '</details></li>'; }).join('') + '</ul>' : '<p style="margin:0">אין תקלות רשומות. הרישום התחיל ב־22.11.2026; תקלות מלפני כן לא מופיעות כאן.</p>';
+    }
+    async function load() { try { var r = await call('/api/db', { op: 'list', path: 'fail', order: 't0', limit: 1000 }); rows = (await r.json()).docs || []; rows.sort(function (a, b) { return String(b.data.t0).localeCompare(String(a.data.t0)); }); paint(); } catch (e) { list.textContent = 'הרשימה לא נטענה. נסו שוב.'; } }
+    list.addEventListener('click', async function (e) { var b = e.target.closest('.tk-fl-del'); if (!b) return; var li = b.closest('li'), id = li.dataset.id; b.disabled = true;
+      try { await call('/api/db', { op: 'delete', path: 'fail/' + id }); rows = rows.filter(function (r) { return r.id !== id; }); paint(); say.textContent = 'נמחק.'; } catch (_) { b.disabled = false; say.textContent = 'המחיקה נכשלה. נסו שוב.'; } });
+    d.querySelector('#tk-fl-copy').addEventListener('click', async function () {
+      var txt = 'תקלות בבוט התקנון (' + rows.length + '):\n' + rows.map(function (r) { var x = r.data, k = K(x); return '- ' + when(x.t0) + ' | ' + botName(x) + ' | ' + k[0] + ' | ' + details(x).map(function (p) { return p[0] + ': ' + p[1]; }).join('; ') + (x.msg ? ' | ההודעה שחזרה: ' + x.msg : ''); }).join('\n');
+      try { await navigator.clipboard.writeText(txt); say.textContent = 'הרשימה הועתקה (' + rows.length + ' תקלות). אפשר להדביק אותה לקלוד.'; } catch (_) { say.textContent = 'ההעתקה נכשלה.'; } });
+    d.querySelector('#tk-fl-clear').addEventListener('click', async function () {
+      if (!rows.length || !(await askIn('למחוק את כל ' + rows.length + ' התקלות שמוצגות? אי אפשר לשחזר.', 'מחיקה', 'ביטול'))) return;
+      var left = []; for (var i = 0; i < rows.length; i++) { try { await call('/api/db', { op: 'delete', path: 'fail/' + rows[i].id }); } catch (_) { left.push(rows[i]); } }
+      rows = left; paint(); say.textContent = left.length ? 'חלק מהרשומות לא נמחקו. נסו שוב.' : 'הרשימה נמחקה.'; });
+    d.querySelector('#tk-fl-close').addEventListener('click', function () { d.remove(); done(); });
+    tapOut(d, function () { d.querySelector('#tk-fl-close').click(); });
+    load(); setTimeout(function () { var h = d.querySelector('#tk-fl-t'); if (h) { h.setAttribute('tabindex', '-1'); h.focus(); } }, 0);
+  }
   function feedbackTab(btn) {
     var dk = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches;
     var esc = function (s) { return String(s == null ? '' : s).replace(/[<>&"]/g, function (c) { return { '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;' }[c]; }); };
@@ -402,7 +508,7 @@
     // audit 3.11.2026: a bar at the top of the page, not floating over the question box while scrolling
     bar.setAttribute('style', 'display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px;padding:6px 12px 0;font:14px system-ui,Arial,sans-serif');
     window.__tkAdmin = !!me.admin;   // 17.11.2026: the page shows the head "מחיקה" beside every remark in the address book
-    bar.innerHTML = (me.admin ? '<button type="button" id="tk-admin">קודי גישה לרכזים</button><button type="button" id="tk-sheet">טבלת המעקב</button>' + (PV ? '<button type="button" id="tk-fb">משובים</button><button type="button" id="tk-miss">לא נמצא</button><button type="button" id="tk-vadmin">חיבורי הודעות קוליות</button><button type="button" id="tk-stat">דוח חודשי</button><button type="button" id="tk-watch">שינויים בתקנונים</button>' : '') : '') + '<button type="button" id="tk-out">יציאה (' + (me.name || '').replace(/[<>&]/g, '').replace(/"/g, '״') + ')</button>';
+    bar.innerHTML = (me.admin ? '<button type="button" id="tk-admin">קודי גישה לרכזים</button><button type="button" id="tk-sheet">טבלת המעקב</button>' + (PV ? '<button type="button" id="tk-fb">משובים</button><button type="button" id="tk-miss">לא נמצא</button><button type="button" id="tk-fail">תקלות</button><button type="button" id="tk-vadmin">חיבורי הודעות קוליות</button><button type="button" id="tk-stat">דוח חודשי</button><button type="button" id="tk-watch">שינויים בתקנונים</button>' : '') : '') + '<button type="button" id="tk-out">יציאה (' + (me.name || '').replace(/[<>&]/g, '').replace(/"/g, '״') + ')</button>';
     bar.querySelectorAll('button').forEach(function (b) { b.setAttribute('style', 'font:inherit;min-height:40px;padding:6px 12px;border-radius:8px;border:1px solid #9BA5BA;background:rgba(255,255,255,.9);color:#141B2D;cursor:pointer'); });
     // 5.11.2026 (review, preview): signing out is a quiet link, not the page's most visible button; the colours follow the theme
     if (PV) { var dk = window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches;
@@ -416,7 +522,7 @@
     // 6.11.2026 (the external audit, all four models: three rows of controls above the box on a phone): the head's three tools
     // sit behind one "ניהול" button; a new feedback still shows on it; signing out stays a quiet link
     if (PV4 && me.admin) {
-      var tools = ['#tk-admin', '#tk-sheet', '#tk-fb', '#tk-miss', '#tk-vadmin', '#tk-stat', '#tk-watch'].map(function (q) { return bar.querySelector(q); }).filter(Boolean);
+      var tools = ['#tk-admin', '#tk-sheet', '#tk-fb', '#tk-miss', '#tk-fail', '#tk-vadmin', '#tk-stat', '#tk-watch'].map(function (q) { return bar.querySelector(q); }).filter(Boolean);
       var mg = document.createElement('button'); mg.type = 'button'; mg.id = 'tk-mgmt'; mg.setAttribute('aria-expanded', 'false'); mg.setAttribute('aria-controls', 'tk-menu'); mg.textContent = 'ניהול';
       mg.setAttribute('style', tools[0].getAttribute('style'));
       var menu = document.createElement('div'); menu.id = 'tk-menu'; menu.hidden = true; menu.setAttribute('role', 'group'); menu.setAttribute('aria-label', 'כלי ניהול');
@@ -550,6 +656,9 @@
     var waB = bar.querySelector('#tk-watch'); if (waB) waB.addEventListener('click', function () { watchPanel(waB); });
     var stB = bar.querySelector('#tk-stat'); if (stB) stB.addEventListener('click', function () { statPanel(stB); });
     var vaB = bar.querySelector('#tk-vadmin'); if (vaB) vaB.addEventListener('click', function () { voiceAdmin(vaB); });
+    var flB = bar.querySelector('#tk-fail');
+    if (flB) { flB.addEventListener('click', function () { failTab(flB); });
+      (async function () { try { var r = await call('/api/db', { op: 'list', path: 'fail', limit: 1000 }); var n = ((await r.json()).docs || []).length; if (n) flB.textContent = 'תקלות (' + n + ')'; } catch (_) {} })(); }
     var msB = bar.querySelector('#tk-miss');
     if (msB) { msB.addEventListener('click', function () { missTab(msB); });
       (async function () { try { var r = await call('/api/db', { op: 'list', path: 'miss', limit: 2000 }); var n = ((await r.json()).docs || []).length; if (n) msB.textContent = 'לא נמצא (' + n + ')'; } catch (_) {} })(); }

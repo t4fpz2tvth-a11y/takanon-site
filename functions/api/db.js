@@ -22,6 +22,7 @@ async function sweep(env) {
     await env.DB.prepare("DELETE FROM docs WHERE coll = 'fb' AND t < ?").bind(now - 365 * 864e5).run();
     // 16.11.2026: the "לא נמצא" list is kept for one year too
     await env.DB.prepare("DELETE FROM docs WHERE coll = 'miss' AND t < ?").bind(now - 365 * 864e5).run();
+    await env.DB.prepare("DELETE FROM docs WHERE coll = 'fail' AND t < ?").bind(now - 180 * 864e5).run();   // 22.11.2026: the log of the bot's failures
   } catch (_) {}
 }
 export async function onRequestPost({ request, env, waitUntil }) {

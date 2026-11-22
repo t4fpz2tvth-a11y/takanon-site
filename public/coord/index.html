@@ -97,7 +97,7 @@
         e.preventDefault();
         code = d.querySelector('#tk-code').value.trim();
         var m = d.querySelector('#tk-msg'); m.textContent = 'בודק…';
-        var gb = f.querySelector('button'); if (PV && gb) gb.disabled = true;   // 5.11.2026 (craft round): one press while checking
+        var gb = f.querySelector('button:not(#tk-eye)'); if (PV && gb) gb.disabled = true;   // 5.11.2026 (craft round): one press while checking
         try {
           var r = await call('/api/db', { op: 'me' });
           if (r.status === 401) { m.textContent = 'הקוד לא מוכר. בדקו אותו או בקשו קוד חדש מרמ"ח.'; return; }

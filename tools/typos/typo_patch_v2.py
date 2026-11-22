@@ -64,7 +64,8 @@ const TY_ALIAS = [
   // timetable (the departments of הר הצופים) and from the "פקולטה / יחידה" column of the cases sheet.
   ['hum', 'מזהת', 'לימודי האסלאם והמזרח התיכון'], ['hum', 'מזרח התיכונ', ''], ['hum', 'אמלט', 'אמריקה הלטינית'], ['hum', 'מחשבת ישראל', ''],
   ['hum', 'ספרות עברית', ''], ['hum', 'ספרות אנגלית', ''], ['hum', 'ספרות כללית', ''], ['hum', 'מדע הדתות', ''], ['hum', 'לימודי התיאטרונ', ''], ['hum', 'רביבימ', ''],
-  ['science', 'ביוטכנולוגיה', ''], ['agri', 'בעלי החיימ', ''], ['agri', 'מדעי המזונ', '']
+  ['science', 'ביוטכנולוגיה', ''], ['agri', 'בעלי החיימ', ''], ['agri', 'מדעי המזונ', ''],
+  ['', 'גברמ', 'גבעת רם']   // 22.11.2026 (Yoni: "תוסיף גם גברם כגבעת רם"): the campus's name is added to the search; no faculty's rules are loaded by it
   // not here, after the test on the 288 questions: "סטטיסטיקה" (mostly the name of a course) and the campuses' names
   // (עין כרם, גבעת רם: they come up in questions about parking and dormitories, and brought faculties' rules that do not belong)
 ].map(([k, a, full]) => [k, new RegExp('(?<![א-ת])[ובלמשהכ]{0,2}' + a + '(?![א-ת])'), full, a]);

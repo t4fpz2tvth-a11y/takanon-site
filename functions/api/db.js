@@ -91,7 +91,7 @@ export async function onRequestPost({ request, env, waitUntil }) {
       const sg = segs(path), mine = sg.length === 4 && sg[0] === 'log' && sg[2] === 'cases' && sg[1] === u.uid && !u.admin;
       const fresh = mine && !(await env.DB.prepare('SELECT 1 FROM docs WHERE path = ?').bind(path).first());
       await env.DB.prepare('INSERT OR REPLACE INTO docs (path, coll, data, t) VALUES (?, ?, ?, ?)').bind(path, coll, s, now).run();
-      if (fresh) await tell(newCase(env, new URL(request.url).origin, u, sg[3]));
+      if (fresh) await tell(newCase(env, new URL(request.url).origin, u, sg[3], !!data.general));
       return json({ ok: true });
     }
     const r = await env.DB.prepare('SELECT data FROM docs WHERE path = ?').bind(path).first();
@@ -126,7 +126,7 @@ export async function onRequestPost({ request, env, waitUntil }) {
     }
     const s = JSON.stringify(rec); if (s.length > 900000) return text('too large', 413);
     await env.DB.prepare('INSERT INTO docs (path, coll, data, t) VALUES (?, ?, ?, ?)').bind(path + '/' + id, path, s, now).run();
-    { const sg = segs(path); if (sg.length === 3 && sg[0] === 'log' && sg[2] === 'cases' && sg[1] === u.uid && !u.admin) await tell(newCase(env, new URL(request.url).origin, u, id)); }
+    { const sg = segs(path); if (sg.length === 3 && sg[0] === 'log' && sg[2] === 'cases' && sg[1] === u.uid && !u.admin) await tell(newCase(env, new URL(request.url).origin, u, id, !!(rec && rec.general))); }
     return json({ id });
   }
   if (op === 'list') {

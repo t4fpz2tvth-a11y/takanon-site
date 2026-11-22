@@ -76,7 +76,9 @@ async function mailNote(env, uid, more) {
 // (4) a new case, to the head alone. Called by the log (db.js) when a coordinator's case is saved for the first time. The mail
 // goes through the sheet's script (tool "new_case"), which sends it only to the department's mailbox: the address is fixed
 // inside the script, the site hands over no address. Until the script is updated in the sheet, only the notification goes out
-export async function newCase(env, origin, by, id) {
+// 22.11.2026 (Yoni: a mail said "מקרה חדש" and no such case was in the list): a coordinator's general question is kept in the log
+// like a case but listed apart, under "שאלות כלליות". The notification and the mail now say which of the two it is.
+export async function newCase(env, origin, by, id, general) {
   const out = { sent: 0, mailed: false };
   try {
     await tables(env);
@@ -84,11 +86,11 @@ export async function newCase(env, origin, by, id) {
     const cid = String(id || '').replace(/[^A-Za-z0-9_-]/g, '').slice(0, 60), uid = String(by && by.uid || '').replace(/[^A-Za-z0-9_-]/g, '').slice(0, 60);
     if (!cid || !uid || uid === 'admin') return out;
     const link = origin + '/coord/?c=' + cid + '&u=' + uid;
-    out.sent = await notify(env, 'admin', 'מקרה חדש מאת ' + name, link);
+    out.sent = await notify(env, 'admin', (general ? 'שאלה כללית חדשה מאת ' : 'מקרה חדש מאת ') + name, link);
     const row = await env.DB.prepare('SELECT data FROM docs WHERE path = ?').bind('config/sheet').first(), cfg = row ? JSON.parse(row.data) : {};
     const secret = (env.SHEET_SECRET && String(env.SHEET_SECRET).length >= 24) ? String(env.SHEET_SECRET) : cfg.secret || '';
     if (cfg.url && secret.length >= 24) {
-      const r = await fetch(cfg.url, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ tool: 'new_case', args: { name, link }, secret }), redirect: 'follow' });
+      const r = await fetch(cfg.url, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ tool: 'new_case', args: { name: general ? name + ' (שאלה כללית, לא מקרה של סטודנט)' : name, link }, secret }), redirect: 'follow' });
       let j = null; try { j = JSON.parse(await r.text()); } catch (_) {}
       out.mailed = !!(j && j.ok);
     }

@@ -2356,11 +2356,18 @@ function layoutFix(q) {
 const TY_ALIAS = [
   ['sw', 'עוס', 'עבודה סוציאלית'], ['med', 'ריבע', 'ריפוי בעיסוק'], ['science', 'מדמח', 'מדעי המחשב'], ['bschool', 'מנעס', 'מנהל עסקים'],
   ['social', 'יחבל', 'יחסים בינלאומיים'], ['social', 'מדמד', 'מדע המדינה'], ['social', 'פכמ', 'פילוסופיה כלכלה ומדע המדינה'],
-  ['social', 'סוציו', 'סוציולוגיה'], ['social', 'פסיכו', 'פסיכולוגיה']
+  ['social', 'סוציו', 'סוציולוגיה'], ['social', 'פסיכו', 'פסיכולוגיה'],
+  // 22.11.2026, second list (Yoni: "תיעזר בדרייב וג'ימייל ובטבלת המעקב"): the names the union itself writes, from its orientation
+  // timetable (the departments of הר הצופים) and from the "פקולטה / יחידה" column of the cases sheet.
+  ['hum', 'מזהת', 'לימודי האסלאם והמזרח התיכון'], ['hum', 'מזרח התיכונ', ''], ['hum', 'אמלט', 'אמריקה הלטינית'], ['hum', 'מחשבת ישראל', ''],
+  ['hum', 'ספרות עברית', ''], ['hum', 'ספרות אנגלית', ''], ['hum', 'ספרות כללית', ''], ['hum', 'מדע הדתות', ''], ['hum', 'לימודי התיאטרונ', ''], ['hum', 'רביבימ', ''],
+  ['science', 'ביוטכנולוגיה', ''], ['agri', 'בעלי החיימ', ''], ['agri', 'מדעי המזונ', '']
+  // not here, after the test on the 288 questions: "סטטיסטיקה" (mostly the name of a course) and the campuses' names
+  // (עין כרם, גבעת רם: they come up in questions about parking and dormitories, and brought faculties' rules that do not belong)
 ].map(([k, a, full]) => [k, new RegExp('(?<![א-ת])[ובלמשהכ]{0,2}' + a + '(?![א-ת])'), full, a]);
 const TY_ALIAS_WORDS = new Set(TY_ALIAS.map(x => x[3]));
 function aliasHits(q) { if (TY_OFF()) return []; const t = faqText(String(q || '')); return TY_ALIAS.filter(([k, rx]) => rx.test(t)); }
-function aliasExpand(q) { const h = aliasHits(q); return h.length ? String(q) + ' ' + h.map(x => x[2]).join(' ') : String(q); }
+function aliasExpand(q) { const add = aliasHits(q).map(x => x[2]).filter(Boolean); return add.length ? String(q) + ' ' + add.join(' ') : String(q); }
 let TY_LAST_ASK = '';
 function typoNote() {
   const el = document.getElementById('typo-note'); if (el) el.remove();

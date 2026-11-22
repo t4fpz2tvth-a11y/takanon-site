@@ -80,7 +80,7 @@ a.btn{display:inline-block;background:var(--green);color:#F6F3E7;text-decoration
     }).catch(function () { $('nameErr').textContent = 'אין חיבור. נסו שוב.'; });
   });
   fetch('/api/forum?op=me', { credentials: 'same-origin', cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (j) {
-    if (j.name) open(); else { $('gate').hidden = false; $('name').focus(); }
+    if (j.name) open(); else location.replace('/forum/?next=' + encodeURIComponent('/forum/connect/' + (/^#[a-z]+$/.test(location.hash) ? location.hash : '')));
   }).catch(function () { $('content').hidden = false; });
 })();
 </script>

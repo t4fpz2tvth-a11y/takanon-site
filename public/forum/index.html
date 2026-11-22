@@ -78,7 +78,8 @@ video{width:100%;border-radius:12px;background:#000;display:block;aspect-ratio:1
 <script>
 (function () {
   var $ = function (id) { return document.getElementById(id); };
-  var V = Number(new URLSearchParams(location.search).get('v') || 0), state = null;
+  var QS = new URLSearchParams(location.search), V = Number(QS.get('v') || 0), state = null;
+  var NEXT = /^\/forum\/(\?v=[1-4]|connect\/(#[a-z]+)?)$/.test(QS.get('next') || '') ? QS.get('next') : '';   // only the site's own pages
   var fmt = function (s) { var m = Math.round(s / 60); return m + ' דקות'; };
   function api(body) { return fetch('/api/forum', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), credentials: 'same-origin' }); }
   function show() {
@@ -86,7 +87,9 @@ video{width:100%;border-radius:12px;background:#000;display:block;aspect-ratio:1
     var named = !!state.name;
     $('gate').hidden = named; $('list').hidden = !named || !!V; $('watch').hidden = !named || !V;
     $('h1').textContent = V ? 'חפיפת רכזים: הסרטונים' : 'חפיפת רכזים';
+    if (!named && V) { location.replace('/forum/?next=' + encodeURIComponent('/forum/?v=' + V)); return; }
     if (!named) { $('name').focus(); return; }
+    if (NEXT) { location.replace(NEXT); return; }
     window.ForumSite.presence();
     if (!V) {
       $('me').hidden = false; $('hi').textContent = 'מחוברים בשם ' + state.name + '.';

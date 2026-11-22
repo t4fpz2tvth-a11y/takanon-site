@@ -30,22 +30,59 @@ a.btn{display:inline-block;background:var(--green);color:#F6F3E7;text-decoration
   <p><a href="/forum/">→ חפיפת רכזים</a></p>
   <p class="kicker">בוט הרכזים · מדריכים קצרים</p>
   <h1>איך מתחברים לבוט</h1>
+  <section id="gate" class="card" hidden style="max-width:520px">
+    <h2 style="border:0;margin:0 0 .4em;padding:0;font-size:1.4rem">לפני שמתחילים: מי צופה?</h2>
+    <form id="hello" novalidate>
+      <label for="name" style="display:block;font-weight:500;margin-bottom:6px">שם מלא (שם פרטי ושם משפחה)</label>
+      <input id="name" type="text" autocomplete="name" maxlength="60" required aria-describedby="nameErr" style="font:inherit;font-size:16px;width:100%;padding:11px 12px;border:1px solid #8A937F;border-radius:10px;background:#fff;color:inherit">
+      <p id="nameErr" role="alert" style="color:#A3261B;min-height:1.5em;margin:.4em 0"></p>
+      <button type="submit" style="font:inherit;font-weight:500;background:var(--green);color:#F6F3E7;border:0;border-radius:999px;padding:11px 26px;min-height:44px;cursor:pointer">כניסה</button>
+    </form>
+  </section>
+  <div id="content" hidden>
   <p class="soft">כל סרטון פחות מדקה, בלי קול. הסרטונים לאייפון הם הקלטת מסך אמיתית, עם עצירות והסברים. עושים הכול פעם אחת בכל טלפון.</p>
   <p><a class="btn" href="/coord/">פתיחת בוט הרכזים</a></p>
 
   <h2 id="iphone">לאייפון</h2>
   <div class="grid">
-    <div class="card"><h3>1. הבוט כאפליקציה במסך הבית</h3><video controls playsinline preload="none" poster="iphone-app.jpg" src="iphone-app.mp4"></video></div>
-    <div class="card"><h3>2. יומן והתראות</h3><video controls playsinline preload="none" poster="iphone-alerts.jpg" src="iphone-alerts.mp4"></video></div>
-    <div class="card"><h3>3. הודעות מוואטסאפ ישר לבוט</h3><video controls playsinline preload="none" poster="iphone-whatsapp.jpg" src="iphone-whatsapp.mp4"></video></div>
+    <div class="card"><h3>1. הבוט כאפליקציה במסך הבית</h3><video controls playsinline preload="none" data-v="11" poster="iphone-app.jpg" src="iphone-app.mp4"></video></div>
+    <div class="card"><h3>2. יומן והתראות</h3><video controls playsinline preload="none" data-v="12" poster="iphone-alerts.jpg" src="iphone-alerts.mp4"></video></div>
+    <div class="card"><h3>3. הודעות מוואטסאפ ישר לבוט</h3><video controls playsinline preload="none" data-v="13" poster="iphone-whatsapp.jpg" src="iphone-whatsapp.mp4"></video></div>
   </div>
 
   <h2 id="android">לאנדרואיד</h2>
   <div class="grid">
-    <div class="card"><h3>1. הבוט כאפליקציה במסך הבית</h3><video controls playsinline preload="none" poster="android-app.jpg" src="android-app.mp4"></video></div>
-    <div class="card"><h3>2. התראות ויומן</h3><video controls playsinline preload="none" poster="android-alerts.jpg" src="android-alerts.mp4"></video></div>
+    <div class="card"><h3>1. הבוט כאפליקציה במסך הבית</h3><video controls playsinline preload="none" data-v="14" poster="android-app.jpg" src="android-app.mp4"></video></div>
+    <div class="card"><h3>2. התראות ויומן</h3><video controls playsinline preload="none" data-v="15" poster="android-alerts.jpg" src="android-alerts.mp4"></video></div>
   </div>
   <p class="soft" style="margin-top:14px">הסרטונים לאנדרואיד משלבים צילומים של הבוט עם הסברים בכתב. באנדרואיד אין צורך בצעד נפרד לוואטסאפ: אחרי התקנת האפליקציה, ״שיתוף״ בוואטסאפ מציע את הבוט.</p>
+  </div>
 </main>
+<script src="/forum/t.js"></script>
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  function open() {
+    $('gate').hidden = true; $('content').hidden = false;
+    window.ForumSite.presence();
+    Array.prototype.forEach.call(document.querySelectorAll('video[data-v]'), function (v) { window.ForumSite.track(v, Number(v.getAttribute('data-v'))); });
+    if (location.hash && $(location.hash.slice(1))) $(location.hash.slice(1)).scrollIntoView();
+  }
+  $('hello').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var name = $('name').value.replace(/\s+/g, ' ').trim();
+    if (name.split(' ').length < 2 || name.length < 5) { $('nameErr').textContent = 'צריך שם מלא: שם פרטי ושם משפחה.'; $('name').focus(); return; }
+    $('nameErr').textContent = '';
+    fetch('/api/forum', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ op: 'hello', name: name }), credentials: 'same-origin' }).then(function (r) {
+      if (r.ok) { open(); return; }
+      $('nameErr').textContent = r.status === 429 ? 'יותר מדי ניסיונות מהרשת הזו. נסו שוב בעוד שעה.' : 'צריך שם מלא: שם פרטי ושם משפחה, באותיות בלבד.';
+      $('name').focus();
+    }).catch(function () { $('nameErr').textContent = 'אין חיבור. נסו שוב.'; });
+  });
+  fetch('/api/forum?op=me', { credentials: 'same-origin', cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (j) {
+    if (j.name) open(); else { $('gate').hidden = false; $('name').focus(); }
+  }).catch(function () { $('content').hidden = false; });
+})();
+</script>
 </body>
 </html>

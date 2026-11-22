@@ -10,13 +10,25 @@
 //   POST { op: 'hello', name }         -> { name } and the cookie
 //   POST { op: 'bye' }                 -> the cookie removed ("זה לא אני")
 //   POST { op: 'beat', v, played, pos, open } -> 204
-//   POST { op: 'report' } (the head)   -> { videos, rows: [{ id, name, created, v, secs, maxpos, opens, first, last }] }
+//   POST { op: 'here', t }              -> 204   (time on the pages and visits; see below)
+//   POST { op: 'report' } (the head)   -> { videos, howto, rows: [{ id, name, created, v, secs, maxpos, opens, first, last }], time: [{ id, secs, visits, last }] }
+// 22.11.2026 (Yoni: "תוסיף גם מעקב של סרטוני ההדרכה של האייפון והאנדרואיד, וגם כמה זמן בכללי אותו אדם היה וגם כמה פעמים
+// נכנס. הוא צריך להזין את השם רק בכניסה הראשונה מאותו מכשיר"): the short how-to films of /forum/connect/ are counted like
+// the four parts (numbers 11 to 15), and the three pages report, while they are on screen, how long the visitor stayed.
+// A visit is counted when a page reports after half an hour of silence, so moving between the pages is one visit.
 import { json, text, who, setup, sha } from '../_lib.js';
 const VIDEOS = [
   { v: 1, title: 'היכרות ותיאום ציפיות', by: 'יוני רעם, רמ"ח אקדמיה', secs: 663, about: 'מה זה רכז אקדמיה, ייצוג מול ליווי, מה מצפים מכם, מתי מטפלים לבד ומתי יחד, תרגול קצר ואיך נשארים בקשר.' },
   { v: 2, title: 'ראייה רחבה של תפקיד הרכז ובעיות רוחביות', by: 'אריק, יו"ר האגודה', secs: 1299, about: 'הגופים הארציים (ור״ה, מל״ג, ות״ת), מבנה האקדמיה באוניברסיטה, מתי בעיה היא רוחבית ואיך מקדמים מדיניות.' },
   { v: 3, title: 'איך פועלים מול המערכת האוניברסיטאית', by: 'אלעד, רכז אקדמי לשעבר', secs: 1451, about: 'מול מי עובדים באוניברסיטה, שבע טעויות נפוצות, מה חשוב להכיר בנה״ל, ושני תרגולים: בוחן עם ממוצע נמוך וחשד להעתקה.' },
   { v: 4, title: 'תהליך העבודה, הבוט והכלים', by: 'יוני רעם, רמ"ח אקדמיה', secs: 1636, about: 'למה בוט, הדגמה חיה, כללי העבודה איתו, שאלות הרכזים על פרטיות והרשאות, והמשימות לשבוע הקרוב.' }
+];
+const HOWTO = [
+  { v: 11, file: 'iphone-app', title: 'אייפון: הבוט כאפליקציה', secs: 48 },
+  { v: 12, file: 'iphone-alerts', title: 'אייפון: יומן והתראות', secs: 37 },
+  { v: 13, file: 'iphone-whatsapp', title: 'אייפון: הודעות מוואטסאפ', secs: 49 },
+  { v: 14, file: 'android-app', title: 'אנדרואיד: הבוט כאפליקציה', secs: 45 },
+  { v: 15, file: 'android-alerts', title: 'אנדרואיד: יומן והתראות', secs: 39 }
 ];
 const TOKEN = /^v\.[0-9a-f]{64}$/, YEAR = 31536000;
 // Lax, not Strict: a link opened from WhatsApp or an e-mail must carry the cookie, or the name would be asked every time
@@ -28,7 +40,8 @@ async function tables(env) {
   await setup(env);
   await env.DB.batch([
     env.DB.prepare('CREATE TABLE IF NOT EXISTS forum_viewers (h TEXT PRIMARY KEY, name TEXT NOT NULL, created INTEGER NOT NULL)'),
-    env.DB.prepare('CREATE TABLE IF NOT EXISTS forum_views (h TEXT NOT NULL, v INTEGER NOT NULL, secs INTEGER NOT NULL, maxpos INTEGER NOT NULL, opens INTEGER NOT NULL, first INTEGER NOT NULL, last INTEGER NOT NULL, PRIMARY KEY (h, v))')
+    env.DB.prepare('CREATE TABLE IF NOT EXISTS forum_views (h TEXT NOT NULL, v INTEGER NOT NULL, secs INTEGER NOT NULL, maxpos INTEGER NOT NULL, opens INTEGER NOT NULL, first INTEGER NOT NULL, last INTEGER NOT NULL, PRIMARY KEY (h, v))'),
+    env.DB.prepare('CREATE TABLE IF NOT EXISTS forum_time (h TEXT PRIMARY KEY, secs INTEGER NOT NULL, visits INTEGER NOT NULL, last INTEGER NOT NULL)')
   ]);
   made = true;
 }
@@ -46,7 +59,7 @@ export async function onRequestGet({ request, env }) {
   const url = new URL(request.url), v = Number(url.searchParams.get('v') || 0);
   if (url.searchParams.get('op') === 'me') {
     let name = ''; try { const w = await viewer(request, env); name = w ? w.name : ''; } catch (_) {}
-    return json({ name, ready: !!env.VIDEOS, videos: VIDEOS });
+    return json({ name, ready: !!env.VIDEOS, videos: VIDEOS, howto: HOWTO });
   }
   const item = VIDEOS.find(x => x.v === v);
   if (!item) return text('not found', 404);
@@ -82,7 +95,8 @@ export async function onRequestPost({ request, env }) {
     const u = await who(request, env);
     if (!u || !u.admin) return text('forbidden', 403);
     const rows = (await env.DB.prepare('SELECT w.h AS id, w.name, w.created, x.v, x.secs, x.maxpos, x.opens, x.first, x.last FROM forum_viewers w LEFT JOIN forum_views x ON x.h = w.h ORDER BY w.created').all()).results || [];
-    return json({ videos: VIDEOS, rows: rows.map(r => Object.assign(r, { id: String(r.id).slice(0, 8) })) });
+    const time = (await env.DB.prepare('SELECT h AS id, secs, visits, last FROM forum_time').all()).results || [];
+    return json({ videos: VIDEOS, howto: HOWTO, rows: rows.map(r => Object.assign(r, { id: String(r.id).slice(0, 8) })), time: time.map(r => Object.assign(r, { id: String(r.id).slice(0, 8) })) });
   }
   if (op === 'hello') {
     const name = cleanName(b.name);
@@ -95,9 +109,16 @@ export async function onRequestPost({ request, env }) {
     return new Response(JSON.stringify({ name }), { headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store', 'Set-Cookie': cookie(token) } });
   }
   if (op === 'bye') return new Response(null, { status: 204, headers: { 'Set-Cookie': cookie('') } });
+  if (op === 'here') {   // a page on screen: every fifteen seconds or so, with the seconds since the last report (more than thirty is not believed)
+    const w = await viewer(request, env); if (!w) return text('name first', 403);
+    const t = Math.max(0, Math.min(30, Math.floor(Number(b.t) || 0))), now = Date.now();
+    await env.DB.prepare('INSERT INTO forum_time (h, secs, visits, last) VALUES (?, ?, 1, ?) ON CONFLICT (h) DO UPDATE SET visits = visits + (CASE WHEN excluded.last - last > 1800000 THEN 1 ELSE 0 END), secs = secs + excluded.secs, last = excluded.last')
+      .bind(w.h, t, now).run();
+    return new Response(null, { status: 204 });
+  }
   if (op === 'beat') {
     const w = await viewer(request, env); if (!w) return text('name first', 403);
-    const item = VIDEOS.find(x => x.v === Number(b.v)); if (!item) return text('bad request', 400);
+    const item = VIDEOS.find(x => x.v === Number(b.v)) || HOWTO.find(x => x.v === Number(b.v)); if (!item) return text('bad request', 400);
     const num = (x, max) => Math.max(0, Math.min(max, Math.floor(Number(x) || 0)));
     const played = num(b.played, 20), pos = num(b.pos, item.secs), open = b.open ? 1 : 0, now = Date.now();   // a call covers about ten seconds; more than twenty is not believed
     if (!played && !open) return new Response(null, { status: 204 });

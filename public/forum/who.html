@@ -12,11 +12,11 @@
 :root{--bg:#F4F1E6;--ink:#1D2A22;--soft:#5B665E;--card:#FFFDF6;--line:#DDD8C6;--green:#1F5A34;--gold:#B88A1E}
 *{box-sizing:border-box}
 body{margin:0;font-family:"IBM Plex Sans Hebrew",Arial,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5}
-main{max-width:1000px;margin:0 auto;padding:28px 18px 70px}
+main{max-width:1280px;margin:0 auto;padding:28px 18px 70px}
 h1{font-family:"Frank Ruhl Libre",serif;font-weight:800;font-size:clamp(1.6rem,4.5vw,2.2rem);margin:.1em 0 .3em}
 .soft{color:var(--soft)}
 .wrap{overflow-x:auto;background:var(--card);border:1px solid var(--line);border-radius:14px}
-table{border-collapse:collapse;width:100%;min-width:640px}
+table{border-collapse:collapse;width:100%;min-width:900px}
 th,td{padding:11px 12px;text-align:right;border-bottom:1px solid var(--line);vertical-align:top}
 thead th{font-weight:500;font-size:.9rem;color:var(--soft)}
 tbody tr:last-child td,tbody tr:last-child th{border-bottom:0}
@@ -36,14 +36,14 @@ button:focus-visible,a:focus-visible{outline:3px solid var(--gold);outline-offse
 <body>
 <main>
   <p><a href="/forum/">→ לדף הסרטונים</a></p>
-  <h1>פורום אקדמיה: מי צפה, ובמה</h1>
+  <h1>חפיפת רכזים: מי צפה, ובמה</h1>
   <p class="soft" id="msg">טוען…</p>
   <div class="sum" id="sum" hidden></div>
   <div class="wrap" id="wrap" hidden><table>
     <thead><tr id="head"></tr></thead><tbody id="body"></tbody>
   </table></div>
   <p style="margin-top:14px"><button id="again" type="button" hidden>רענון</button></p>
-  <p class="soft" id="foot" hidden>זמן הצפייה נספר רק כשהסרטון מתנגן. "הגיע עד" הוא הנקודה הרחוקה ביותר שנצפתה, גם אם דילגו אליה. השם הוא מה שהצופה הקליד, ואותו אדם בשני דפדפנים מוצג בשורה אחת עם מספר הדפדפנים.</p>
+  <p class="soft" id="foot" hidden>"בדף בסך הכול" הוא הזמן שהדפים היו פתוחים על המסך, וכניסה חדשה נספרת אחרי חצי שעה בלי פעילות; המדידה הזו התחילה ב-22.11.2026. זמן הצפייה נספר רק כשהסרטון מתנגן. "הגיע עד" הוא הנקודה הרחוקה ביותר שנצפתה, גם אם דילגו אליה. השם הוא מה שהצופה הקליד, ואותו אדם בשני דפדפנים מוצג בשורה אחת עם מספר הדפדפנים.</p>
 </main>
 <script>
 (function () {
@@ -62,19 +62,28 @@ button:focus-visible,a:focus-visible{outline:3px solid var(--gold);outline-offse
     var people = {}, order = [];
     j.rows.forEach(function (r) {
       var key = r.name.replace(/\s+/g, ' ').trim().toLowerCase();
-      if (!people[key]) { people[key] = { name: r.name, ids: {}, created: r.created, v: {} }; order.push(key); }
+      if (!people[key]) { people[key] = { name: r.name, ids: {}, created: r.created, v: {}, secs: 0, visits: 0, seen: 0 }; order.push(key); }
       var p = people[key]; p.ids[r.id] = 1; p.created = Math.min(p.created, r.created);
       if (r.v) { var x = p.v[r.v] || (p.v[r.v] = { secs: 0, maxpos: 0, opens: 0, last: 0 }); x.secs += r.secs; x.maxpos = Math.max(x.maxpos, r.maxpos); x.opens += r.opens; x.last = Math.max(x.last, r.last); }
     });
+    var byId = {}; order.forEach(function (k) { Object.keys(people[k].ids).forEach(function (id) { byId[id] = people[k]; }); });
+    (j.time || []).forEach(function (t) { var p = byId[t.id]; if (p) { p.secs += t.secs; p.visits += t.visits; p.seen = Math.max(p.seen, t.last); } });
+    var howto = j.howto || [];
     $('head').innerHTML = ''; $('body').innerHTML = ''; $('sum').innerHTML = '';
     $('head').appendChild(el('th', 'שם'));
+    var tt = el('th', 'בדף בסך הכול'); tt.appendChild(el('small', 'זמן וכניסות')); $('head').appendChild(tt);
     j.videos.forEach(function (v) { var th = el('th', 'חלק ' + v.v); th.appendChild(el('small', v.title + ' · ' + mmss(v.secs))); $('head').appendChild(th); });
-    var watched = j.videos.map(function () { return 0; });
+    var hh = el('th', 'סרטוני ההדרכה'); hh.appendChild(el('small', 'אייפון ואנדרואיד')); $('head').appendChild(hh);
+    var watched = j.videos.map(function () { return 0; }), howtoPeople = 0;
     order.forEach(function (k) {
       var p = people[k], tr = el('tr'), th = el('th', p.name); th.scope = 'row';
       var n = Object.keys(p.ids).length;
       th.appendChild(el('small', 'נכנס לראשונה ' + when(p.created) + (n > 1 ? ' · ' + n + ' דפדפנים' : '')));
       tr.appendChild(th);
+      var tc = el('td');
+      if (p.visits) { tc.appendChild(el('span', mmss(p.secs) + ' דקות')); tc.appendChild(el('small', p.visits + (p.visits === 1 ? ' כניסה' : ' כניסות') + ' · אחרונה ' + when(p.seen))); }
+      else tc.appendChild(el('span', 'אין נתון', 'none'));
+      tr.appendChild(tc);
       j.videos.forEach(function (v, i) {
         var x = p.v[v.v], td = el('td');
         if (!x || (!x.secs && !x.opens)) { td.appendChild(el('span', 'לא נכנס', 'none')); }
@@ -87,11 +96,21 @@ button:focus-visible,a:focus-visible{outline:3px solid var(--gold);outline-offse
         }
         tr.appendChild(td);
       });
+      var hc = el('td'), any = false;
+      howto.forEach(function (v) {
+        var x = p.v[v.v]; if (!x || (!x.secs && !x.opens)) return;
+        any = true; if (!p.how) { p.how = true; howtoPeople++; }
+        var pct = Math.min(100, Math.round(100 * Math.min(x.secs, v.secs) / v.secs));
+        hc.appendChild(el('small', v.title + ': ' + mmss(Math.min(x.secs, v.secs * 5)) + ' (' + pct + '%) · ' + x.opens + (x.opens === 1 ? ' הפעלה' : ' הפעלות')));
+      });
+      if (!any) hc.appendChild(el('span', 'לא צפה', 'none'));
+      tr.appendChild(hc);
       $('body').appendChild(tr);
     });
     var box = function (n, label) { var d = el('div'); d.appendChild(el('b', String(n))); d.appendChild(document.createTextNode(label)); $('sum').appendChild(d); };
     box(order.length, 'הזדהו בשם');
     j.videos.forEach(function (v, i) { box(watched[i], 'התחילו את חלק ' + v.v); });
+    box(howtoPeople, 'צפו בסרטון הדרכה');
     $('msg').textContent = order.length ? 'מעודכן ל-' + when(Date.now()) + '.' : 'עדיין אף אחד לא נכנס.';
     $('sum').hidden = false; $('wrap').hidden = !order.length; $('again').hidden = false; $('foot').hidden = false;
   }

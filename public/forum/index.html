@@ -50,7 +50,7 @@ video{width:100%;border-radius:12px;background:#000;display:block;aspect-ratio:1
       <label for="name">שם מלא (שם פרטי ושם משפחה)</label>
       <input id="name" type="text" autocomplete="name" maxlength="60" required aria-describedby="nameErr">
       <p id="nameErr" class="err" role="alert"></p>
-      <button type="submit">כניסה לסרטונים</button>
+      <button type="submit">כניסה</button>
     </form>
   </section>
 
@@ -74,6 +74,7 @@ video{width:100%;border-radius:12px;background:#000;display:block;aspect-ratio:1
 
   <p id="load" class="soft">רגע…</p>
 </main>
+<script src="/forum/t.js"></script>
 <script>
 (function () {
   var $ = function (id) { return document.getElementById(id); };
@@ -83,11 +84,12 @@ video{width:100%;border-radius:12px;background:#000;display:block;aspect-ratio:1
   function show() {
     $('load').hidden = true;
     var named = !!state.name;
-    $('gate').hidden = named || !V; $('list').hidden = !!V; $('watch').hidden = !named || !V;
+    $('gate').hidden = named; $('list').hidden = !named || !!V; $('watch').hidden = !named || !V;
     $('h1').textContent = V ? 'חפיפת רכזים: הסרטונים' : 'חפיפת רכזים';
-    if (!named && V) { $('name').focus(); return; }
+    if (!named) { $('name').focus(); return; }
+    window.ForumSite.presence();
     if (!V) {
-      $('me').hidden = !named; $('hi').textContent = named ? 'מחוברים בשם ' + state.name + '.' : '';
+      $('me').hidden = false; $('hi').textContent = 'מחוברים בשם ' + state.name + '.';
       $('parts').innerHTML = '';
       state.videos.forEach(function (x) {
         var a = document.createElement('a'); a.className = 'part card'; a.href = '/forum/?v=' + x.v;

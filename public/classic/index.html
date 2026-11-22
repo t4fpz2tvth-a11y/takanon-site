@@ -2203,6 +2203,115 @@ function foreignToHebrew(q) {
   const hebrew = (s.match(/[א-ת]/g) || []).length;
   return { text: add.length ? s + ' ' + add.join(' ') : s, foreign: hebrew < 3 };
 }
+
+/* ---------- Typing slips (22.11.2026, Yoni: "תיצור מערכת... אותיות שמתבלבלים בהן... אבל עדיין לשמור על זה שתענה מדויק") ----------
+   A word of the question that is nowhere in the regulations (in none of its forms) may be a slip of the keyboard. The slips
+   looked for are ONE step from a word the regulations do have: a neighbouring key (ו typed as ן, פ as ם), letters that sound
+   alike (ט/ת, כ/ק, ח/כ, א/ע/ה, ס/ש, ב/ו), two letters swapped, a letter doubled, dropped or added. Three levels, by how sure:
+     A. the name of a faculty or a school (a short closed list): any one slip, always, so that its rules are loaded;
+     B. a final letter in the middle of a word (ן ם ך ף ץ): never right in Hebrew, so always a slip; fixed by that key alone.
+        Also the last letter, when it is מ נ פ or צ and the key beside it gives a word (ף for ם);
+     C. a neighbouring or like-sounding key, a swap, a doubled letter, in any word: only when the search by the question's own words was not good enough (the ladder's step 2 on),
+        only when there is exactly one reading, and at half weight.
+   Everyday words the regulations simply do not have ("ועכשיו", "אחזור") are therefore left alone in an ordinary search.
+   A word the regulations have is never touched, the first letter is never changed, the question goes to the model exactly
+   as typed, and the answer is still written only from the clauses found. */
+const TY_ROWS = ["/'קראטוןםפ", 'שדגכעיחלךף', 'זסבהנמצתץ'];
+const TY_HEB = 'אבגדהוזחטיכלמנסעפצקרשת';
+const TY_NEAR = (() => {
+  const m = new Map(), add = (a, b) => { a = FINALS[a] || a; b = FINALS[b] || b; if (a === b || !TY_HEB.includes(a) || !TY_HEB.includes(b)) return; if (!m.has(a)) m.set(a, new Set()); m.get(a).add(b); };
+  TY_ROWS.forEach((row, r) => [...row].forEach((ch, i) => {
+    for (const [dr, di] of [[0, -1], [0, 1], [1, -1], [1, 0], [-1, 0], [-1, 1]]) { const rw = TY_ROWS[r + dr], o = rw && [...rw][i + di]; if (o) add(ch, o); }
+  }));
+  for (const [a, b] of ['טת', 'כק', 'חכ', 'אע', 'אה', 'הע', 'סש', 'בו']) { add(a, b); add(b, a); }
+  return m;
+})();
+// the neighbours of a final letter's own key (the key that was hit), for level B
+const TY_FINAL_KEY = (() => {
+  const m = new Map();
+  TY_ROWS.forEach((row, r) => [...row].forEach((ch, i) => {
+    if (!FINALS[ch]) return; const s = new Set([FINALS[ch]]);
+    for (const [dr, di] of [[0, -1], [0, 1], [1, -1], [1, 0], [-1, 0], [-1, 1]]) { const rw = TY_ROWS[r + dr], o = rw && [...rw][i + di]; if (o && TY_HEB.includes(FINALS[o] || o)) s.add(FINALS[o] || o); }
+    m.set(ch, s);
+  }));
+  return m;
+})();
+const TY_PACK_LEX = new Set(('שיניימ רוקחות סיעוד אחיות ריפוי בעיסוק בריאות הציבור רפואה רפואי קליני קלינית משפטימ חקלאות רחובות תזונה מתמטיקה פיזיקה פיסיקה כימיה ביולוגיה המחשב ' +
+  'סוציאלית עסקימ חשבונאות פסיכולוגיה סוציולוגיה אנתרופולוגיה המדינה בינלאומיימ תקשורת עיתונאות גאוגרפיה גיאוגרפיה כלכלה היסטוריה פילוסופיה בלשנות ארכאולוגיה ארכיאולוגיה ' +
+  'תלמוד מוזיקולוגיה קלאסיימ האמנות לחינוכ הוראה דוקטורט דוקטור מלווה').split(' '));
+const TY_OFF = () => typeof window !== 'undefined' && window.__noTypo;
+const TY_CACHE = new Map();
+// the regulations' words as they are written (not their stems), counted once for the sections now loaded
+let TY_SURF = null, TY_SURF_N = -1;
+function tySurface() {
+  if (TY_SURF && TY_SURF_N === SECS.length) return TY_SURF;
+  TY_SURF = new Set(); TY_SURF_N = SECS.length;
+  for (const s of SECS) { for (const w of words(s.t || '')) TY_SURF.add(w); for (const p of s.p) for (const w of words(p)) TY_SURF.add(w); }
+  return TY_SURF;
+}
+let TY_LEX = null;
+function tyKnown(w) {
+  if (!TY_LEX) { TY_LEX = new Set(); for (const [keys, adds] of SYN) for (const k of keys.concat(adds)) for (const x of words(k)) TY_LEX.add(x); }
+  if (TY_LEX.has(w) || TY_PACK_LEX.has(w) || PREF.some(p => w.startsWith(p) && TY_PACK_LEX.has(w.slice(p.length)))) return true;
+  for (const st of stems(w)) if (DF.has(st) || TY_LEX.has(st)) return true;
+  return false;
+}
+// the forms one slip away from w (the first letter stays); at >= 0: only that place, only the letters of `only`
+function tyCands(w, at, only) {
+  const out = new Map(), put = (c, kind) => { if (c !== w && !out.has(c)) out.set(c, kind); };
+  const L = [...w];
+  if (at >= 0) { for (const c of only) put(w.slice(0, at) + c + w.slice(at + 1), 'key'); return out; }
+  for (let i = 1; i < L.length; i++) for (const c of (TY_NEAR.get(L[i]) || [])) put(w.slice(0, i) + c + w.slice(i + 1), 'key');
+  for (let i = 1; i + 1 < L.length; i++) if (L[i] !== L[i + 1]) put(w.slice(0, i) + L[i + 1] + L[i] + w.slice(i + 2), 'swap');
+  for (let i = 1; i < L.length; i++) put(w.slice(0, i) + w.slice(i + 1), L[i] === L[i - 1] ? 'double' : 'extra');
+  for (let i = 1; i <= L.length; i++) for (const c of TY_HEB) put(w.slice(0, i) + c + w.slice(i), 'missing');
+  return out;
+}
+// [{ from, to: [word], level: 'A' | 'B' | 'C' }] for the words of a text that the regulations do not have.
+// loose: level C too (the search by the question's own words was not good enough)
+function typoFixes(text, loose) {
+  if (TY_OFF()) return [];
+  const key = SECS.length + (loose ? '|L|' : '|S|') + text;
+  if (TY_CACHE.has(key)) return TY_CACHE.get(key);
+  const fixes = [], seen = new Set(), surf = tySurface();
+  for (const raw of (String(text).replace(/[֑-ׇ]/g, '').match(/[א-ת]+/g) || [])) {
+    const w = norm(raw);
+    if (w.length < 5 || seen.has(w) || STOP.has(w)) continue;
+    seen.add(w);
+    const mid = raw.slice(0, -1).search(/[ךםןףץ]/);   // a final letter that is not the last: a sure slip, whatever the stems say
+    if (mid >= 0 ? surf.has(w) : tyKnown(w)) continue;
+    const one = (cands, ok) => { const g = new Set(); for (const [c, kind] of cands) if (ok(c, kind)) g.add(c); return g.size === 1 ? [...g][0] : ''; };
+    let to = '', level = '';
+    // A: a faculty's or a school's name (also behind a prefix letter: "בסיעןד")
+    { const all = tyCands(w, -1); to = one(all, c => TY_PACK_LEX.has(c) || PREF.some(p => c.startsWith(p) && TY_PACK_LEX.has(c.slice(p.length)))); if (to) level = 'A'; }
+    // B: the key of the final letter, or one of the keys around it
+    if (!to && mid >= 0) { to = one(tyCands(w, mid, TY_FINAL_KEY.get(raw[mid]) || []), c => surf.has(c) && !STOP.has(c)); if (to) level = 'B'; }
+    // B, at the end of the word: מ נ פ צ typed for the one on the key beside it (מילואיף for מילואים); not כ, the ending of בקשתך
+    if (!to && mid < 0 && 'מנפצ'.includes(w[w.length - 1])) { const end = w.length - 1; to = one(tyCands(w, end, [...(TY_NEAR.get(w[end]) || [])].filter(c => 'מנפצ'.includes(c))), c => surf.has(c) && !STOP.has(c)); if (to) level = 'B'; }
+    // C: a neighbouring or like-sounding key, two letters swapped, or a letter doubled; a word the regulations write exactly so; one reading only.
+    // A letter dropped or added is not tried here: that is how one real word becomes another (התנגשה / הנגשה)
+    if (!to && loose && w.length >= 6) { to = one(tyCands(w, -1), (c, kind) => kind !== 'extra' && kind !== 'missing' && c.length >= 5 && surf.has(c) && !STOP.has(c)); if (to) level = 'C'; }
+    if (to) fixes.push({ from: raw, to: [to], level });
+  }
+  if (TY_CACHE.size > 300) TY_CACHE.clear();
+  TY_CACHE.set(key, fixes);
+  return fixes;
+}
+// the text with the sure slips (levels A and B) written right: the faculties' names are matched as phrases
+function typoApply(text) {
+  let t = String(text);
+  for (const f of typoFixes(t, false)) t = t.split(f.from).join(f.to[0]);
+  return t;
+}
+function typoNote() {
+  const el = document.getElementById('typo-note'); if (el) el.remove();
+  const fx = (typeof currentQP === 'object' && currentQP && currentQP.typos) || [];
+  if (!fx.length) return;
+  const host = document.getElementById('results-title'); if (!host) return;
+  const p = document.createElement('p'); p.id = 'typo-note'; p.className = 'ai-note'; p.setAttribute('role', 'status');
+  p.textContent = 'ייתכן שיש שגיאת הקלדה. החיפוש כולל גם: ' + fx.map(f => '״' + f.to[0].replace(/[כמנפצ]$/, c => ({ 'כ': 'ך', 'מ': 'ם', 'נ': 'ן', 'פ': 'ף', 'צ': 'ץ' })[c]) + '״ (נכתב: ״' + f.from + '״)').join('; ') + '.';
+  host.after(p);
+}
 function parseQuery(q, wide) {
   wide = wide || {};
   const fx = foreignToHebrew(q);
@@ -2211,12 +2320,18 @@ function parseQuery(q, wide) {
   const refs = [];
   const textOnly = String(q).replace(/(נספח|פרק)\s*([א-ת]{1,2})(?:['׳"]|(?=[\s,.?]|$))(\s*\(בני זוג\))?(?:\s*(?:סעיף|ס['׳])\s*(\d{1,2}))?/g,
     (m, kind, L, spouse, N) => { refs.push({ kind, L, N: N || '', spouse: !!spouse }); return ' '; });
-  const nq = ' ' + norm(textOnly).replace(/["']/g, '').replace(/[^\u05d0-\u05ea0-9a-z]+/g, ' ').trim() + ' ';
+  const tyFix = typoFixes(textOnly, (wide.step || 1) >= 2), tyOne = tyFix.map(f => f.to[0]).join(' ');
+  const nq = ' ' + norm(textOnly + ' ' + tyOne).replace(/["']/g, '').replace(/[^\u05d0-\u05ea0-9a-z]+/g, ' ').trim() + ' ';
   const terms = [], seen = new Set();
   for (const w of words(textOnly)) {
     if (STOP.has(w) || w.length < 2 || seen.has(w)) continue;
     seen.add(w);
     terms.push({ w, weight: 1, st: [...stems(w)] });
+  }
+  for (const f of tyFix) for (const c of f.to) {   // 22.11.2026: the regulations' word one slip away from a word they do not have
+    const w = norm(c); if (seen.has(w)) continue;
+    seen.add(w);
+    terms.push({ w, weight: f.level === 'C' ? 0.5 : 1, st: [...stems(w)], typo: f.from });
   }
   for (const [keys, adds] of SYN) {
     if (!keys.some(k => k.length <= 3 ? nq.includes(' ' + k + ' ') : nq.includes(k))) continue;
@@ -2255,7 +2370,7 @@ function parseQuery(q, wide) {
     exact.push(m[1]);
     for (let k = parts.length; k >= 2; k--) nums.push(parts.slice(0, k).join('.'));   // 7.4.2 also finds section 7.4
   }
-  return { terms, nums, exact, refs, raw: String(q), foreign: fx.foreign, step: wide.step || 1 };
+  return { terms, nums, exact, refs, raw: String(q), foreign: fx.foreign, step: wide.step || 1, typos: tyFix };
 }
 
 /* Appendices written for one group of students (reservists, parents, Hebrew learners) rank lower
@@ -2963,6 +3078,7 @@ function runSearch(q, opts = {}) {
   showAiHint();
   $('results-title').textContent = t('resultsTitle');
   renderResultList(q, opts);
+  typoNote();
   aiReset();
 }
 // the sections an answer cites are the ones that mattered: they move to the top of the list, marked, and the others fold
@@ -3326,7 +3442,7 @@ function activePacks() { return new Set(['core', ...manualPacks, ...wantedPacks(
    rules, even when the profile names another faculty or none. Patterns run on faqText(). */
 const PACK_WORDS = [
   ['dental', /שיניימ|dmd/],
-  ['med', /רוקחות|רוקח |סיעוד|אחיות|ריפוי בעיסוק|בריאות הציבור|mph|רפואה |רפואי|ביו רפואי|ביורפואי|סטאז|קליני|מרומ |md /],
+  ['med', /רוקחות|רוקח |סיעוד|אחיות|ריפוי בעיס|מרפא(?:ה|ימ|ות)? בעיסוק|בריאות הציבור|mph|רפואה |רפואי|ביו רפואי|ביורפואי|סטאז|קליני|מרומ |md /],
   ['law', /משפטימ|llb|עריכת דינ/],
   ['agri', /חקלאות|רחובות|תזונה/],
   ['science', /מדעי הטבע|מתמטיקה|(?<![א-ת])[והבלמכש]{0,2}(?:פיזיקה|פיסיקה|כימיה|ביולוגיה)(?![א-ת])|מדעי המחשב|בטיחות במעבד/],
@@ -3339,7 +3455,7 @@ const PACK_WORDS = [
 ];
 let queryPacks = new Set();
 function packsInText(q) {
-  const t = faqText(foreignToHebrew(q || '').text);
+  const t = faqText(foreignToHebrew(typoApply(q || '')).text);
   return PACK_WORDS.filter(([k, rx]) => PACKS[k] && rx.test(t)).map(([k]) => k);
 }
 // a question about an earlier year or an earlier version of a regulation

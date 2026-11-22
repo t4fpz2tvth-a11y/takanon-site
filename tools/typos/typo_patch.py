@@ -105,7 +105,7 @@ function typoNote() {
   if (!fx.length) return;
   const host = document.getElementById('results-title'); if (!host) return;
   const p = document.createElement('p'); p.id = 'typo-note'; p.className = 'ai-note'; p.setAttribute('role', 'status');
-  p.textContent = 'ייתכן שיש שגיאת הקלדה. החיפוש כולל גם: ' + fx.map(f => '״' + f.to[0] + '״ (נכתב: ״' + f.from + '״)').join('; ') + '.';
+  p.textContent = 'ייתכן שיש שגיאת הקלדה. החיפוש כולל גם: ' + fx.map(f => '״' + f.to[0].replace(/[כמנפצ]$/, c => ({ 'כ': 'ך', 'מ': 'ם', 'נ': 'ן', 'פ': 'ף', 'צ': 'ץ' })[c]) + '״ (נכתב: ״' + f.from + '״)').join('; ') + '.';
   host.after(p);
 }
 '''

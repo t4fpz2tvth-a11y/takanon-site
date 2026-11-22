@@ -69,7 +69,9 @@ function typoNote() {
   const el = document.getElementById('typo-note'); if (el) el.remove();
   const qp = (typeof currentQP === 'object' && currentQP) || {}, fx = qp.typos || [], asks = fx.ask || [], lay = qp.layout || [];
   if (!fx.length && !asks.length && !lay.length) return;
-  const host = document.getElementById('results-title'); if (!host) return;
+  const title = document.getElementById('results-title'), ai = document.getElementById('ai');
+  const above = ai && ai.parentElement ? ai : null;   // just above the answer: the chat layout hides the results' title
+  if (!above && !title) return;
   const fin = w => w.replace(/[כמנפצ]$/, c => ({ 'כ': 'ך', 'מ': 'ם', 'נ': 'ן', 'פ': 'ף', 'צ': 'ץ' })[c]);
   const box = document.createElement('div'); box.id = 'typo-note'; box.className = 'ai-note'; box.setAttribute('role', 'status');
   const line = t => { const p = document.createElement('p'); p.style.margin = '0 0 .4em'; p.textContent = t; box.appendChild(p); return p; };
@@ -92,7 +94,7 @@ function typoNote() {
     line('לא ברור מה נכתב ב״' + a.from + '״. האם התכוונתם ל:');
     const row = document.createElement('div'); for (const c of a.to) row.appendChild(btn(fin(c), () => rewrite(a.from, fin(c)))); box.appendChild(row);
   }
-  host.after(box);
+  if (above) above.parentElement.insertBefore(box, above); else title.after(box);
 }
 if (typeof document !== 'undefined') document.addEventListener('submit', e => { try { if (e.target && e.target.id === 'ask-form') { const q = document.getElementById('q'); if (q && q.value.trim()) TY_LAST_ASK = q.value; } } catch (_) {} }, true);
 '''

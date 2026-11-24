@@ -22,7 +22,8 @@ const tables = env => env.DB.batch([
   env.DB.prepare('CREATE TABLE IF NOT EXISTS push_cfg (k TEXT PRIMARY KEY, v TEXT NOT NULL)'),
   env.DB.prepare('CREATE TABLE IF NOT EXISTS push_subs (endpoint TEXT PRIMARY KEY, uid TEXT NOT NULL, t INTEGER NOT NULL)'),
   env.DB.prepare('CREATE TABLE IF NOT EXISTS push_msg (uid TEXT PRIMARY KEY, body TEXT NOT NULL, url TEXT NOT NULL, t INTEGER NOT NULL)'),
-  env.DB.prepare('CREATE TABLE IF NOT EXISTS push_day (uid TEXT NOT NULL, day TEXT NOT NULL, PRIMARY KEY (uid, day))')
+  env.DB.prepare('CREATE TABLE IF NOT EXISTS push_day (uid TEXT NOT NULL, day TEXT NOT NULL, PRIMARY KEY (uid, day))'),
+  env.DB.prepare('CREATE TABLE IF NOT EXISTS push_wait (uid TEXT PRIMARY KEY, t INTEGER NOT NULL)')
 ]);
 async function keys(env) {
   const r = await env.DB.prepare("SELECT v FROM push_cfg WHERE k = 'vapid'").first();
@@ -97,6 +98,138 @@ export async function newCase(env, origin, by, id, general) {
   } catch (_) {}
   return out;
 }
+// 24.11.2026 (Yoni, after the key's credit ran out and a coordinator got an error: "למה לא נשלחה לי התראה במייל על תקלה במענה?...
+// אשמח להתראה על כך. וגם ליצור מנגנון ששאלה כזו מקבלת מענה ברגע שהבוט חוזר לפעול ושזה מופיע לה כהתראה"):
+// (5) a failure on our side (the key's credit, the key, the model's provider, the site's settings) tells the head at once: a
+//     notification and a mail to the department's mailbox, with the kind of failure, the bot and the coordinator's name; never
+//     the question. At most one alert per kind in 30 minutes. The first such failure also marks the bot as down (push_cfg 'down').
+// (6) a coordinator whose question failed this way is kept in push_wait (the uid alone: the question itself stays in the
+//     coordinator's own browser). When the bot answers again (the first good answer to anyone, the page's own check, or the
+//     scheduled check every 30 minutes with a one-word probe), each waiting coordinator gets a notification that opens the bot
+//     with ?resume=1, and the page asks the kept question. No notifications between 23:00 and 7:00: they go out with the
+//     first check after 7:00.
+// (7) the scheduled check also reads what is left of the key's credit and warns the head once in 12 hours when it is under
+//     CREDIT_LOW dollars (a setting, default 3).
+const FAIL_HE = { credit: 'האשראי באופן־ראוטר נגמר או נחסם', key: 'המפתח של אופן־ראוטר לא התקבל', policy: 'אין ספק מודל שעומד בהגדרת הפרטיות', config: 'חסרה הגדרה באתר (מפתח או מודל)',
+  budget: 'המכסה היומית של הבוט הציבורי נוצלה', provider: 'תקלה אצל ספק המודל', timeout: 'ספק המודל לא ענה בזמן', 'server-network': 'אין קשר לשירות המודל', other: 'תקלה לא מזוהה במענה' };
+const FAIL_DO = { credit: 'מה לעשות: להעלות את התקרה או לטעון אשראי באופן־ראוטר (openrouter.ai, Keys / Credits). עד אז שני הבוטים לא עונים.', key: 'מה לעשות: לבדוק את המפתח באופן־ראוטר ובהגדרות האתר בקלאודפלייר.',
+  budget: 'הבוט הציבורי יחזור לענות מחר; בוט הרכזים ממשיך לעבוד.', provider: 'בדרך כלל זה עובר לבד בתוך דקות. אם זה חוזר, לבדוק בלשונית ניהול > כשלים.' };
+export const failAlertKind = k => Object.prototype.hasOwnProperty.call(FAIL_HE, String(k || ''));
+const cfgGet = async (env, k) => { const r = await env.DB.prepare('SELECT v FROM push_cfg WHERE k = ?').bind(k).first(); return r ? r.v : null; };
+const cfgSet = (env, k, v) => env.DB.prepare('INSERT INTO push_cfg (k, v) VALUES (?, ?) ON CONFLICT (k) DO UPDATE SET v = excluded.v').bind(k, String(v)).run();
+const cfgDel = (env, k) => env.DB.prepare('DELETE FROM push_cfg WHERE k = ?').bind(k).run();
+const quietNow = () => { const h = ilHour(Date.now()); return h >= 23 || h < 7; };
+// a mail to the department's mailbox through the sheet's script. A script that has the tool "alert" (Code.gs of 24.11.2026) sends
+// it under its own subject; an older script does not know the tool, and the mail goes through "send_mail", marked as an alert
+async function headMail(env, origin, title, text) {
+  try {
+    const row = await env.DB.prepare('SELECT data FROM docs WHERE path = ?').bind('config/sheet').first(), cfg = row ? JSON.parse(row.data) : {};
+    const secret = (env.SHEET_SECRET && String(env.SHEET_SECRET).length >= 24) ? String(env.SHEET_SECRET) : cfg.secret || '';
+    if (!cfg.url || secret.length < 24) return false;
+    const call = async (tool, args) => { const r = await fetch(cfg.url, { method: 'POST', headers: { 'Content-Type': 'text/plain' }, body: JSON.stringify({ tool, args, secret }), redirect: 'follow' }); let j = null; try { j = JSON.parse(await r.text()); } catch (_) {} return j; };
+    const link = origin + '/coord/';
+    let j = await call('alert', { title, text, link });
+    if (!(j && j.ok)) j = await call('send_mail', { to: 'r_academy@aguda.org.il', label: 'התראת מערכת (לא הערה למקרה): ' + title, text, link });
+    return !!(j && j.ok);
+  } catch (_) { return false; }
+}
+export async function failAlert(env, origin, ev) {
+  const out = { sent: 0, mailed: false, held: false };
+  try {
+    const kind = String(ev && ev.kind || ''); if (!env.DB || !failAlertKind(kind)) return out;
+    await tables(env);
+    const now = Date.now();
+    // a passing fault of the provider (one bad answer) is not an alert: these kinds alert at the second failure within ten minutes
+    if (/^(provider|timeout|server-network|other)$/.test(kind)) {
+      let c = {}; try { c = JSON.parse(await cfgGet(env, 'fcount:' + kind) || '{}'); } catch (_) {}
+      const n = c.t && now - c.t < 10 * 60e3 ? (c.n || 0) + 1 : 1;
+      await cfgSet(env, 'fcount:' + kind, JSON.stringify({ n, t: n === 1 ? now : c.t }));
+      if (n < 2) { out.held = true; return out; }
+    }
+    let down = null; try { down = JSON.parse(await cfgGet(env, 'down') || 'null'); } catch (_) {}
+    const last = Number(await cfgGet(env, 'falert:' + kind) || 0);
+    if (now - last < 30 * 60e3) { out.held = true; if (kind !== 'budget' && !down) await cfgSet(env, 'down', JSON.stringify({ t: now, kind, alerted: true })); return out; }
+    await cfgSet(env, 'falert:' + kind, now);
+    if (kind !== 'budget') await cfgSet(env, 'down', JSON.stringify({ t: down && down.t || now, kind, alerted: true }));
+    const who = String(ev.who || '').replace(/[\u0000-\u001f<>]/g, ' ').trim().slice(0, 40), bot = ev.bot === 'coord' ? 'בוט הרכזים' : 'הבוט הציבורי';
+    out.sent = await notify(env, 'admin', 'תקלה בבוט: ' + FAIL_HE[kind] + (who ? ' (' + who + ')' : ''), origin + '/coord/');
+    const when = new Intl.DateTimeFormat('he-IL', { timeZone: 'Asia/Jerusalem', dateStyle: 'short', timeStyle: 'short' }).format(new Date(now));
+    out.mailed = await headMail(env, origin, 'תקלה במענה: ' + FAIL_HE[kind],
+      'הבוט לא הצליח לענות על שאלה.\nהסיבה: ' + FAIL_HE[kind] + (ev.status ? ' (קוד ' + Number(ev.status) + ')' : '') + '.\nמתי: ' + when + '.\nאיפה: ' + bot + (who ? ', ' + who : '') + '.\n' + (FAIL_DO[kind] ? FAIL_DO[kind] + '\n' : '') +
+      'הפירוט המלא בלשונית ניהול > כשלים. התראה נוספת על אותו סוג תקלה תישלח רק בעוד חצי שעה. כשהבוט יחזור לענות תגיע הודעה.');
+  } catch (_) {}
+  return out;
+}
+// the bot answers again: the mark comes off, the head hears of it, and everyone who waits is told (not at night)
+export async function botBack(env, origin, why) {
+  const out = { was: false, told: 0, head: 0, quiet: false };
+  try {
+    if (!env.DB) return out;
+    await tables(env);
+    const down = await cfgGet(env, 'down');
+    if (down) {
+      out.was = true; await cfgDel(env, 'down');
+      await env.DB.prepare("DELETE FROM push_cfg WHERE k LIKE 'falert:%' OR k LIKE 'fcount:%'").run();
+      let d = {}; try { d = JSON.parse(down); } catch (_) {}
+      const mins = d.t ? Math.max(1, Math.round((Date.now() - d.t) / 60e3)) : 0;
+      if (d.alerted) out.head = await notify(env, 'admin', 'הבוט חזר לענות' + (mins ? ' (אחרי ' + (mins >= 120 ? Math.round(mins / 60) + ' שעות' : mins + ' דקות') + ')' : ''), origin + '/coord/');
+      if (d.alerted) await headMail(env, origin, 'הבוט חזר לענות', 'הבוט חזר לענות על שאלות' + (mins ? ', אחרי ' + (mins >= 120 ? 'כ־' + Math.round(mins / 60) + ' שעות' : mins + ' דקות') : '') + '.' + (why ? '\nאיך זה התגלה: ' + why + '.' : '') + '\nרכזים ששאלה שלהם נשמרה מקבלים עכשיו התראה.');
+    }
+    if (quietNow()) { out.quiet = true; return out; }
+    const rs = (await env.DB.prepare('SELECT uid FROM push_wait WHERE t > ?').bind(Date.now() - 3 * 864e5).all()).results || [];
+    for (const r of rs.slice(0, 100)) {
+      if (r.uid !== 'admin' || !out.head) { try { if (await notify(env, r.uid, 'הבוט חזר לפעול. השאלה ששמרת מחכה: לחיצה כאן תביא את התשובה', origin + '/coord/?resume=1')) out.told++; } catch (_) {} }
+    }
+    await env.DB.prepare('DELETE FROM push_wait').run();
+  } catch (_) {}
+  return out;
+}
+// one word from the live model: does the service answer? (a few thousandths of a cent)
+async function probe(env) {
+  try {
+    if (!env.OPENROUTER_KEY || !env.MODEL) return false;
+    const r = await fetch('https://openrouter.ai/api/v1/chat/completions', { method: 'POST', headers: { 'Authorization': 'Bearer ' + env.OPENROUTER_KEY, 'Content-Type': 'application/json', 'X-Title': 'Ma Omer HaTakanon' },
+      body: JSON.stringify({ model: env.MODEL, messages: [{ role: 'user', content: 'ok' }], max_tokens: 1, provider: { data_collection: 'deny' } }) });
+    return r.ok;
+  } catch (_) { return false; }
+}
+// is the bot down? a probe at most once in two minutes, whoever asks
+export async function upCheck(env, origin, why) {
+  await tables(env);
+  if (!(await cfgGet(env, 'down'))) return true;
+  const now = Date.now(), last = Number(await cfgGet(env, 'probe') || 0);
+  if (now - last < 120e3) return false;
+  await cfgSet(env, 'probe', now);
+  if (!(await probe(env))) return false;
+  await botBack(env, origin, why || 'בדיקה תקופתית');
+  return true;
+}
+// what is left of the key's credit, in dollars (null when the service does not say)
+async function creditLeft(env) {
+  try {
+    const r = await fetch('https://openrouter.ai/api/v1/key', { headers: { 'Authorization': 'Bearer ' + env.OPENROUTER_KEY } });
+    if (!r.ok) return null;
+    const d = ((await r.json()) || {}).data || {};
+    const left = typeof d.limit_remaining === 'number' ? d.limit_remaining : (typeof d.limit === 'number' && typeof d.usage === 'number' ? d.limit - d.usage : null);
+    return typeof left === 'number' && isFinite(left) ? left : null;
+  } catch (_) { return null; }
+}
+async function creditWatch(env, origin) {
+  const out = { left: null, warned: false };
+  try {
+    if (!env.OPENROUTER_KEY) return out;
+    const left = await creditLeft(env); out.left = left; if (left === null) return out;
+    const low = Number(env.CREDIT_LOW || 3);
+    if (left >= low) { if (await cfgGet(env, 'creditlow')) await cfgDel(env, 'creditlow'); return out; }
+    const last = Number(await cfgGet(env, 'creditlow') || 0);
+    if (Date.now() - last < 12 * 3600e3) return out;
+    await cfgSet(env, 'creditlow', Date.now());
+    const amt = (Math.max(0, left)).toFixed(2);
+    await notify(env, 'admin', 'האשראי באופן־ראוטר עומד להיגמר: נשארו ' + amt + ' דולר', origin + '/coord/');
+    out.warned = await headMail(env, origin, 'האשראי באופן־ראוטר עומד להיגמר', 'במפתח של הבוט נשארו ' + amt + ' דולר (הסף להתראה: ' + low + ' דולר).\nכשהאשראי נגמר, שני הבוטים מפסיקים לענות.\nמה לעשות: להעלות את התקרה או לטעון אשראי באופן־ראוטר (openrouter.ai, Keys / Credits).\nהתראה נוספת תישלח רק בעוד 12 שעות, אם האשראי עדיין נמוך.');
+  } catch (_) {}
+  return out;
+}
 // what waits for a coordinator today: target dates that fall today, and cases that turn three days old today with no update
 export function dueToday(cases, today, now) {
   const D = 864e5; let due = 0, stale = 0;
@@ -124,7 +257,9 @@ export async function onRequestPost({ request, env }) {
   const origin = new URL(request.url).origin;
   if (b.op === 'tick') {
     if (!(u.admin || u.notify)) return json({ error: 'not allowed' }, 403);
-    const now = Date.now(), day = ilDay(now); if (ilHour(now) < 8 || ilHour(now) >= 20) return json({ sent: 0, quiet: true });
+    // 24.11.2026: every check (each 30 minutes, day and night) also looks after the bot itself: is it back, who waits, how much credit is left
+    let health = {}; try { const up = await upCheck(env, origin, 'הבדיקה של כל חצי שעה'); const wait = up && !quietNow() && (await env.DB.prepare('SELECT COUNT(*) AS n FROM push_wait').first() || {}).n ? await botBack(env, origin, '') : null; health = { up, told: wait ? wait.told : 0, credit: await creditWatch(env, origin) }; } catch (_) {}
+    const now = Date.now(), day = ilDay(now); if (ilHour(now) < 8 || ilHour(now) >= 20) return json({ sent: 0, quiet: true, health });
     const uids = ((await env.DB.prepare('SELECT DISTINCT uid FROM push_subs').all()).results || []).map(x => x.uid); let sent = 0;
     for (const uid of uids.slice(0, 200)) {
       if (await env.DB.prepare('SELECT 1 FROM push_day WHERE uid = ? AND day = ?').bind(uid, day).first()) continue;
@@ -135,9 +270,14 @@ export async function onRequestPost({ request, env }) {
       if (await notify(env, uid, w.n === 1 ? 'מקרה אחד למעקב היום' : w.n + ' מקרים למעקב היום', origin + '/coord/?my=1')) sent++;
     }
     await env.DB.prepare('DELETE FROM push_day WHERE day < ?').bind(ilDay(now - 7 * 864e5)).run();
-    return json({ sent });
+    return json({ sent, health });
   }
   if (u.notify || u.bench) return json({ error: 'not allowed' }, 403);
+  // 24.11.2026: a coordinator's question that failed because the bot is down. wait: this coordinator waits (the question stays in
+  // their browser); unwait: no longer; up: does the bot answer now? (asked by a page that waits, once a minute)
+  if (b.op === 'wait') { await env.DB.prepare('INSERT INTO push_wait (uid, t) VALUES (?, ?) ON CONFLICT (uid) DO UPDATE SET t = excluded.t').bind(u.uid, Date.now()).run(); if (!(await cfgGet(env, 'down'))) await cfgSet(env, 'down', JSON.stringify({ t: Date.now(), kind: 'page' })); const n = await env.DB.prepare('SELECT COUNT(*) AS n FROM push_subs WHERE uid = ?').bind(u.uid).first(); return json({ ok: true, devices: n ? n.n : 0 }); }
+  if (b.op === 'unwait') { await env.DB.prepare('DELETE FROM push_wait WHERE uid = ?').bind(u.uid).run(); return json({ ok: true }); }
+  if (b.op === 'up') { let up = false; try { up = await upCheck(env, origin, 'דף של רכז/ת שחיכה לתשובה'); } catch (_) {} return json({ up }); }
   if (b.op === 'sub') {
     const ep = String(b.sub && b.sub.endpoint || ''); if (!pushHost(ep) || ep.length > 1000) return json({ error: 'bad subscription' }, 400);
     await env.DB.prepare('INSERT INTO push_subs (endpoint, uid, t) VALUES (?, ?, ?) ON CONFLICT (endpoint) DO UPDATE SET uid = excluded.uid, t = excluded.t').bind(ep, u.uid, Date.now()).run();

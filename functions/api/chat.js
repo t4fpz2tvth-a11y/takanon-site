@@ -1,4 +1,5 @@
 import { who, setup, sha, humanOk, failLog, failKind, botOf, deviceOf } from '../_lib.js';
+import { failAlert, failAlertKind, botBack } from './push.js';
 // "מה אומר התקנון?" — the site's own small server function (Cloudflare Pages Function, 3.11.2026), at /api/chat.
 // It keeps the OpenRouter key (the secret OPENROUTER_KEY, set in the Cloudflare project's settings, never in this code),
 // answers only the site itself, limits each visitor's questions, and passes the model's answer back as it is written.
@@ -7,6 +8,7 @@ import { who, setup, sha, humanOk, failLog, failKind, botOf, deviceOf } from '..
 // Settings (Variables and Secrets): OPENROUTER_KEY (secret), MODEL, MODEL_QUICK, PER_HOUR (default 40, per browser), IP_PER_HOUR
 // (default 300, per address), COORD_PER_HOUR (default 200),
 // TEST_MODELS (comma-separated: the models test.html may compare; empty = the comparison page is off).
+let downSeen = 0, downChecked = 0;   // 24.11.2026: this server copy saw a failure / last looked at the shared mark that the bot is down
 const hits = new Map();   // per visitor (IP), this server copy only: a first guard; the key's own spending limit is the real one
 function limited(ip, perHour) {
   const now = Date.now(), h = (hits.get(ip) || []).filter(t => now - t < 3600e3);
@@ -34,7 +36,9 @@ const json = (s, status) => new Response(s, { status, headers: { 'Content-Type':
 export async function onRequestPost(context) {
   const { request, env } = context, t00 = Date.now();
   // 22.11.2026 (Yoni: the log of the bot's failures): written after the answer has gone out, never holding it back; not for comparison runs
-  const noteFail = (ev) => { const p = failLog(env, Object.assign({ bot: botOf(request), device: deviceOf(request), ms: Date.now() - t00 }, ev)); try { context.waitUntil(p); } catch (_) {} };
+  // 24.11.2026 (Yoni: "אשמח להתראה על כך"): a failure on our side (credit, key, provider, settings) also alerts the head (push.js, failAlert)
+  const noteFail = (ev) => { const p = failLog(env, Object.assign({ bot: botOf(request), device: deviceOf(request), ms: Date.now() - t00 }, ev)); try { context.waitUntil(p); } catch (_) {}
+    if (failAlertKind(ev.kind)) { downSeen = Date.now(); try { context.waitUntil(failAlert(env, new URL(request.url).origin, Object.assign({ bot: botOf(request) }, ev))); } catch (_) {} } };
   const url = new URL(request.url), origin = request.headers.get('Origin');
   if (origin && origin !== url.origin) return json('forbidden', 403);   // only the site itself
   // 4.11.2026 (security review): a browser always sends Origin on these calls; a call without one is not the site's page
@@ -163,5 +167,8 @@ export async function onRequestPost(context) {
   }
   if (!test && !r.ok) { let et = ''; try { et = await r.clone().text(); } catch (_) {}
     noteFail({ kind: failKind(r.status, et), status: r.status, model, via, stream: !!body.stream, who: own ? me.name : '', msg: et }); }
+  // 24.11.2026: a good answer while the bot is marked as down: it is back (push.js tells the head and whoever waits). The shared
+  // mark is read at most once a minute by each server copy, and at once by a copy that saw the failure itself
+  if (!test && r.ok && env.DB && (downSeen || Date.now() - downChecked > 60e3)) { downSeen = 0; downChecked = Date.now(); try { context.waitUntil(botBack(env, url.origin, 'תשובה ראשונה שהצליחה')); } catch (_) {} }
   return new Response(r.body, { status: r.status, headers: { 'Content-Type': r.headers.get('Content-Type') || 'application/json', 'Cache-Control': 'no-store', 'X-Via': via.replace(/[^\x20-\x7e]/g, '?'), 'X-Aig-Log': logNote.replace(/[^\x20-\x7e]/g, '?').slice(0, 1500) } });
 }

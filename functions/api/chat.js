@@ -33,6 +33,27 @@ async function overLimit(env, keys) {   // keys: [[key, per hour], ...]
   });
 }
 const json = (s, status) => new Response(s, { status, headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' } });
+// 25.11.2026: the cost of one call, from the usage block at the end of the model's answer (streamed or whole). See the call below
+export function usageOf(txt) {
+  let i = -1; const re = /"usage"\s*:\s*\{/g; for (let m; (m = re.exec(txt)); ) i = m.index + m[0].length - 1;
+  if (i < 0) return null;
+  let d = 0, end = -1;
+  for (let j = i; j < txt.length; j++) { const c = txt[j]; if (c === '{') d++; else if (c === '}' && --d === 0) { end = j; break; } }
+  if (end < 0) return null;
+  let u; try { u = JSON.parse(txt.slice(i, end + 1)); } catch (_) { return null; }
+  const n = v => { v = Number(v); return Number.isFinite(v) && v >= 0 ? v : 0; };
+  return { usd: n(u.cost), pt: Math.round(n(u.prompt_tokens)), ct: Math.round(n(u.completion_tokens)) };
+}
+async function noteCost(env, copy, ev) {
+  try {
+    const rd = copy.getReader(), dec = new TextDecoder(); let txt = '';
+    for (;;) { const { done, value } = await rd.read(); if (done) break; txt += dec.decode(value, { stream: true }); if (txt.length > 400000) txt = txt.slice(-200000); }
+    txt += dec.decode();
+    const u = usageOf(txt); if (!u || !(u.usd || u.pt || u.ct)) return;
+    await env.DB.prepare('CREATE TABLE IF NOT EXISTS cost (id INTEGER PRIMARY KEY AUTOINCREMENT, uid TEXT NOT NULL, bot TEXT, model TEXT, usd REAL NOT NULL, pt INTEGER, ct INTEGER, t INTEGER NOT NULL)').run();
+    await env.DB.prepare('INSERT INTO cost (uid, bot, model, usd, pt, ct, t) VALUES (?, ?, ?, ?, ?, ?, ?)').bind(String(ev.uid).slice(0, 64), ev.bot, String(ev.model).slice(0, 80), u.usd, u.pt, u.ct, Date.now()).run();
+  } catch (_) {}
+}
 export async function onRequestPost(context) {
   const { request, env } = context, t00 = Date.now();
   // 22.11.2026 (Yoni: the log of the bot's failures): written after the answer has gone out, never holding it back; not for comparison runs
@@ -170,5 +191,14 @@ export async function onRequestPost(context) {
   // 24.11.2026: a good answer while the bot is marked as down: it is back (push.js tells the head and whoever waits). The shared
   // mark is read at most once a minute by each server copy, and at once by a copy that saw the failure itself
   if (!test && r.ok && env.DB && (downSeen || Date.now() - downChecked > 60e3)) { downSeen = 0; downChecked = Date.now(); try { context.waitUntil(botBack(env, url.origin, 'תשובה ראשונה שהצליחה')); } catch (_) {} }
-  return new Response(r.body, { status: r.status, headers: { 'Content-Type': r.headers.get('Content-Type') || 'application/json', 'Cache-Control': 'no-store', 'X-Via': via.replace(/[^\x20-\x7e]/g, '?'), 'X-Aig-Log': logNote.replace(/[^\x20-\x7e]/g, '?').slice(0, 1500) } });
+  // 25.11.2026 (Yoni: "כן", to keeping the cost beside every question): the model's own bill for this call (OpenRouter's usage, asked for
+  // above) is read from a second copy of the answer after it has gone out, never holding it back, and kept in D1 (table cost): who
+  // (the coordinator's uid, 'admin', or 'public' for a visitor who is not signed in), which bot, the model, the dollars, the tokens
+  // and the time. No word of the question or the answer is kept. Not for comparison runs. Any error here changes nothing in the answer
+  let out = r.body;
+  if (!test && r.ok && env.DB && r.body) try {
+    const two = r.body.tee(); out = two[0];
+    context.waitUntil(noteCost(env, two[1], { uid: own ? String(me.uid || (me.admin ? 'admin' : 'coord')) : me ? 'auto' : 'public', bot: botOf(request), model, stream: !!body.stream }));
+  } catch (_) {}
+  return new Response(out, { status: r.status, headers: { 'Content-Type': r.headers.get('Content-Type') || 'application/json', 'Cache-Control': 'no-store', 'X-Via': via.replace(/[^\x20-\x7e]/g, '?'), 'X-Aig-Log': logNote.replace(/[^\x20-\x7e]/g, '?').slice(0, 1500) } });
 }

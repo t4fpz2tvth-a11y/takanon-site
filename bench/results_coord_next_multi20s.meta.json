@@ -9,22 +9,22 @@
  "reps": 3,
  "site": "https://takanon-site.pages.dev",
  "started": "2026-11-25T19:02:05.200Z",
- "written": "2026-11-25T19:12:05.721Z",
- "finished": false,
+ "written": "2026-11-25T19:16:07.687Z",
+ "finished": true,
  "builds": [
   "404ca41d"
  ],
  "summary": {
   "anthropic/claude-haiku-5.5": {
-   "rows": 43,
-   "scored": 43,
+   "rows": 60,
+   "scored": 60,
    "infra": 0,
    "infra_by": {},
    "unscored": 0,
-   "mean": 1.442,
-   "mean_unseen": 1.442,
-   "scored_unseen": 43,
-   "no_serious": 0.93,
+   "mean": 1.433,
+   "mean_unseen": 1.433,
+   "scored_unseen": 60,
+   "no_serious": 0.933,
    "reps": 3,
    "left_out_share": 0,
    "builds": [

@@ -18,7 +18,8 @@ jobs:
         env:
           BENCH_CODE: ${{ secrets.NOTIFY_TOKEN || secrets.BENCH_CODE }}
       # 17.11.2026 (Yoni approved notifications): the day's one notification to each coordinator's phone (target dates that fall
-      # today, cases three days old with no update). The site sends at most one a day each, and only between 8:00 and 20:00
+      # today, cases three days old with no update). The site sends at most one a day each. 28.11.2026 (Yoni): only Sunday to
+      # Thursday, 9:00 to 18:00; target dates that fall on Friday or Saturday are told on Thursday from 15:00
       - run: |
           curl -sS -m 60 -X POST "https://takanon-site.pages.dev/api/push" -H "Content-Type: application/json" -H "X-Code: $(node -e 'process.stdout.write(encodeURIComponent(process.env.BENCH_CODE || ""))')" -d '{"op":"tick"}' -o /dev/null -w "push tick: %{http_code}\n" || true
         env:

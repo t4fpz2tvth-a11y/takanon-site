@@ -231,19 +231,32 @@ async function creditWatch(env, origin) {
   return out;
 }
 // what waits for a coordinator today: target dates that fall today, and cases that turn three days old today with no update
-export function dueToday(cases, today, now) {
+// 28.11.2026 (Yoni: "רק בימי חול בין 9 ל-6", no Friday and Saturday): on Sunday (wide) the count also takes the cases that
+// turned three days old on Friday and Saturday, when nothing was sent
+export function dueToday(cases, today, now, wide) {
   const D = 864e5; let due = 0, stale = 0;
   for (const c of cases) {
     if (!c || c.general || c.status === 'closed') continue;
     if (c.due) { if (c.due === today) due++; continue; }
     const t0 = new Date(c.t0 || 0).getTime(), t1 = new Date(c.t1 || c.t0 || 0).getTime();
     if (!t0 || isNaN(t0) || (c.status && c.status !== 'open') || c.statusT || t1 > t0 + 3 * D) continue;
-    if (Math.floor((now - t0) / D) === 3) stale++;
+    const d = Math.floor((now - t0) / D);
+    if (d === 3 || (wide && (d === 4 || d === 5))) stale++;
   }
   return { due, stale, n: due + stale };
 }
+// 28.11.2026 (Yoni: "תאריך קריטי קורה בימי שישי או שבת ... תעשה את זה לפני יום שישי, ביום חמישי באחר צהריים"): on Thursday,
+// the open cases whose target date falls on the coming Friday or Saturday
+export function dueWeekend(cases, now) {
+  if (ilDow(now) !== 4) return 0;
+  const fri = ilDay(now + 864e5), sat = ilDay(now + 2 * 864e5);
+  return cases.filter(c => c && !c.general && c.status !== 'closed' && (c.due === fri || c.due === sat)).length;
+}
 const ilDay = t => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jerusalem' }).format(new Date(t));
 const ilHour = t => Number(new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Jerusalem', hour: '2-digit', hour12: false }).format(new Date(t)));
+const ilDow = t => new Date(ilDay(t) + 'T12:00:00Z').getUTCDay();   // the day of the week in Israel, 0 = Sunday
+// 28.11.2026 (Yoni): the reminders about open cases go out as notifications only (never a mail), Sunday to Thursday, 9:00 to 18:00
+export const workHours = t => ilDow(t) <= 4 && ilHour(t) >= 9 && ilHour(t) < 18;
 export async function onRequestGet({ env }) {
   if (!env.DB) return json({ error: 'not set up' }, 503);
   await setup(env); await tables(env);
@@ -259,15 +272,16 @@ export async function onRequestPost({ request, env }) {
     if (!(u.admin || u.notify)) return json({ error: 'not allowed' }, 403);
     // 24.11.2026: every check (each 30 minutes, day and night) also looks after the bot itself: is it back, who waits, how much credit is left
     let health = {}; try { const up = await upCheck(env, origin, 'הבדיקה של כל חצי שעה'); const wait = up && !quietNow() && (await env.DB.prepare('SELECT COUNT(*) AS n FROM push_wait').first() || {}).n ? await botBack(env, origin, '') : null; health = { up, told: wait ? wait.told : 0, credit: await creditWatch(env, origin) }; } catch (_) {}
-    const now = Date.now(), day = ilDay(now); if (ilHour(now) < 8 || ilHour(now) >= 20) return json({ sent: 0, quiet: true, health });
+    const now = Date.now(), day = ilDay(now); if (!workHours(now)) return json({ sent: 0, quiet: true, health });
     const uids = ((await env.DB.prepare('SELECT DISTINCT uid FROM push_subs').all()).results || []).map(x => x.uid); let sent = 0;
+    const eve = ilDow(now) === 4 && ilHour(now) >= 15, did = async (uid, k) => !!(await env.DB.prepare('SELECT 1 FROM push_day WHERE uid = ? AND day = ?').bind(uid, k).first()), mark = (uid, k) => env.DB.prepare('INSERT INTO push_day (uid, day) VALUES (?, ?) ON CONFLICT DO NOTHING').bind(uid, k).run();
     for (const uid of uids.slice(0, 200)) {
-      if (await env.DB.prepare('SELECT 1 FROM push_day WHERE uid = ? AND day = ?').bind(uid, day).first()) continue;
+      const doDay = !(await did(uid, day)), doEve = eve && !(await did(uid, day + 'w')); if (!doDay && !doEve) continue;
       const rs = (await env.DB.prepare('SELECT data FROM docs WHERE coll = ?').bind('log/' + uid + '/cases').all()).results || [];
-      const w = dueToday(rs.map(r => { try { return JSON.parse(r.data); } catch (_) { return null; } }), day, now);
-      await env.DB.prepare('INSERT INTO push_day (uid, day) VALUES (?, ?) ON CONFLICT DO NOTHING').bind(uid, day).run();
-      if (!w.n) continue;
-      if (await notify(env, uid, w.n === 1 ? 'מקרה אחד למעקב היום' : w.n + ' מקרים למעקב היום', origin + '/coord/?my=1')) sent++;
+      const cases = rs.map(r => { try { return JSON.parse(r.data); } catch (_) { return null; } }), parts = [];
+      if (doDay) { const w = dueToday(cases, day, now, ilDow(now) === 0); await mark(uid, day); if (w.n) parts.push(w.n === 1 ? 'מקרה אחד למעקב היום' : w.n + ' מקרים למעקב היום'); }
+      if (doEve) { const n = dueWeekend(cases, now); await mark(uid, day + 'w'); if (n) parts.push(n === 1 ? 'מקרה אחד עם יעד בסוף השבוע' : n + ' מקרים עם יעד בסוף השבוע'); }
+      if (parts.length && await notify(env, uid, parts.join(' · '), origin + '/coord/?my=1')) sent++;
     }
     await env.DB.prepare('DELETE FROM push_day WHERE day < ?').bind(ilDay(now - 7 * 864e5)).run();
     return json({ sent, health });
